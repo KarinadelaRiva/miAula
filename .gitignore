@@ -105,3 +105,6 @@ build/
 ### VS Code ###
 .vscode/
 
+# Backend local config
+miAulaAPI/src/main/resources/application.properties
+
