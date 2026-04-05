@@ -12,7 +12,7 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   if (!allowedRoles || !role || !allowedRoles.includes(role)) {
     window.alert('No tienes permiso para acceder a esta página');
     // Si está logueado, redirigir a dashboard; si no, dejar como está
-    if (auth.usuarioLogueado()) {
+    if (auth.loggedInUser()) {
       router.navigate(['/dashboard']);
     } else {
       router.navigate(['/login']);

@@ -15,7 +15,7 @@ import { UserCreateDto } from '../../../models/userCreateDto';
   selector: 'app-registrar-usuario',
   imports: [RouterLink, ReactiveFormsModule],
   templateUrl: './registrar-usuario.html',
-  styleUrl: './registrar-usuario.css',
+  // styleUrl: './registrar-usuario.css',
 })
 export class RegistrarUsuario {
   private userService = inject(UsuarioService);

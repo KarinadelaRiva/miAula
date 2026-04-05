@@ -1,12 +1,12 @@
 <div class="dashboard-container">
   <div class="welcome-section">
-    <h1>¡Bienvenido/a, {{ usuario()?.nombre }}!</h1>
+  <h1>¡Bienvenido/a, {{ user()?.name }}!</h1>
     <p>Sistema de Gestión de Aulas - UTN Regional MdP</p>
     
-    @if (usuario()) {
+  @if (user()) {
       <div class="user-info">
-        <p><strong>Rol:</strong> {{ usuario()!.rol }}</p>
-        <p><strong>Email:</strong> {{ usuario()!.email }}</p>
+  <p><strong>Rol:</strong> {{ user()!.role }}</p>
+  <p><strong>Email:</strong> {{ user()!.email }}</p>
       </div>
     }
   </div>
@@ -14,7 +14,7 @@
   <div class="actions-section">
     <div class="action-cards">
       <!-- Cards para ADMIN -->
-      @if (usuario()?.rol === 'ADMIN') {
+  @if (user()?.role === 'ADMIN') {
                 
         <div class="action-card solicitudes" (click)="navigateTo('/solicitudes')">
           <img class="card-icon" src="Solicitudes.png" alt="Icono de solicitudes"/>
@@ -57,7 +57,7 @@
       }
       
       <!-- Cards para PROFESOR -->
-      @if (usuario()?.rol === 'PROFESOR') {
+  @if (user()?.role === 'PROFESOR') {
         <div class="action-card" (click)="navigateTo('/solicitud/nueva')">
           <img class="card-icon" src="Solicita reserva.png" alt="Icono de solicitar reserva"/>
           <h3>Solicitar Reserva</h3>

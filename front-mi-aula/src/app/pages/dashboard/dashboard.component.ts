@@ -9,15 +9,15 @@ import { Solicitud as SolicitudService } from '../../services/solicitud';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  // styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
   private solicitudService = inject(SolicitudService);
 
-  usuario = computed(() => {
-    const user = this.auth.infoUsuario();
+  user = computed(() => {
+    const user = this.auth.userInfo();
     return user.id === '' ? null : user;
   });
 

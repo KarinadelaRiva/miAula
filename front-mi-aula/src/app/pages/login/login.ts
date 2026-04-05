@@ -8,7 +8,7 @@ import { LoginRequest } from '../../auth/models/LoginRequest';
   selector: 'app-login',
   imports: [RouterModule, ReactiveFormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  // styleUrl: './login.css',
 })
 
 export class Login {
@@ -18,7 +18,7 @@ export class Login {
 
   constructor() {
     effect(() => {
-      if(this.authService.usuarioLogueado()) {
+  if(this.authService.isLoggedIn()) {
         this.router.navigateByUrl('/dashboard');
       }
     });
@@ -36,7 +36,7 @@ export class Login {
 
     this.mensajeError.set('');
 
-    this.authService.validarCredenciales(this.form.value as LoginRequest).subscribe({
+  this.authService.validateCredentials(this.form.value as LoginRequest).subscribe({
       next: () => {
         this.router.navigateByUrl('/dashboard');
       },

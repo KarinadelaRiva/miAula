@@ -9,7 +9,7 @@ import { AuthService } from '../../../auth/service/auth-service';
   selector: 'app-administrar-usuario',
   imports: [RouterLink, FormsModule],
   templateUrl: './administrar-usuario.html',
-  styleUrl: './administrar-usuario.css',
+  // styleUrl: './administrar-usuario.css',
 })
 export class AdministrarUsuario implements OnInit {
   usuarioService = inject(UsuarioService);

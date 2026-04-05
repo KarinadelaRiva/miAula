@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
   selector: 'app-gestion-usuarios',
   imports: [RouterModule],
   templateUrl: './gestion-usuarios.html',
-  styleUrl: './gestion-usuarios.css',
+  // styleUrl: './gestion-usuarios.css',
 })
 export class GestionUsuarios {
 }

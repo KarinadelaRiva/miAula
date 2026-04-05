@@ -11,8 +11,7 @@ import { User } from '../../models/user';
 export class AuthService {
   private userService = inject(UserService);
 
-  
-loggedInUser = signal<boolean>(false);
+  loggedInUser = signal<boolean>(false);
   userInfo = signal<User>({
     id: '',
     lastName: '',
@@ -21,6 +20,10 @@ loggedInUser = signal<boolean>(false);
     email: '',
     active: false,
   });
+
+  isLoggedIn(): boolean {
+    return this.loggedInUser();
+  }
 
   constructor() {
   // Limpiar cualquier sesión previa para que siempre inicie sin usuario logueado

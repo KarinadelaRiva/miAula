@@ -14,7 +14,7 @@ import { ReservaService } from '../../services/reserva.service';
   standalone: true,
   imports: [CommonModule, FullCalendarModule],
   templateUrl: './calendario.component.html',
-  styleUrls: ['./calendario.component.css'],
+  // styleUrls: ['./calendario.component.css'],
   encapsulation: ViewEncapsulation.None
 })
 export class CalendarioComponent implements AfterViewInit, OnInit {

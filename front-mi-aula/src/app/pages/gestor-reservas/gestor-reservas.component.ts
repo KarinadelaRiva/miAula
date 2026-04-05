@@ -21,7 +21,7 @@ interface ReservaCompleta {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './gestor-reservas.component.html',
-  styleUrls: ['./gestor-reservas.component.css']
+  // styleUrls: ['./gestor-reservas.component.css']
 })
 export class GestorReservasComponent implements OnInit {
   private reservaService = inject(ReservaService);
