@@ -1,0 +1,67 @@
+<header class="header">
+  @if (isLoggedIn()) {
+    <a class="header__logo" routerLink="/dashboard">MiAula</a>
+  }
+  @if (!isLoggedIn()) {
+   <a class="header__logo" routerLink="/home">MiAula</a>
+  }
+
+  <nav class="header__actions">
+
+
+    <!-- Agenda -->
+    <button class="icon-btn" routerLink="/agenda" aria-label="Ir a Agenda">
+      <img src="/calendar.svg" alt="Agenda" />
+      <span>Agenda</span>
+    </button>
+
+
+    <!-- Si NO está logueado -->
+    @if (!isLoggedIn()) {
+    <button class="icon-btn" (click)="login()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 12a5 5 0 1 0 -5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z" />
+      </svg>
+      <span>Login</span>
+    </button>
+    }
+
+    <!-- Si está logueado -->
+    @if (isLoggedIn()) {
+    <!-- Desktop: botones separados -->
+    <div class="desktop-only">
+      <button class="icon-btn" (click)="viewProfile()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 12a5 5 0 1 0 -5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z" />
+        </svg>
+        <span>Perfil</span>
+      </button>
+      <button class="icon-btn" (click)="logout()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M16 13v-2H7V8l-5 4 5 4v-3z" />
+          <path d="M20 3h-8v2h8v14h-8v2h8c1.1 0 2-0.9 2-2V5c0-1.1-0.9-2-2-2z" />
+        </svg>
+        <span>Salir</span>
+      </button>
+    </div>
+
+    <!-- Mobile: botón perfil con menú desplegable -->
+    <div class="profile-menu mobile-only">
+      <button class="icon-btn" (click)="toggleProfileMenu()" aria-haspopup="true" [attr.aria-expanded]="showProfileMenu" aria-label="Abrir menú de perfil">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 12a5 5 0 1 0 -5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z" />
+        </svg>
+        <span>Perfil</span>
+      </button>
+
+      @if (showProfileMenu) {
+      <div class="profile-dropdown mobile-only">
+        <button class="dropdown-item" (click)="viewProfile(); closeProfileMenu()">Ver perfil</button>
+        <button class="dropdown-item" (click)="logout(); closeProfileMenu()">Cerrar sesión</button>
+      </div>
+      }
+    </div>
+    }
+
+  </nav>
+</header>

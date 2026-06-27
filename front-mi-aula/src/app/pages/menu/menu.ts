@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
   selector: 'app-menu',
   imports: [],
   templateUrl: './menu.html',
-  // styleUrl: './menu.css',
+  styleUrl: './menu.css',
 })
 export class Menu {
   authService = inject(AuthService);
@@ -17,7 +17,7 @@ export class Menu {
   realizar una accion cada vez que cambia el valor del signal */
   constructor() {
     effect(() => {
-  if (!this.authService.isLoggedIn()) {
+      if (!this.authService.usuarioLogueado()) {
         this.router.navigateByUrl('/home');
       }
     });

@@ -1,0 +1,2 @@
+--watch/-w can be omitted, JSON Server 1+ watches for file changes by default
+File front-mi-aula/mock/db.json not found
