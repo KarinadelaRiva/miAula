@@ -58,12 +58,20 @@
   box-sizing: border-box;
 }
 
-main {
-  min-height: calc(100vh - 165px); /* Ajustar según el tamaño del header y footer */
+html, body {
+  height: 100%;
 }
 
-@media(min-width: 768px) {
-  main {
-    min-height: calc(100vh - 115px); /* Ajustar según el tamaño del header y footer */
-  }
+body {
+  min-height: 100vh;
+}
+
+/* Media queries */
+
+@media(min-width: 768px) { /* Tablet */
+ 
+}
+
+@media(min-width: 1024px) { /* Desktop */
+    
 }

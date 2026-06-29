@@ -7,7 +7,7 @@
 }
 
 .home-hero{
-	min-height: calc(100vh - 70px - 115px);
+	min-height: 100%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
