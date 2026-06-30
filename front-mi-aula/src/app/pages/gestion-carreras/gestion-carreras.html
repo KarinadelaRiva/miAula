@@ -5,37 +5,44 @@
       <button routerLink="/dashboard" class="btn-volver">← Volver</button>
     </div>
 
-    <div class="opciones-grid">
-      <div class="opcion-card">
-        <div class="opcion-icon registrar">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18"></path>
-            <path d="M4 6v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6"></path>
-            <path d="M8 10h8"></path>
-          </svg>
-        </div>
-        <h3>Registrar Carrera</h3>
-        <p>Agregar una nueva carrera o plan de estudios</p>
-        <button routerLink="/gestionCarreras/registrarCarrera" class="btn-opcion registrar">
-          Ir a Registro
-        </button>
-      </div>
+    <div class="seccion">
+      <h2>Registrar Carrera</h2>
+      <form class="form-grid" [formGroup]="form" (ngSubmit)="registrarCarrera()">
+        <label>
+          Nombre de la carrera
+          <input type="text" formControlName="nombre" />
+        </label>
+        <button type="submit" class="btn-opcion">Guardar carrera</button>
+      </form>
+    </div>
 
-      <div class="opcion-card">
-        <div class="opcion-icon administrar">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
-        </div>
-        <h3>Administrar Carreras</h3>
-        <p>Gestionar planes y asignaturas por carrera</p>
-        <button routerLink="/gestionCarreras/administracionCarreras" class="btn-opcion administrar">
-          Ir a Administración
-        </button>
-      </div>
+    <div class="seccion">
+      <h2>Administrar Carreras</h2>
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
+      @if (cargando) {
+        <p>Cargando carreras...</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (carrera of carreras; track carrera.id) {
+              <tr>
+                <td>{{ carrera.nombre }}</td>
+                <td>
+                  <button type="button" class="btn-danger" (click)="eliminarCarrera(carrera.id)">Eliminar</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
     </div>
   </div>
 </div>

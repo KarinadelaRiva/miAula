@@ -87,12 +87,12 @@ export const routes: Routes = [
   },
   {
     path: 'gestionComisiones/registrarComision',
-    component: RegistrarUsuario,
+    loadComponent: () => import('./pages/gestion-comisiones/gestion-comisiones').then(m => m.GestionComisiones),
     canActivate: [adminGuard]
   },
   {
     path: 'gestionComisiones/administracionComisiones',
-    component: AdministrarUsuario,
+    loadComponent: () => import('./pages/gestion-comisiones/gestion-comisiones').then(m => m.GestionComisiones),
     canActivate: [adminGuard]
   },
   {
@@ -102,12 +102,12 @@ export const routes: Routes = [
   },
   {
     path: 'gestionCarreras/registrarCarrera',
-    component: RegistrarUsuario,
+    loadComponent: () => import('./pages/gestion-carreras/gestion-carreras').then(m => m.GestionCarreras),
     canActivate: [adminGuard]
   },
   {
     path: 'gestionCarreras/administracionCarreras',
-    component: AdministrarUsuario,
+    loadComponent: () => import('./pages/gestion-carreras/gestion-carreras').then(m => m.GestionCarreras),
     canActivate: [adminGuard]
   },
   {
