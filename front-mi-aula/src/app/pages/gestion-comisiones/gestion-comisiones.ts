@@ -107,6 +107,6 @@ export class GestionComisiones implements OnInit {
   }
 
   nombreCarrera(id: number) {
-    return this.carrerasPorId.get(Number(id)) || '-';
+    return this.carrerasPorId.get(id) || '-';
   }
 }
