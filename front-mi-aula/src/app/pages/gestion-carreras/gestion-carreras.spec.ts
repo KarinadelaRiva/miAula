@@ -31,4 +31,25 @@ describe('GestionCarreras', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should register carrera and reload list', () => {
+    component.form.setValue({ nombre: 'Nueva carrera' });
+    component.registrarCarrera();
+
+    const postReq = httpMock.expectOne('http://localhost:3000/carreras');
+    expect(postReq.request.method).toBe('POST');
+    postReq.flush({ id: '6' });
+
+    httpMock.expectOne('http://localhost:3000/carreras').flush([]);
+  });
+
+  it('should delete carrera and reload list', () => {
+    component.eliminarCarrera('1');
+
+    const deleteReq = httpMock.expectOne('http://localhost:3000/carreras/1');
+    expect(deleteReq.request.method).toBe('DELETE');
+    deleteReq.flush({});
+
+    httpMock.expectOne('http://localhost:3000/carreras').flush([]);
+  });
 });

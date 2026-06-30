@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
 type Carrera = {
   id: string;
@@ -30,6 +31,7 @@ export class GestionComisiones implements OnInit {
 
   comisiones: Comision[] = [];
   carreras: Carrera[] = [];
+  carrerasPorId = new Map<number, string>();
   cargando = false;
   error: string | null = null;
 
@@ -49,23 +51,21 @@ export class GestionComisiones implements OnInit {
     this.cargando = true;
     this.error = null;
 
-    this.http.get<Carrera[]>('http://localhost:3000/carreras').subscribe({
-      next: (carreras) => {
+    forkJoin({
+      carreras: this.http.get<Carrera[]>('http://localhost:3000/carreras'),
+      comisiones: this.http.get<Comision[]>('http://localhost:3000/comisiones'),
+    }).subscribe({
+      next: ({ carreras, comisiones }) => {
         this.carreras = carreras || [];
-      },
-      error: () => {
-        this.carreras = [];
-      },
-    });
-
-    this.http.get<Comision[]>('http://localhost:3000/comisiones').subscribe({
-      next: (comisiones) => {
         this.comisiones = comisiones || [];
+        this.carrerasPorId = new Map(this.carreras.map((carrera) => [Number(carrera.id), carrera.nombre]));
         this.cargando = false;
       },
       error: () => {
-        this.error = 'No se pudieron cargar las comisiones.';
+        this.error = 'No se pudieron cargar las comisiones y carreras.';
+        this.carreras = [];
         this.comisiones = [];
+        this.carrerasPorId = new Map();
         this.cargando = false;
       },
     });
@@ -107,6 +107,6 @@ export class GestionComisiones implements OnInit {
   }
 
   nombreCarrera(id: number) {
-    return this.carreras.find((carrera) => Number(carrera.id) === Number(id))?.nombre || '-';
+    return this.carrerasPorId.get(Number(id)) || '-';
   }
 }
