@@ -81,6 +81,36 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/coming-soon/coming-soon').then(m => m.ComingSoon)
   },
   {
+    path: 'gestionComisiones',
+    loadComponent: () => import('./pages/gestion-comisiones/gestion-comisiones').then(m => m.GestionComisiones),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'gestionComisiones/registrarComision',
+    component: RegistrarUsuario,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'gestionComisiones/administracionComisiones',
+    component: AdministrarUsuario,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'gestionCarreras',
+    loadComponent: () => import('./pages/gestion-carreras/gestion-carreras').then(m => m.GestionCarreras),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'gestionCarreras/registrarCarrera',
+    component: RegistrarUsuario,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'gestionCarreras/administracionCarreras',
+    component: AdministrarUsuario,
+    canActivate: [adminGuard]
+  },
+  {
     path: '**',
     redirectTo: '/home'
   }
