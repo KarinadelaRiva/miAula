@@ -77,6 +77,10 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'leer-mas',
+    loadComponent: () => import('./pages/leer-mas/leer-mas').then(m => m.LeerMas)
+  },
+  {
     path: 'coming-soon',
     loadComponent: () => import('./pages/coming-soon/coming-soon').then(m => m.ComingSoon)
   },
