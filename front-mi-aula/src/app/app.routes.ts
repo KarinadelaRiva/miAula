@@ -91,10 +91,6 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/coming-soon/coming-soon').then(m => m.ComingSoon)
   },
   {
-    path: '**',
-    redirectTo: '/home'
-  },
-  {
     path: 'espacios',
     component: GestorEspacios,
   },
@@ -117,5 +113,9 @@ export const routes: Routes = [
   {
     path: 'recursos/administrar',
     component: AdministrarRecursos,
+  },
+  {
+    path: '**',
+    redirectTo: '/home'
   },
 ];
