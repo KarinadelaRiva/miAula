@@ -1,0 +1,99 @@
+<div class="espacios-container">
+  <div class="espacios-content">
+    <div class="espacios-header">
+      <h1>Administrar Espacios</h1>
+      <button routerLink="/espacios" class="btn-volver">← Volver</button>
+    </div>
+
+    <div class="filtros-section">
+      <input
+        type="text"
+        class="input-buscar"
+        placeholder="Buscar por código, nombre o piso..."
+        [(ngModel)]="filtroBusqueda"
+        (ngModelChange)="aplicarFiltros()"
+      />
+      <select class="select-filtro" [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
+        <option value="">Todos los estados</option>
+        <option [value]="true">Habilitados</option>
+        <option [value]="false">Deshabilitados</option>
+      </select>
+    </div>
+
+    <div class="espacios-grid">
+      @for (espacio of listaEspacios(); track espacio.id) {
+        <div class="espacio-card" (click)="abrirModal(espacio)">
+          <div class="espacio-info">
+            <h3>{{ espacio.name }}</h3>
+            <p><strong>Código:</strong> {{ espacio.code }}</p>
+            <p><strong>Capacidad:</strong> {{ espacio.capacity }} personas</p>
+            <p><strong>Piso:</strong> {{ espacio.floor_number }}</p>
+            <span class="estado-badge" [class.inactivo]="!estaHabilitado(espacio)">
+              {{ estaHabilitado(espacio) ? 'Habilitado' : 'Deshabilitado' }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="paginacion">
+      <button class="btn-paginacion" [disabled]="paginaActual() === 1" (click)="anteriorPagina()">
+        ← Anterior
+      </button>
+      <span class="pagina-info"> Página {{ paginaActual() }} de {{ totalPaginas() || 1 }} </span>
+      <button
+        class="btn-paginacion"
+        [disabled]="paginaActual() >= totalPaginas() || totalPaginas() === 0"
+        (click)="siguientePagina()"
+      >
+        Siguiente →
+      </button>
+    </div>
+  </div>
+
+  @if (espacioSeleccionado()) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <button class="btn-cerrar" (click)="cerrarModal()">✕</button>
+
+        <h2>Detalles del Espacio</h2>
+
+        <div class="detalle-grupo">
+          <label>ID:</label>
+          <p>{{ espacioSeleccionado()!.id }}</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Código:</label>
+          <p>{{ espacioSeleccionado()!.code }}</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Nombre:</label>
+          <p>{{ espacioSeleccionado()!.name }}</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Capacidad:</label>
+          <p>{{ espacioSeleccionado()!.capacity }} personas</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Piso:</label>
+          <p>{{ espacioSeleccionado()!.floor_number }}</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Estado:</label>
+          <p>{{ estaHabilitado(espacioSeleccionado()!) ? 'Habilitado' : 'Deshabilitado' }}</p>
+        </div>
+
+        @if (estaHabilitado(espacioSeleccionado()!)) {
+          <button (click)="eliminar()" class="btn-eliminar-espacio">Eliminar Espacio</button>
+        } @else {
+          <button (click)="reactivar()" class="btn-reactivar-espacio">Reactivar Espacio</button>
+        }
+      </div>
+    </div>
+  }
+</div>

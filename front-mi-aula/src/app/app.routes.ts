@@ -9,6 +9,12 @@ import { ListSolicitudes } from './pages/solicitud/list-solicitudes/list-solicit
 // import { ComingSoon } from './pages/coming-soon/coming-soon';
 import { RegistrarUsuario } from './pages/gestion-usuarios/registrar-usuario/registrar-usuario';
 import { AdministrarUsuario } from './pages/gestion-usuarios/administrar-usuario/administrar-usuario';
+import { GestorEspacios } from './pages/gestor-espacios/gestor-espacios';
+import { RegistrarEspacio } from './pages/gestor-espacios/registrar-espacio/registrar-espacio';
+import { AdministrarEspacios } from './pages/gestor-espacios/administrar-espacios/administrar-espacios';
+import { GestorRecursos } from './pages/gestor-recursos/gestor-recursos';
+import { RegistrarRecurso } from './pages/gestor-recursos/registrar-recurso/registrar-recurso';
+import { AdministrarRecursos } from './pages/gestor-recursos/administrar-recursos/administrar-recursos';
 
 export const routes: Routes = [
   {
@@ -87,5 +93,29 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: '/home'
-  }
+  },
+  {
+    path: 'espacios',
+    component: GestorEspacios,
+  },
+  {
+    path: 'espacios/registrar',
+    component: RegistrarEspacio,
+  },
+  {
+    path: 'espacios/administrar',
+    component: AdministrarEspacios,
+  },
+  {
+    path: 'recursos',
+    component: GestorRecursos,
+  },
+  {
+    path: 'recursos/registrar',
+    component: RegistrarRecurso,
+  },
+  {
+    path: 'recursos/administrar',
+    component: AdministrarRecursos,
+  },
 ];
