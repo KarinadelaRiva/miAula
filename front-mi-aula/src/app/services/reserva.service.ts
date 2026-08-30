@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, map } from 'rxjs';
-import { EventInput } from '@fullcalendar/core';
 
 export interface Reserva {
   id: string;
@@ -12,6 +11,27 @@ export interface Reserva {
   hora_inicio: string;
   comision_id: number;
   aula_id: number;
+}
+
+export interface ReservaCalendario {
+  id: string | number;
+  title: string;
+  start: string;
+  end: string;
+  color?: string;
+  resourceId?: string;
+  extendedProps?: {
+    asignatura?: string;
+    aula?: string;
+    comision?: string;
+    profesor?: string;
+    dia?: string;
+    capacidad?: number;
+    tipoEspacio?: string;
+    profesorId?: number | null;
+    comisionId?: number;
+    estado?: string;
+  };
 }
 
 export interface Espacio {
@@ -70,8 +90,8 @@ export class ReservaService {
     return this.http.get<Usuario[]>(`${this.baseUrl}/usuarios`);
   }
 
-  // Obtener reservas formateadas para FullCalendar
-  getReservasParaCalendario(): Observable<EventInput[]> {
+  // Obtener reservas formateadas para la vista de agenda
+  getReservasParaCalendario(): Observable<ReservaCalendario[]> {
     return forkJoin({
       reservas: this.getReservas(),
       espacios: this.getEspacios(),
@@ -86,23 +106,23 @@ export class ReservaService {
         console.log('👥 Comisiones:', comisiones.length);
         console.log('📚 Asignaturas:', asignaturas.length);
         console.log('👨‍🏫 Usuarios:', usuarios.length);
-        
+
         return reservas.map(reserva => {
           const espacio = espacios.find(e => e.id === reserva.aula_id.toString());
           const comision = comisiones.find(c => c.id === reserva.comision_id.toString());
           const asignatura = comision ? asignaturas.find(a => a.id === comision.asignatura_id.toString()) : null;
           const profesor = comision ? usuarios.find(u => u.id === comision.usuario_profesor_id.toString()) : null;
 
-          // Convertir fechas y horas
           const fechaInicio = new Date(`${reserva.fecha_inicio}T${reserva.hora_inicio.split('.')[0]}`);
           const fechaFin = new Date(`${reserva.fecha_inicio}T${reserva.hora_fin.split('.')[0]}`);
 
-          const evento = {
+          const evento: ReservaCalendario = {
             id: reserva.id,
             title: `${asignatura?.nombre_asignatura || 'Sin asignatura'} - ${espacio?.nombre || 'Sin aula'}`,
             start: fechaInicio.toISOString(),
             end: fechaFin.toISOString(),
             color: this.getColorPorAsignatura(asignatura?.nombre_asignatura || ''),
+            resourceId: espacio?.nombre || 'sin-aula',
             extendedProps: {
               asignatura: asignatura?.nombre_asignatura || 'Sin asignatura',
               aula: espacio?.nombre || 'Sin aula',
@@ -112,11 +132,12 @@ export class ReservaService {
               capacidad: espacio?.capacidad || 0,
               tipoEspacio: espacio?.tipo_espacio || 'AULA',
               profesorId: comision?.usuario_profesor_id || null,
-              comisionId: reserva.comision_id
+              comisionId: reserva.comision_id,
+              estado: 'ACTIVA'
             }
-          } as EventInput;
-          
-          console.log('✅ Evento procesado:', evento.title, 'en', evento.extendedProps?.['aula']);
+          };
+
+          console.log('✅ Evento procesado:', evento.title, 'en', evento.extendedProps?.aula);
           return evento;
         });
       })

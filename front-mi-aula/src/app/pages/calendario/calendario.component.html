@@ -1,30 +1,26 @@
 <div class="calendario-container">
-  <!-- Header con controles -->
   <div class="calendario-header">
-    <h1> {{ getTituloVista() }}</h1>
-    
-    <!-- Mostrar información del usuario dinámicamente -->
+    <h1>{{ getTituloVista() }}</h1>
     <p class="info-usuario">{{ getMensajeInfo() }}</p>
-    
-    <!-- Solo selector de vista -->
+
     <div class="controles">
       <div class="vista-selector">
         <label>Vista:</label>
-        <button 
+        <button
           [class]="vistaActual() === 'diario' ? 'active' : ''"
           (click)="cambiarVista('diario')"
           class="btn-vista"
         >
           Diario
         </button>
-        <button 
+        <button
           [class]="vistaActual() === 'semanal' ? 'active' : ''"
           (click)="cambiarVista('semanal')"
           class="btn-vista"
         >
           Semanal
         </button>
-        <button 
+        <button
           [class]="vistaActual() === 'mensual' ? 'active' : ''"
           (click)="cambiarVista('mensual')"
           class="btn-vista"
@@ -35,12 +31,38 @@
     </div>
   </div>
 
-  <!-- Calendario principal -->
   <div class="calendario-contenido">
-    <full-calendar #calendar [options]="calendarOptions()"></full-calendar>
+    <div *ngIf="getReservasFiltradas().length; else sinReservas" class="reserva-lista">
+      <div *ngFor="let reserva of getReservasFiltradas(); trackBy: trackByReserva" class="reserva-item" [style.border-left]="'4px solid ' + (reserva.color || '#667eea')">
+        <div class="reserva-header">
+          <h3>{{ reserva.title }}</h3>
+          <span class="badge" [style.background]="reserva.color || '#667eea'">{{ reserva.extendedProps?.aula || 'Sin aula' }}</span>
+        </div>
+
+        <div class="reserva-meta">
+          <span><strong>Fecha:</strong> {{ formatFecha(reserva.start) }}</span>
+          <span><strong>Horario:</strong> {{ formatHora(reserva.start) }} - {{ formatHora(reserva.end) }}</span>
+        </div>
+
+        <div class="reserva-meta">
+          <span><strong>Asignatura:</strong> {{ reserva.extendedProps?.asignatura || 'Sin asignatura' }}</span>
+          <span><strong>Comisión:</strong> {{ reserva.extendedProps?.comision || 'Sin comisión' }}</span>
+        </div>
+
+        <div class="reserva-meta">
+          <span><strong>Profesor:</strong> {{ reserva.extendedProps?.profesor || 'Sin profesor' }}</span>
+          <span><strong>Capacidad:</strong> {{ reserva.extendedProps?.capacidad || 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #sinReservas>
+      <div class="sin-reservas">
+        <p>No hay reservas para la vista seleccionada.</p>
+      </div>
+    </ng-template>
   </div>
 
-  <!-- Leyenda -->
   <div class="leyenda">
     <h3>Leyenda:</h3>
     <div class="leyenda-items">
