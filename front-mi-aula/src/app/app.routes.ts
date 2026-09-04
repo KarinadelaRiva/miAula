@@ -93,26 +93,32 @@ export const routes: Routes = [
   {
     path: 'espacios',
     component: GestorEspacios,
+    canActivate: [adminGuard]
   },
   {
     path: 'espacios/registrar',
     component: RegistrarEspacio,
+    canActivate: [adminGuard]
   },
   {
     path: 'espacios/administrar',
     component: AdministrarEspacios,
+    canActivate: [adminGuard]
   },
   {
     path: 'recursos',
     component: GestorRecursos,
+    canActivate: [adminGuard]
   },
   {
     path: 'recursos/registrar',
     component: RegistrarRecurso,
+    canActivate: [adminGuard]
   },
   {
     path: 'recursos/administrar',
     component: AdministrarRecursos,
+    canActivate: [adminGuard]
   },
   {
     path: '**',
