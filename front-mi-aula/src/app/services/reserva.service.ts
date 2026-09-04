@@ -45,7 +45,13 @@ export interface Comision {
   id: string;
   nombre: string;
   asignatura_id: number;
+  carrera_id: number;
   usuario_profesor_id: number;
+}
+
+export interface Carrera {
+  id: string;
+  nombre: string;
 }
 
 export interface Asignatura {
@@ -84,6 +90,10 @@ export class ReservaService {
 
   getAsignaturas(): Observable<Asignatura[]> {
     return this.http.get<Asignatura[]>(`${this.baseUrl}/asignaturas`);
+  }
+
+  getCarreras(): Observable<Carrera[]> {
+    return this.http.get<Carrera[]>(`${this.baseUrl}/carreras`);
   }
 
   getUsuarios(): Observable<Usuario[]> {

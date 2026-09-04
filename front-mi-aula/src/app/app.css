@@ -14,3 +14,8 @@ main > * {
   flex: 1;
   min-height: 0;
 }
+
+main > router-outlet {
+  flex: 0 0 0;
+  height: 0;
+}

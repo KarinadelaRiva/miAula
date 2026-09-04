@@ -1,87 +1,114 @@
-<div class="calendario-container">
-  <div class="calendario-header">
-    <h1>{{ getTituloVista() }}</h1>
-    <p class="info-usuario">{{ getMensajeInfo() }}</p>
-
-    <div class="controles">
-      <div class="vista-selector">
-        <label>Vista:</label>
-        <button
-          [class]="vistaActual() === 'diario' ? 'active' : ''"
-          (click)="cambiarVista('diario')"
-          class="btn-vista"
-        >
-          Diario
-        </button>
-        <button
-          [class]="vistaActual() === 'semanal' ? 'active' : ''"
-          (click)="cambiarVista('semanal')"
-          class="btn-vista"
-        >
-          Semanal
-        </button>
-        <button
-          [class]="vistaActual() === 'mensual' ? 'active' : ''"
-          (click)="cambiarVista('mensual')"
-          class="btn-vista"
-        >
-          Mensual
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="calendario-contenido">
-    <div *ngIf="getReservasFiltradas().length; else sinReservas" class="reserva-lista">
-      <div *ngFor="let reserva of getReservasFiltradas(); trackBy: trackByReserva" class="reserva-item" [style.border-left]="'4px solid ' + (reserva.color || '#667eea')">
-        <div class="reserva-header">
-          <h3>{{ reserva.title }}</h3>
-          <span class="badge" [style.background]="reserva.color || '#667eea'">{{ reserva.extendedProps?.aula || 'Sin aula' }}</span>
-        </div>
-
-        <div class="reserva-meta">
-          <span><strong>Fecha:</strong> {{ formatFecha(reserva.start) }}</span>
-          <span><strong>Horario:</strong> {{ formatHora(reserva.start) }} - {{ formatHora(reserva.end) }}</span>
-        </div>
-
-        <div class="reserva-meta">
-          <span><strong>Asignatura:</strong> {{ reserva.extendedProps?.asignatura || 'Sin asignatura' }}</span>
-          <span><strong>Comisión:</strong> {{ reserva.extendedProps?.comision || 'Sin comisión' }}</span>
-        </div>
-
-        <div class="reserva-meta">
-          <span><strong>Profesor:</strong> {{ reserva.extendedProps?.profesor || 'Sin profesor' }}</span>
-          <span><strong>Capacidad:</strong> {{ reserva.extendedProps?.capacidad || 'N/A' }}</span>
-        </div>
-      </div>
+<div class="calendar-container">
+  <div class="calendar-toolbar">
+    <div class="navigation-group" aria-label="Navegación del calendario">
+      <button type="button" class="icon-button" aria-label="Día anterior" (click)="cambiarDia(-1)">‹</button>
+      <button type="button" class="today-button" (click)="irAHoy()">Hoy</button>
+      <button type="button" class="icon-button" aria-label="Día siguiente" (click)="cambiarDia(1)">›</button>
     </div>
 
-    <ng-template #sinReservas>
-      <div class="sin-reservas">
-        <p>No hay reservas para la vista seleccionada.</p>
-      </div>
-    </ng-template>
+    <div class="selected-date">
+      <strong>{{ fechaFormateada }}</strong>
+      <label for="fecha-calendario">Cambiar fecha</label>
+      <input id="fecha-calendario" type="date" [(ngModel)]="fechaSeleccionada" />
+    </div>
+
   </div>
 
-  <div class="leyenda">
-    <h3>Leyenda:</h3>
-    <div class="leyenda-items">
-      <div class="leyenda-item">
-        <span class="color-box matematica"></span>
-        <span>Matemática</span>
+  <div class="calendar-scroll">
+    <div
+      class="calendar-grid"
+      [style.--num-aulas]="aulas.length"
+      [style.--num-filas]="bloquesHorarios.length"
+    >
+    <div class="header-cell corner">Hora</div>
+
+    @for (aula of aulas; track aula.id; let aulaIndex = $index) {
+      <div class="header-cell" [style.grid-column]="aulaIndex + 2">{{ aula.nombre }}</div>
+    }
+
+    @for (hora of bloquesHorarios; track $index) {
+      <div
+        class="time-cell"
+      [style.grid-row]="$index + 2"
+        [style.grid-column]="1"
+      >
+        {{ hora }}
       </div>
-      <div class="leyenda-item">
-        <span class="color-box fisica"></span>
-        <span>Física/Laboratorios</span>
+    }
+
+    @for (hora of bloquesHorarios; track $index; let filaIndex = $index) {
+      @for (aula of aulas; track aula.id; let aulaIndex = $index) {
+        <div
+          class="slot-cell"
+          [class.alt-row]="filaIndex % 2 === 1"
+          [style.grid-row]="filaIndex + 2"
+          [style.grid-column]="aulaIndex + 2"
+        ></div>
+      }
+    }
+
+    @for (reserva of reservasDelDia; track reserva.id) {
+      <div
+        class="booking-card"
+        role="button"
+        tabindex="0"
+        [attr.aria-label]="'Ver detalles de ' + getMateria(reserva)"
+        (click)="abrirDetalles(reserva)"
+        (keydown.enter)="abrirDetalles(reserva)"
+        (keydown.space)="$event.preventDefault(); abrirDetalles(reserva)"
+        [ngClass]="'carrera-' + getCarreraId(reserva)"
+        [style.grid-column]="getAulaColumn(reserva.aula_id)"
+        [style.grid-row]="getRowIndex(reserva.hora_inicio) + ' / ' + getRowIndex(reserva.hora_fin)"
+      >
+        <span class="card-subject">{{ getMateria(reserva) }}</span>
+        <span class="card-title">Com {{ reserva.comision_id }}</span>
+        <span class="card-time">
+          {{ reserva.hora_inicio.slice(0, 5) }} - {{ reserva.hora_fin.slice(0, 5) }}
+        </span>
       </div>
-      <div class="leyenda-item">
-        <span class="color-box programacion"></span>
-        <span>Programación</span>
-      </div>
-      <div class="leyenda-item">
-        <span class="color-box base-datos"></span>
-        <span>Base de Datos</span>
-      </div>
+    }
     </div>
   </div>
 </div>
+
+<section class="calendar-legend" aria-label="Referencias de colores">
+  <div class="legend-items">
+    @for (carrera of carreras; track carrera.id) {
+      <span class="legend-item">
+        <span class="legend-swatch" [ngClass]="'legend-carrera-' + carrera.id" aria-hidden="true"></span>
+        {{ carrera.nombre }}
+      </span>
+    }
+    @if (carreras.length === 0) {
+      <span class="legend-item">No hay carreras disponibles</span>
+    }
+  </div>
+</section>
+
+@if (reservaSeleccionada; as reserva) {
+  <div class="modal-overlay" (click)="cerrarDetalles()">
+    <section
+      class="modal-content"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="detalle-reserva-titulo"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-header">
+        <div>
+          <span class="modal-eyebrow">Detalle de reserva</span>
+          <h2 id="detalle-reserva-titulo">{{ getMateria(reserva) }}</h2>
+        </div>
+        <button type="button" class="modal-close" aria-label="Cerrar detalles" (click)="cerrarDetalles()">×</button>
+      </header>
+
+      <div class="modal-body">
+        <p><strong>Comisión:</strong> Com {{ reserva.comision_id }}</p>
+        <p><strong>Carrera:</strong> {{ getCarrera(reserva) }}</p>
+        <p><strong>Espacio:</strong> {{ getEspacio(reserva) }}</p>
+        <p><strong>Fecha:</strong> {{ reserva.fecha_inicio }}</p>
+        <p><strong>Horario:</strong> {{ reserva.hora_inicio.slice(0, 5) }} - {{ reserva.hora_fin.slice(0, 5) }}</p>
+      </div>
+    </section>
+  </div>
+}
