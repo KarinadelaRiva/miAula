@@ -15,17 +15,24 @@
       </button>
     </div>
 
+    <!-- BUSCADOR -->
+
     <div class="buscador">
       <input
         type="text"
         placeholder="Buscar por comisión, asignatura, carrera o profesor..."
         [(ngModel)]="busqueda"
-        (input)="buscar()">
+        (input)="buscar()"
+        aria-label="Buscar comisiones">
     </div>
+
+    <!-- MENSAJE -->
 
     <div *ngIf="mensaje" class="mensaje">
       {{ mensaje }}
     </div>
+
+    <!-- TABLA -->
 
     <div class="tabla-container">
 
@@ -50,9 +57,13 @@
 
             <ng-container *ngIf="comisionEditando?.id !== comision.id">
 
-              <td>{{ comision.nombre }}</td>
+              <td>
+                {{ comision.nombre }}
+              </td>
 
-              <td>{{ comision.cantidad_alumnos }}</td>
+              <td>
+                {{ comision.cantidad_alumnos }}
+              </td>
 
               <td>
                 {{ obtenerAsignatura(comision.asignatura_id) }}
@@ -69,12 +80,14 @@
               <td class="acciones">
 
                 <button
+                  type="button"
                   class="btn-editar"
                   (click)="editarComision(comision)">
                   Editar
                 </button>
 
                 <button
+                  type="button"
                   class="btn-eliminar"
                   (click)="eliminarComision(comision)">
                   Eliminar
@@ -84,25 +97,36 @@
 
             </ng-container>
 
-
             <!-- MODO EDICIÓN -->
 
-            <ng-container *ngIf="comisionEditando?.id === comision.id">
+            <ng-container
+              *ngIf="comisionEditando?.id === comision.id && comisionEditando as editando">
+
+              <!-- NOMBRE -->
 
               <td>
                 <input
-                  [(ngModel)]="comisionEditando!.nombre">
+                  type="text"
+                  [(ngModel)]="editando.nombre"
+                  aria-label="Nombre de la comisión">
               </td>
+
+              <!-- CANTIDAD DE ALUMNOS -->
 
               <td>
                 <input
                   type="number"
                   min="1"
-                  [(ngModel)]="comisionEditando!.cantidad_alumnos">
+                  [(ngModel)]="editando.cantidad_alumnos"
+                  aria-label="Cantidad de alumnos">
               </td>
 
+              <!-- ASIGNATURA -->
+
               <td>
-                <select [(ngModel)]="comisionEditando!.asignatura_id">
+                <select
+                  [(ngModel)]="editando.asignatura_id"
+                  aria-label="Asignatura">
 
                   <option
                     *ngFor="let asignatura of asignaturas"
@@ -115,8 +139,12 @@
                 </select>
               </td>
 
+              <!-- CARRERA -->
+
               <td>
-                <select [(ngModel)]="comisionEditando!.carrera_id">
+                <select
+                  [(ngModel)]="editando.carrera_id"
+                  aria-label="Carrera">
 
                   <option
                     *ngFor="let carrera of carreras"
@@ -129,8 +157,12 @@
                 </select>
               </td>
 
+              <!-- PROFESOR -->
+
               <td>
-                <select [(ngModel)]="comisionEditando!.usuario_profesor_id">
+                <select
+                  [(ngModel)]="editando.usuario_profesor_id"
+                  aria-label="Profesor">
 
                   <option
                     *ngFor="let profesor of profesores"
@@ -143,15 +175,19 @@
                 </select>
               </td>
 
+              <!-- ACCIONES DE EDICIÓN -->
+
               <td class="acciones">
 
                 <button
+                  type="button"
                   class="btn-guardar"
                   (click)="guardarEdicion()">
                   Guardar
                 </button>
 
                 <button
+                  type="button"
                   class="btn-cancelar"
                   (click)="cancelarEdicion()">
                   Cancelar
@@ -166,6 +202,8 @@
         </tbody>
 
       </table>
+
+      <!-- SIN RESULTADOS -->
 
       <div
         *ngIf="comisionesFiltradas.length === 0"
