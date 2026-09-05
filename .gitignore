@@ -8,7 +8,7 @@
 .angular/
 
 # Node modules and dependency files
-/node_modules/
+**/node_modules/
 /package-lock.json
 /yarn.lock
 
@@ -36,7 +36,6 @@ yarn-error.log*
 /bazel-out
 
 # Node
-/node_modules
 npm-debug.log
 yarn-error.log
 
@@ -104,4 +103,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Backend local config
+miAulaAPI/src/main/resources/application.properties
 
