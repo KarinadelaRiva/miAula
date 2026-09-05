@@ -1,0 +1,107 @@
+<div class="administrar-container">
+
+  <div class="administrar-card">
+
+    <div class="header">
+      <div>
+        <h1>Administrar Carreras</h1>
+        <p>Consultar, editar o eliminar carreras.</p>
+      </div>
+
+      <button
+        routerLink="/gestion-carreras"
+        class="btn-volver">
+        ← Volver
+      </button>
+    </div>
+
+    <div class="buscador">
+      <input
+        type="text"
+        placeholder="Buscar carrera..."
+        [(ngModel)]="busqueda"
+        (input)="buscar()">
+    </div>
+
+    <div *ngIf="mensaje" class="mensaje">
+      {{ mensaje }}
+    </div>
+
+    <div class="tabla-container">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Carrera</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let carrera of carrerasFiltradas">
+
+            <td>{{ carrera.id }}</td>
+
+            <td>
+
+              <input
+                *ngIf="carreraEditando?.id === carrera.id"
+                class="input-edicion"
+                [(ngModel)]="nombreEditado">
+
+              <span *ngIf="carreraEditando?.id !== carrera.id">
+                {{ carrera.nombre }}
+              </span>
+
+            </td>
+
+            <td class="acciones">
+
+              <ng-container *ngIf="carreraEditando?.id === carrera.id">
+
+                <button
+                  class="btn-guardar"
+                  (click)="guardarEdicion()">
+                  Guardar
+                </button>
+
+                <button
+                  class="btn-cancelar"
+                  (click)="cancelarEdicion()">
+                  Cancelar
+                </button>
+
+              </ng-container>
+
+              <ng-container *ngIf="carreraEditando?.id !== carrera.id">
+
+                <button
+                  class="btn-editar"
+                  (click)="editarCarrera(carrera)">
+                  Editar
+                </button>
+
+                <button
+                  class="btn-eliminar"
+                  (click)="eliminarCarrera(carrera)">
+                  Eliminar
+                </button>
+
+              </ng-container>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>

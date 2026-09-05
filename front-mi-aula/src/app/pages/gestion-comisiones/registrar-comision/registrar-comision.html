@@ -1,0 +1,178 @@
+<div class="form-container">
+
+  <div class="form-card">
+
+    <div class="form-header">
+      <div>
+        <h1>Registrar Comisión</h1>
+        <p>Ingresá los datos de la nueva comisión.</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn-volver"
+        (click)="cancelar()">
+        ← Volver
+      </button>
+    </div>
+
+    <form (ngSubmit)="guardarComision()">
+
+      <div class="form-group">
+
+        <label>Nombre de la comisión *</label>
+
+        <input
+          type="text"
+          name="nombre"
+          [(ngModel)]="comision.nombre"
+          placeholder="Ej: Prog1-C1-TM"
+          required>
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Cantidad de alumnos *</label>
+
+        <input
+          type="number"
+          name="cantidad_alumnos"
+          [(ngModel)]="comision.cantidad_alumnos"
+          min="1"
+          required>
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Asignatura *</label>
+
+        <select
+          name="asignatura"
+          [(ngModel)]="comision.asignatura_id"
+          required>
+
+          <option [ngValue]="null">
+            Seleccionar asignatura
+          </option>
+
+          <option
+            *ngFor="let asignatura of asignaturas"
+            [ngValue]="+asignatura.id">
+
+            {{ asignatura.nombre_asignatura }}
+
+          </option>
+
+        </select>
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Carrera *</label>
+
+        <select
+          name="carrera"
+          [(ngModel)]="comision.carrera_id"
+          required>
+
+          <option [ngValue]="null">
+            Seleccionar carrera
+          </option>
+
+          <option
+            *ngFor="let carrera of carreras"
+            [ngValue]="+carrera.id">
+
+            {{ carrera.nombre }}
+
+          </option>
+
+        </select>
+
+      </div>
+
+      <div class="form-group">
+
+        <label>Profesor *</label>
+
+        <select
+          name="profesor"
+          [(ngModel)]="comision.usuario_profesor_id"
+          required>
+
+          <option [ngValue]="null">
+            Seleccionar profesor
+          </option>
+
+          <option
+            *ngFor="let profesor of profesores"
+            [ngValue]="+profesor.id">
+
+            {{ profesor.apellido }}, {{ profesor.nombre }}
+
+          </option>
+
+        </select>
+
+      </div>
+
+      <div *ngIf="mensajeError" class="mensaje-error">
+        {{ mensajeError }}
+      </div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cancelar()">
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn-guardar"
+          [disabled]="guardando">
+
+          {{ guardando ? 'Guardando...' : 'Registrar Comisión' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<div
+  *ngIf="mostrarExito"
+  class="modal-overlay">
+
+  <div class="modal-exito">
+
+    <div class="icono-exito">
+      ✓
+    </div>
+
+    <h2>¡Comisión registrada!</h2>
+
+    <p>
+      La comisión fue registrada correctamente.
+    </p>
+
+    <button
+      type="button"
+      class="btn-aceptar"
+      (click)="cerrarExito()">
+      Aceptar
+    </button>
+
+  </div>
+
+</div>

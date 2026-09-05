@@ -1,0 +1,220 @@
+<div class="administrar-container">
+
+  <div class="administrar-card">
+
+    <div class="header">
+      <div>
+        <h1>Administrar Comisiones</h1>
+        <p>Consultar, editar o eliminar comisiones.</p>
+      </div>
+
+      <button
+        routerLink="/gestion-comisiones"
+        class="btn-volver">
+        ← Volver
+      </button>
+    </div>
+
+    <!-- BUSCADOR -->
+
+    <div class="buscador">
+      <input
+        type="text"
+        placeholder="Buscar por comisión, asignatura, carrera o profesor..."
+        [(ngModel)]="busqueda"
+        (input)="buscar()"
+        aria-label="Buscar comisiones">
+    </div>
+
+    <!-- MENSAJE -->
+
+    <div *ngIf="mensaje" class="mensaje">
+      {{ mensaje }}
+    </div>
+
+    <!-- TABLA -->
+
+    <div class="tabla-container">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Comisión</th>
+            <th>Alumnos</th>
+            <th>Asignatura</th>
+            <th>Carrera</th>
+            <th>Profesor</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let comision of comisionesFiltradas">
+
+            <!-- MODO NORMAL -->
+
+            <ng-container *ngIf="comisionEditando?.id !== comision.id">
+
+              <td>
+                {{ comision.nombre }}
+              </td>
+
+              <td>
+                {{ comision.cantidad_alumnos }}
+              </td>
+
+              <td>
+                {{ obtenerAsignatura(comision.asignatura_id) }}
+              </td>
+
+              <td>
+                {{ obtenerCarrera(comision.carrera_id) }}
+              </td>
+
+              <td>
+                {{ obtenerProfesor(comision.usuario_profesor_id) }}
+              </td>
+
+              <td class="acciones">
+
+                <button
+                  type="button"
+                  class="btn-editar"
+                  (click)="editarComision(comision)">
+                  Editar
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-eliminar"
+                  (click)="eliminarComision(comision)">
+                  Eliminar
+                </button>
+
+              </td>
+
+            </ng-container>
+
+            <!-- MODO EDICIÓN -->
+
+            <ng-container
+              *ngIf="comisionEditando?.id === comision.id && comisionEditando as editando">
+
+              <!-- NOMBRE -->
+
+              <td>
+                <input
+                  type="text"
+                  [(ngModel)]="editando.nombre"
+                  aria-label="Nombre de la comisión">
+              </td>
+
+              <!-- CANTIDAD DE ALUMNOS -->
+
+              <td>
+                <input
+                  type="number"
+                  min="1"
+                  [(ngModel)]="editando.cantidad_alumnos"
+                  aria-label="Cantidad de alumnos">
+              </td>
+
+              <!-- ASIGNATURA -->
+
+              <td>
+                <select
+                  [(ngModel)]="editando.asignatura_id"
+                  aria-label="Asignatura">
+
+                  <option
+                    *ngFor="let asignatura of asignaturas"
+                    [ngValue]="+asignatura.id">
+
+                    {{ asignatura.nombre_asignatura }}
+
+                  </option>
+
+                </select>
+              </td>
+
+              <!-- CARRERA -->
+
+              <td>
+                <select
+                  [(ngModel)]="editando.carrera_id"
+                  aria-label="Carrera">
+
+                  <option
+                    *ngFor="let carrera of carreras"
+                    [ngValue]="+carrera.id">
+
+                    {{ carrera.nombre }}
+
+                  </option>
+
+                </select>
+              </td>
+
+              <!-- PROFESOR -->
+
+              <td>
+                <select
+                  [(ngModel)]="editando.usuario_profesor_id"
+                  aria-label="Profesor">
+
+                  <option
+                    *ngFor="let profesor of profesores"
+                    [ngValue]="+profesor.id">
+
+                    {{ profesor.apellido }}, {{ profesor.nombre }}
+
+                  </option>
+
+                </select>
+              </td>
+
+              <!-- ACCIONES DE EDICIÓN -->
+
+              <td class="acciones">
+
+                <button
+                  type="button"
+                  class="btn-guardar"
+                  (click)="guardarEdicion()">
+                  Guardar
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-cancelar"
+                  (click)="cancelarEdicion()">
+                  Cancelar
+                </button>
+
+              </td>
+
+            </ng-container>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+      <!-- SIN RESULTADOS -->
+
+      <div
+        *ngIf="comisionesFiltradas.length === 0"
+        class="sin-resultados">
+
+        No se encontraron comisiones.
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

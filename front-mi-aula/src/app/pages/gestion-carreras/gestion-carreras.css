@@ -1,0 +1,31 @@
+.gestion-container { display:flex; flex-direction:column; min-height:100vh; padding:40px; background: linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);} 
+.gestion-card { flex:1; display:flex; flex-direction:column; }
+.gestion-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:20px; }
+.gestion-header h1 { color:#2d3748; font-size:2.5rem; font-weight:700; margin:0; }
+.btn-volver { background:#718096; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; }
+.opciones-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:40px; margin-top:0; flex:1; align-content:center; }
+.opcion-card { background:white; border:2px solid #e2e8f0; border-radius:16px; padding:48px 32px; display:flex; flex-direction:column; align-items:center; text-align:center; }
+.btn-opcion {
+  width: 100%;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-opcion.registrar {
+  background: #3182ce;
+}
+
+.btn-opcion.administrar {
+  background: #805ad5;
+}
+
+.btn-opcion:hover {
+  opacity: 0.85;
+}
+@media (max-width:768px) { .gestion-container { padding:20px; } .opciones-grid { grid-template-columns:1fr; gap:24px; } }
+                                            

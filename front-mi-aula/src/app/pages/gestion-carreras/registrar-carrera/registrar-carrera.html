@@ -1,0 +1,97 @@
+<div class="form-container">
+
+  <div class="form-card">
+
+    <div class="form-header">
+      <div>
+        <h1>Registrar Carrera</h1>
+        <p>Ingresá los datos de la nueva carrera.</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn-volver"
+        (click)="cancelar()">
+        ← Volver
+      </button>
+    </div>
+
+    <form (ngSubmit)="guardarCarrera()">
+
+      <div class="form-group">
+
+        <label for="nombre">
+          Nombre de la carrera *
+        </label>
+
+        <input
+          id="nombre"
+          name="nombre"
+          type="text"
+          [(ngModel)]="nombre"
+          placeholder="Ej: Ingeniería Industrial"
+          required>
+
+      </div>
+
+      <div *ngIf="mensajeError" class="mensaje-error">
+        {{ mensajeError }}
+      </div>
+
+      <div class="form-actions">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cancelar()">
+          Cancelar
+        </button>
+
+        <button
+          type="submit"
+          class="btn-guardar"
+          [disabled]="guardando">
+
+          {{ guardando ? 'Guardando...' : 'Registrar Carrera' }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- EMERGENTE DE ÉXITO -->
+
+<div
+  *ngIf="mostrarExito"
+  class="modal-overlay">
+
+  <div class="modal-exito">
+
+    <div class="icono-exito">
+      ✓
+    </div>
+
+    <h2>¡Carrera registrada!</h2>
+
+    <p>
+      La carrera fue registrada correctamente.
+    </p>
+
+    <button
+      type="button"
+      class="btn-aceptar"
+      (click)="cerrarExito()">
+
+      Aceptar
+
+    </button>
+
+  </div>
+
+</div>
