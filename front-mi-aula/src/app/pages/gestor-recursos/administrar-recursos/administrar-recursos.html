@@ -1,0 +1,99 @@
+<div class="recursos-container">
+  <div class="recursos-content">
+    <div class="recursos-header">
+      <h1>Administrar Recursos</h1>
+      <button routerLink="/recursos" class="btn-volver">← Volver</button>
+    </div>
+
+    <div class="filtros-section">
+      <input
+        type="text"
+        class="input-buscar"
+        placeholder="Buscar por código, nombre o descripción..."
+        [(ngModel)]="filtroBusqueda"
+        (ngModelChange)="aplicarFiltros()"
+      />
+      <select class="select-filtro" [(ngModel)]="filtroEstado" (ngModelChange)="aplicarFiltros()">
+        <option value="">Todos los estados</option>
+        <option [value]="true">Habilitados</option>
+        <option [value]="false">Deshabilitados</option>
+      </select>
+    </div>
+
+    <div class="recursos-grid">
+      @for (recurso of listaRecursos(); track recurso.id) {
+        <div class="recurso-card" (click)="abrirModal(recurso)">
+          <div class="recurso-info">
+            <h3>{{ recurso.name }}</h3>
+            <p><strong>Código:</strong> {{ recurso.code }}</p>
+            <p><strong>Cantidad:</strong> {{ recurso.quantity }}</p>
+            <p>{{ recurso.description }}</p>
+            <span class="estado-badge" [class.inactivo]="!estaHabilitado(recurso)">
+              {{ estaHabilitado(recurso) ? 'Habilitado' : 'Deshabilitado' }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="paginacion">
+      <button class="btn-paginacion" [disabled]="paginaActual() === 1" (click)="anteriorPagina()">
+        ← Anterior
+      </button>
+      <span class="pagina-info"> Página {{ paginaActual() }} de {{ totalPaginas() || 1 }} </span>
+      <button
+        class="btn-paginacion"
+        [disabled]="paginaActual() >= totalPaginas() || totalPaginas() === 0"
+        (click)="siguientePagina()"
+      >
+        Siguiente →
+      </button>
+    </div>
+  </div>
+
+  @if (recursoSeleccionado()) {
+    <div class="modal-overlay" (click)="cerrarModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <button class="btn-cerrar" (click)="cerrarModal()">✕</button>
+
+        <h2>Detalles del Recurso</h2>
+
+        <div class="detalle-grupo">
+          <label>ID:</label>
+          <p>{{ recursoSeleccionado()!.id }}</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Código:</label>
+          <p>{{ recursoSeleccionado()!.code }}</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Nombre:</label>
+          <p>{{ recursoSeleccionado()!.name }}</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Descripción:</label>
+          <p>{{ recursoSeleccionado()!.description }}</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Cantidad:</label>
+          <p>{{ recursoSeleccionado()!.quantity }}</p>
+        </div>
+
+        <div class="detalle-grupo">
+          <label>Estado:</label>
+          <p>{{ estaHabilitado(recursoSeleccionado()!) ? 'Habilitado' : 'Deshabilitado' }}</p>
+        </div>
+
+        @if (estaHabilitado(recursoSeleccionado()!)) {
+          <button (click)="eliminar()" class="btn-eliminar-recurso">Eliminar Recurso</button>
+        } @else {
+          <button (click)="reactivar()" class="btn-reactivar-recurso">Reactivar Recurso</button>
+        }
+      </div>
+    </div>
+  }
+</div>

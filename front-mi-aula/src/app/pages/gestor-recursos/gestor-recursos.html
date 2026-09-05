@@ -1,0 +1,57 @@
+<div class="gestion-container">
+  <div class="gestion-card">
+    <div class="gestion-header">
+      <h1>Gestión de Recursos</h1>
+      <button routerLink="/dashboard" class="btn-volver">← Volver</button>
+    </div>
+
+    <div class="opciones-grid">
+      <div class="opcion-card">
+        <div class="opcion-icon registrar">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 5v14"></path>
+            <path d="M5 12h14"></path>
+            <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+          </svg>
+        </div>
+        <h3>Registrar Recurso</h3>
+        <p>Crear un nuevo recurso disponible para uso académico o administrativo</p>
+        <button routerLink="/recursos/registrar" class="btn-opcion">Ir a Registro</button>
+      </div>
+
+      <div class="opcion-card">
+        <div class="opcion-icon administrar">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5v-12A2.5 2.5 0 0 1 6.5 5Z"></path>
+            <path d="M8 7h8"></path>
+            <path d="M8 11h8"></path>
+          </svg>
+        </div>
+        <h3>Administrar Recursos</h3>
+        <p>Consultar recursos, deshabilitarlos, reactivarlos o eliminarlos del sistema</p>
+        <button routerLink="/recursos/administrar" class="btn-opcion">Ir a Administración</button>
+      </div>
+    </div>
+  </div>
+</div>

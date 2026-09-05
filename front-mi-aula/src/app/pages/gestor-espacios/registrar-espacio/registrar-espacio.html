@@ -1,0 +1,46 @@
+<div class="gestion-container">
+  <div class="gestion-card">
+    <div class="gestion-header">
+      <h1>Registrar Espacio</h1>
+      <button routerLink="/espacios" class="btn-volver">← Volver</button>
+    </div>
+
+    <div class="seccion">
+      <h2>Datos del espacio</h2>
+      <form [formGroup]="form" (ngSubmit)="registrarEspacio()">
+        <div class="form-grid">
+          <label>
+            Código
+            <input type="text" maxlength="6" formControlName="code" />
+          </label>
+
+          <label>
+            Nombre
+            <input type="text" maxlength="50" formControlName="name" />
+          </label>
+
+          <label>
+            Capacidad
+            <input type="number" min="1" formControlName="capacity" />
+          </label>
+
+          <label>
+            Piso
+            <input type="number" min="0" formControlName="floor_number" />
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-opcion">Registrar</button>
+        </div>
+      </form>
+    </div>
+
+    @if (error) {
+      <p class="error">{{ error }}</p>
+    }
+    @if (exito) {
+      <p class="success">{{ exito }}</p>
+    }
+  </div>
+</div>
