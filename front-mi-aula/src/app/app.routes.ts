@@ -9,7 +9,8 @@ import { ListSolicitudes } from './pages/solicitud/list-solicitudes/list-solicit
 // import { ComingSoon } from './pages/coming-soon/coming-soon';
 import { RegistrarUsuario } from './pages/gestion-usuarios/registrar-usuario/registrar-usuario';
 import { AdministrarUsuario } from './pages/gestion-usuarios/administrar-usuario/administrar-usuario';
-
+import { GestionCarreras } from './pages/gestion-carreras/gestion-carreras';
+import { GestionComisiones } from './pages/gestion-comisiones/gestion-comisiones';
 export const routes: Routes = [
   {
     path: '',
@@ -76,12 +77,59 @@ export const routes: Routes = [
     component: AdministrarUsuario,
     canActivate: [adminGuard]
   },
+
   {
-    path: 'coming-soon',
-    loadComponent: () => import('./pages/coming-soon/coming-soon').then(m => m.ComingSoon)
-  },
+  path: 'gestion-carreras',
+  component: GestionCarreras,
+  canActivate: [adminGuard]
+},
+{
+  path: 'gestion-carreras/registrar-carrera',
+  loadComponent: () =>
+    import('./pages/gestion-carreras/registrar-carrera/registrar-carrera')
+      .then(m => m.RegistrarCarrera),
+  canActivate: [adminGuard]
+},
+
+{
+  path: 'gestion-carreras/administrar-carreras',
+  loadComponent: () =>
+    import('./pages/gestion-carreras/administrar-carreras/administrar-carreras')
+      .then(m => m.AdministrarCarreras),
+      canActivate: [adminGuard]
+},
+
+{
+  path: 'gestion-comisiones',
+  component: GestionComisiones,
+  canActivate: [adminGuard]
+},
+{
+  path: 'gestion-comisiones/administrar-comisiones',
+  loadComponent: () =>
+    import('./pages/gestion-comisiones/administrar-comisiones/administrar-comisiones')
+.then(m => m.AdministrarComisiones),
+canActivate: [adminGuard]
+},
+{
+path: 'gestion-comisiones/registrar-comision',
+loadComponent: () =>
+import('./pages/gestion-comisiones/registrar-comision/registrar-comision')
+.then(m => m.RegistrarComision),
+canActivate: [adminGuard]
+},
+
+{
+path: 'coming-soon',
+loadComponent: () => import('./pages/coming-soon/coming-soon').then(m => m.ComingSoon)
+},
   {
     path: '**',
     redirectTo: '/home'
-  }
+  },
+
+
+  
 ];
+
+

@@ -1,0 +1,142 @@
+.administrar-container {
+  min-height: 100vh;
+  padding: 40px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.administrar-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  margin: 0 0 8px;
+  color: #2d3748;
+}
+
+.header p {
+  margin: 0;
+  color: #718096;
+}
+
+.btn-volver {
+  background: #718096;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.buscador {
+  margin-bottom: 25px;
+}
+
+.buscador input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.buscador input:focus {
+  outline: none;
+  border-color: #3182ce;
+}
+
+.tabla-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background: #f7fafc;
+  color: #2d3748;
+}
+
+.acciones {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-editar,
+.btn-guardar,
+.btn-cancelar,
+.btn-eliminar {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-editar {
+  background: #3182ce;
+}
+
+.btn-guardar {
+  background: #38a169;
+}
+
+.btn-cancelar {
+  background: #718096;
+}
+
+.btn-eliminar {
+  background: #e53e3e;
+}
+
+.input-edicion {
+  width: 90%;
+  padding: 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+}
+
+.mensaje {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #edf2f7;
+  border-radius: 8px;
+  color: #2d3748;
+}
+
+@media (max-width: 700px) {
+  .administrar-container {
+    padding: 20px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+}
