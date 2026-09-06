@@ -1,8 +1,15 @@
-<div class="eliminar-container">
-  <div class="eliminar-content">
-    <div class="eliminar-header">
-      <h1>Administrar Usuarios</h1>
-      <button routerLink="/gestionUsuarios" class="btn-volver">← Volver</button>
+<div class="administrar-container">
+  <div class="administrar-card">
+    <div class="administrar-header">
+      <div>
+        <span class="eyebrow">Panel administrativo</span>
+        <h1>Gestión de Usuarios</h1>
+        <p>Consultá, modificá y administrá las cuentas del sistema.</p>
+      </div>
+      <div class="header-actions">
+        <button routerLink="/gestionUsuarios/registrarUsuario" class="btn-nuevo">+ Nuevo usuario</button>
+        <button routerLink="/dashboard" class="btn-volver">← Volver</button>
+      </div>
     </div>
 
     <div class="filtros-section">
@@ -25,14 +32,62 @@
       </select>
     </div>
 
-    <div class="usuarios-grid">
+    @if (mensaje()) {
+      <div class="mensaje">{{ mensaje() }}</div>
+    }
+
+    <div class="tabla-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
       @for (u of listaUsuarios(); track u.id) {
-      <div class="usuario-card" (click)="abrirModal(u)">
-        <div class="usuario-info">
-          <h3>{{ u.nombre }} {{ u.apellido }}</h3>
-          <p>{{ u.email }}</p>
-        </div>
-      </div>
+          <tr>
+            @if (usuarioEditando()?.id === u.id) {
+              <td class="edicion-datos">
+                <input [(ngModel)]="nombreEditado" aria-label="Editar nombre" />
+                <input [(ngModel)]="apellidoEditado" aria-label="Editar apellido" />
+              </td>
+              <td><input [(ngModel)]="emailEditado" type="email" aria-label="Editar email" /></td>
+              <td>
+                <select [(ngModel)]="rolEditado" aria-label="Editar rol">
+                  <option value="ADMIN">Administrador</option>
+                  <option value="PROFESOR">Profesor</option>
+                </select>
+              </td>
+              <td><span class="estado" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Eliminado' }}</span></td>
+              <td class="acciones">
+                <button type="button" class="btn-guardar" (click)="guardarEdicion()">Guardar</button>
+                <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+              </td>
+            } @else {
+              <td><strong>{{ u.nombre }} {{ u.apellido }}</strong></td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.rol }}</td>
+              <td><span class="estado" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Eliminado' }}</span></td>
+              <td class="acciones">
+                <button type="button" class="btn-editar" (click)="editarUsuario(u)">Editar</button>
+                @if (u.activo) {
+                  <button type="button" class="btn-eliminar" (click)="abrirModal(u)">Eliminar</button>
+                } @else {
+                  <button type="button" class="btn-reactivar" (click)="abrirModal(u)">Reactivar</button>
+                }
+              </td>
+            }
+          </tr>
+        }
+        </tbody>
+      </table>
+
+      @if (listaUsuarios().length === 0) {
+        <div class="sin-resultados">No se encontraron usuarios.</div>
       }
     </div>
 
@@ -57,7 +112,7 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <button class="btn-cerrar" (click)="cerrarModal()">✕</button>
 
-      <h2>Detalles del Usuario</h2>
+      <h2>Confirmar acción</h2>
 
       <div class="detalle-grupo">
         <label>ID:</label>
@@ -90,9 +145,9 @@
       </div>
 
       @if (usuarioSeleccionado()!.activo) {
-      <button (click)="eliminar()" [disabled]="seleccionadoIgualLogueado()" class="btn-eliminar-usuario">Eliminar Usuario</button>
+      <button (click)="eliminar()" [disabled]="seleccionadoIgualLogueado()" class="btn-eliminar-usuario">Eliminar usuario</button>
       } @else {
-      <button (click)="reactivar()" class="btn-reactivar-usuario">Reactivar Usuario</button>
+      <button (click)="reactivar()" class="btn-reactivar-usuario">Reactivar usuario</button>
       }
     </div>
   </div>

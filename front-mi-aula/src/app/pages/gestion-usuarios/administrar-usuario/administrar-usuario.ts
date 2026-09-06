@@ -21,6 +21,12 @@ export class AdministrarUsuario implements OnInit {
   filtroBusqueda = signal('');
   filtroActivo = signal<string | boolean>('');
   usuarioSeleccionado = signal<Usuario | null>(null);
+  usuarioEditando = signal<Usuario | null>(null);
+  nombreEditado = '';
+  apellidoEditado = '';
+  emailEditado = '';
+  rolEditado: 'ADMIN' | 'PROFESOR' = 'PROFESOR';
+  mensaje = signal('');
 
   listaUsuarios = signal<Usuario[]>([]);
 
@@ -74,19 +80,71 @@ export class AdministrarUsuario implements OnInit {
     this.usuarioSeleccionado.set(null);
   }
 
+  editarUsuario(usuario: Usuario) {
+    this.usuarioEditando.set(usuario);
+    this.nombreEditado = usuario.nombre;
+    this.apellidoEditado = usuario.apellido;
+    this.emailEditado = usuario.email;
+    this.rolEditado = usuario.rol ?? 'PROFESOR';
+    this.mensaje.set('');
+  }
+
+  cancelarEdicion() {
+    this.usuarioEditando.set(null);
+    this.nombreEditado = '';
+    this.apellidoEditado = '';
+    this.emailEditado = '';
+    this.rolEditado = 'PROFESOR';
+  }
+
+  guardarEdicion() {
+    const usuario = this.usuarioEditando();
+    const nombre = this.nombreEditado.trim();
+    const apellido = this.apellidoEditado.trim();
+    const email = this.emailEditado.trim();
+
+    if (!usuario || !nombre || !apellido || !email) {
+      this.mensaje.set('Completá nombre, apellido y email.');
+      return;
+    }
+
+    this.usuarioService.actualizarUsuario({
+      ...usuario,
+      nombre,
+      apellido,
+      email,
+      rol: this.rolEditado,
+    }).subscribe({
+      next: () => {
+        this.mensaje.set('Usuario actualizado correctamente.');
+        this.cancelarEdicion();
+        this.cargarUsuarios();
+      },
+      error: () => this.mensaje.set('No se pudo actualizar el usuario.'),
+    });
+  }
+
   eliminar(){
-    this.usuarioService.eliminarById(this.usuarioSeleccionado()!.id).subscribe({
+    const usuario = this.usuarioSeleccionado();
+    if (!usuario) return;
+
+    this.usuarioService.eliminarById(usuario.id).subscribe({
       next: () => {
         this.usuarioSeleccionado.set(null);
+        this.mensaje.set('Usuario eliminado correctamente.');
         this.cargarUsuarios();
       }
     })
   }
 
   reactivar() {
-    this.usuarioService.reactivarById(this.usuarioSeleccionado()!.id).subscribe({
+    const usuario = this.usuarioSeleccionado();
+    if (!usuario) return;
+
+    this.usuarioService.reactivarById(usuario.id).subscribe({
       next: () => {
         this.usuarioSeleccionado.set(null);
+        this.mensaje.set('Usuario reactivado correctamente.');
         this.cargarUsuarios();
       }
     })

@@ -1376,6 +1376,15 @@
       "rol": "ADMIN",
       "email": "gabrielagarciaret@hotmail.com",
       "activo": false
+    },
+    {
+      "id": "2750",
+      "nombre": "Karina",
+      "apellido": "de la Riva",
+      "password": "1234",
+      "rol": "PROFESOR",
+      "email": "delariva@gmail.com",
+      "activo": true
     }
   ],
   "carrera_x_asignatura": [
