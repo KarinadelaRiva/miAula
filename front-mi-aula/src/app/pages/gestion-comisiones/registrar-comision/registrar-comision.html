@@ -3,6 +3,7 @@
   <div class="form-card">
 
     <div class="form-header">
+
       <div>
         <h1>Registrar Comisión</h1>
         <p>Ingresá los datos de la nueva comisión.</p>
@@ -14,15 +15,21 @@
         (click)="cancelar()">
         ← Volver
       </button>
+
     </div>
 
     <form (ngSubmit)="guardarComision()">
 
+      <!-- NOMBRE DE LA COMISIÓN -->
+
       <div class="form-group">
 
-        <label>Nombre de la comisión *</label>
+        <label for="nombreComision">
+          Nombre de la comisión *
+        </label>
 
         <input
+          id="nombreComision"
           type="text"
           name="nombre"
           [(ngModel)]="comision.nombre"
@@ -31,11 +38,17 @@
 
       </div>
 
+
+      <!-- CANTIDAD DE ALUMNOS -->
+
       <div class="form-group">
 
-        <label>Cantidad de alumnos *</label>
+        <label for="cantidadAlumnos">
+          Cantidad de alumnos *
+        </label>
 
         <input
+          id="cantidadAlumnos"
           type="number"
           name="cantidad_alumnos"
           [(ngModel)]="comision.cantidad_alumnos"
@@ -44,13 +57,20 @@
 
       </div>
 
+
+      <!-- ASIGNATURA -->
+
       <div class="form-group">
 
-        <label>Asignatura *</label>
+        <label for="asignatura">
+          Asignatura *
+        </label>
 
         <select
+          id="asignatura"
           name="asignatura"
           [(ngModel)]="comision.asignatura_id"
+          aria-label="Asignatura"
           required>
 
           <option [ngValue]="null">
@@ -69,13 +89,20 @@
 
       </div>
 
+
+      <!-- CARRERA -->
+
       <div class="form-group">
 
-        <label>Carrera *</label>
+        <label for="carrera">
+          Carrera *
+        </label>
 
         <select
+          id="carrera"
           name="carrera"
           [(ngModel)]="comision.carrera_id"
+          aria-label="Carrera"
           required>
 
           <option [ngValue]="null">
@@ -94,13 +121,20 @@
 
       </div>
 
+
+      <!-- PROFESOR -->
+
       <div class="form-group">
 
-        <label>Profesor *</label>
+        <label for="profesor">
+          Profesor *
+        </label>
 
         <select
+          id="profesor"
           name="profesor"
           [(ngModel)]="comision.usuario_profesor_id"
+          aria-label="Profesor"
           required>
 
           <option [ngValue]="null">
@@ -119,9 +153,19 @@
 
       </div>
 
-      <div *ngIf="mensajeError" class="mensaje-error">
+
+      <!-- MENSAJE DE ERROR -->
+
+      <div
+        *ngIf="mensajeError"
+        class="mensaje-error">
+
         {{ mensajeError }}
+
       </div>
+
+
+      <!-- BOTONES -->
 
       <div class="form-actions">
 
@@ -149,6 +193,8 @@
 
 </div>
 
+
+<!-- MODAL DE ÉXITO -->
 
 <div
   *ngIf="mostrarExito"

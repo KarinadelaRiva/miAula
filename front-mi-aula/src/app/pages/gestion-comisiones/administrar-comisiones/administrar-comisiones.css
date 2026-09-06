@@ -17,6 +17,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
   margin-bottom: 30px;
 }
 
@@ -30,13 +31,57 @@
   color: #718096;
 }
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-nuevo,
+.btn-volver,
+.btn-editar,
+.btn-eliminar,
+.btn-guardar,
+.btn-cancelar {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-nuevo {
+  background: #3182ce;
+}
+
 .btn-volver {
   background: #718096;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
+}
+
+.btn-editar {
+  background: #3182ce;
+}
+
+.btn-eliminar {
+  background: #e53e3e;
+}
+
+.btn-guardar {
+  background: #38a169;
+}
+
+.btn-cancelar {
+  background: #718096;
+}
+
+.btn-nuevo:hover,
+.btn-volver:hover,
+.btn-editar:hover,
+.btn-eliminar:hover,
+.btn-guardar:hover,
+.btn-cancelar:hover {
+  opacity: 0.85;
 }
 
 .buscador {
@@ -94,44 +139,15 @@ td select {
   background: white;
 }
 
+td input:focus,
+td select:focus {
+  outline: none;
+  border-color: #3182ce;
+}
+
 .acciones {
   display: flex;
   gap: 8px;
-}
-
-.btn-editar,
-.btn-eliminar,
-.btn-guardar,
-.btn-cancelar {
-  border: none;
-  border-radius: 6px;
-  padding: 8px 13px;
-  color: white;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.btn-editar {
-  background: #3182ce;
-}
-
-.btn-eliminar {
-  background: #e53e3e;
-}
-
-.btn-guardar {
-  background: #38a169;
-}
-
-.btn-cancelar {
-  background: #718096;
-}
-
-.btn-editar:hover,
-.btn-eliminar:hover,
-.btn-guardar:hover,
-.btn-cancelar:hover {
-  opacity: 0.85;
 }
 
 .mensaje {
@@ -156,6 +172,19 @@ td select {
   .header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn-nuevo,
+  .btn-volver {
+    width: 100%;
+  }
+
+  .acciones {
+    flex-direction: column;
   }
 }

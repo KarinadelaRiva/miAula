@@ -57,10 +57,14 @@ export class RegistrarCarrera {
 
   cerrarExito(): void {
     this.mostrarExito = false;
-    this.router.navigate(['/gestion-carreras']);
+    this.router.navigate([
+      '/gestion-carreras/administrar-carreras'
+    ]);
   }
 
   cancelar(): void {
-    this.router.navigate(['/gestion-carreras']);
+    this.router.navigate([
+      '/gestion-carreras/administrar-carreras'
+    ]);
   }
 }

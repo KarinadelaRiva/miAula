@@ -1,95 +1,246 @@
 <div class="dashboard-container">
+
   <div class="welcome-section">
+
     <h1>¡Bienvenido/a, {{ usuario()?.nombre }}!</h1>
+
     <p>Sistema de Gestión de Aulas - UTN Regional MdP</p>
-    
+
     @if (usuario()) {
       <div class="user-info">
         <p><strong>Rol:</strong> {{ usuario()!.rol }}</p>
         <p><strong>Email:</strong> {{ usuario()!.email }}</p>
       </div>
     }
+
   </div>
 
   <div class="actions-section">
+
     <div class="action-cards">
+
       <!-- Cards para ADMIN -->
+
       @if (usuario()?.rol === 'ADMIN') {
-                
-        <div class="action-card solicitudes" (click)="navigateTo('/solicitudes')">
-          <img class="card-icon" src="Solicitudes.png" alt="Icono de solicitudes"/>
+
+        <!-- GESTOR DE SOLICITUDES -->
+
+        <div
+          class="action-card solicitudes"
+          (click)="navigateTo('/solicitudes')">
+
+          <img
+            class="card-icon"
+            src="Solicitudes.png"
+            alt="Icono de solicitudes"/>
+
           <h3>Gestor Solicitudes</h3>
+
           <p>Administrar solicitudes de cambio de aula</p>
+
           @if (pendingSolicitudes > 0) {
-            <div class="notification-badge">{{ pendingSolicitudes }}</div>
+            <div class="notification-badge">
+              {{ pendingSolicitudes }}
+            </div>
           }
+
         </div>
 
-        <div class="action-card" (click)="navigateTo('/reservas-todas')">
-          <img class="card-icon" src="Reservas.png" alt="Icono de reservas"/>
+
+        <!-- RESERVAS -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/reservas-todas')">
+
+          <img
+            class="card-icon"
+            src="Reservas.png"
+            alt="Icono de reservas"/>
+
           <h3>Ver Todas las Reservas</h3>
+
           <p>Administrar todas las reservas del sistema</p>
+
         </div>
-        
-  <div class="action-card" (click)="navigateTo('/gestionUsuarios')">
-          <img class="card-icon" src="Usuarios.png" alt="Icono de usuarios"/>
+
+
+        <!-- USUARIOS -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/gestionUsuarios')">
+
+          <img
+            class="card-icon"
+            src="Usuarios.png"
+            alt="Icono de usuarios"/>
+
           <h3>Gestión de Usuarios</h3>
+
           <p>Administrar profesores y permisos</p>
+
         </div>
-        
-        <div class="action-card" (click)="navigateTo('/espacios')">
-          <img class="card-icon" src="Espacios.png" alt="Icono de espacios"/>
+
+
+        <!-- ESPACIOS -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/espacios')">
+
+          <img
+            class="card-icon"
+            src="Espacios.png"
+            alt="Icono de espacios"/>
+
           <h3>Gestión de Espacios</h3>
+
           <p>Administrar aulas y laboratorios</p>
+
         </div>
 
-        <div class="action-card" (click)="navigateTo('/recursos')">
-          <img class="card-icon" src="recurso.png" alt="Icono de recursos"/>
+
+        <!-- RECURSOS -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/recursos')">
+
+          <img
+            class="card-icon"
+            src="recurso.png"
+            alt="Icono de recursos"/>
+
           <h3>Gestión de Recursos</h3>
-          <p>Gestionar los recursos disponibles para los espacios educativos</p>
+
+          <p>
+            Gestionar los recursos disponibles para los espacios educativos
+          </p>
+
         </div>
 
-        <div class="action-card" (click)="navigateTo('/gestion-comisiones')">
-          <img class="card-icon" src="Comisiones.png" alt="Icono de comisiones"/>
+
+        <!-- COMISIONES -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/gestion-comisiones/administrar-comisiones')">
+
+          <img
+            class="card-icon"
+            src="Comisiones.png"
+            alt="Icono de comisiones"/>
+
           <h3>Gestión de Comisiones</h3>
+
           <p>Administrar comisiones y asignaturas</p>
+
         </div>
 
-        <div class="action-card" (click)="navigateTo('/gestion-carreras')">
-          <img class="card-icon" src="Carreras.png" alt="Icono de carreras"/>
+
+        <!-- CARRERAS -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/gestion-carreras/administrar-carreras')">
+
+          <img
+            class="card-icon"
+            src="Carreras.png"
+            alt="Icono de carreras"/>
+
           <h3>Gestión de Carreras</h3>
+
           <p>Administrar planes de estudio</p>
+
         </div>
+
       }
-      
+
+
       <!-- Cards para PROFESOR -->
+
       @if (usuario()?.rol === 'PROFESOR') {
-        <div class="action-card" (click)="navigateTo('/solicitud/nueva')">
-          <img class="card-icon" src="Solicita reserva.png" alt="Icono de solicitar reserva"/>
+
+        <!-- SOLICITAR RESERVA -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/solicitud/nueva')">
+
+          <img
+            class="card-icon"
+            src="Solicita reserva.png"
+            alt="Icono de solicitar reserva"/>
+
           <h3>Solicitar Reserva</h3>
+
           <p>Realizar una nueva solicitud de reserva de aula</p>
+
         </div>
 
-        <div class="action-card" (click)="navigateTo('/solicitud/mis-solicitudes')">
-          <img class="card-icon" src="Solicitudes.png" alt="Icono de solicitudes"/>
+
+        <!-- MIS SOLICITUDES -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/solicitud/mis-solicitudes')">
+
+          <img
+            class="card-icon"
+            src="Solicitudes.png"
+            alt="Icono de solicitudes"/>
+
           <h3>Mis Solicitudes</h3>
+
           <p>Ver historial de solicitudes realizadas</p>
+
         </div>
 
-        <div class="action-card" (click)="navigateTo('/mis-reservas')">
-          <img class="card-icon" src="Reservas.png" alt="Icono de reservas"/>
+
+        <!-- MIS RESERVAS -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/mis-reservas')">
+
+          <img
+            class="card-icon"
+            src="Reservas.png"
+            alt="Icono de reservas"/>
+
           <h3>Ver Mis Reservas</h3>
+
           <p>Ver mis clases programadas ordenadas por estado</p>
+
         </div>
 
-        <div class="action-card" (click)="navigateTo('/gestion-comisiones')"> 
-          <img class="card-icon" src="Comisiones.png" alt="Icono de comisiones"/>
+
+        <!-- MIS COMISIONES -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/gestion-comisiones')">
+
+          <img
+            class="card-icon"
+            src="Comisiones.png"
+            alt="Icono de comisiones"/>
+
           <h3>Mis Comisiones</h3>
+
           <p>Ver comisiones asignadas</p>
+
         </div>
+
       }
+
     </div>
+
   </div>
+
 </div>
-<!-- Router outlet to render nested dashboard routes (e.g. gestión de usuarios) -->
+
+<!-- Router outlet to render nested dashboard routes -->
 <router-outlet></router-outlet>

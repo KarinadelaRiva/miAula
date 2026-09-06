@@ -24,8 +24,10 @@ export class AdministrarCarreras implements OnInit {
   carrerasFiltradas: Carrera[] = [];
 
   busqueda = '';
+
   carreraEditando: Carrera | null = null;
   nombreEditado = '';
+
   mensaje = '';
 
   constructor(private http: HttpClient) {}
@@ -38,18 +40,39 @@ export class AdministrarCarreras implements OnInit {
     this.http.get<Carrera[]>(this.apiUrl).subscribe({
       next: (data) => {
         this.carreras = data;
-        this.carrerasFiltradas = data;
-        this.mensaje = 'Carrera cargada correctamente.';
+        this.carrerasFiltradas = [...data];
+        this.mensaje = '';
+
+        console.log('Carreras cargadas:', this.carreras);
       },
+
       error: (error) => {
-        console.error(error);
+        console.error('Error cargando carreras:', error);
+
+        this.carreras = [];
+        this.carrerasFiltradas = [];
+
         this.mensaje = 'No se pudieron cargar las carreras.';
       }
     });
   }
 
+  mostrarTodas(): void {
+    console.log('Click en buscador');
+    console.log('Carreras disponibles:', this.carreras);
+
+    this.carrerasFiltradas = [...this.carreras];
+  }
+
   buscar(): void {
     const texto = this.busqueda.toLowerCase().trim();
+
+    console.log('Texto buscado:', texto);
+
+    if (!texto) {
+      this.carrerasFiltradas = [...this.carreras];
+      return;
+    }
 
     this.carrerasFiltradas = this.carreras.filter(carrera =>
       carrera.nombre.toLowerCase().includes(texto)
@@ -59,6 +82,7 @@ export class AdministrarCarreras implements OnInit {
   editarCarrera(carrera: Carrera): void {
     this.carreraEditando = carrera;
     this.nombreEditado = carrera.nombre;
+    this.mensaje = '';
   }
 
   cancelarEdicion(): void {
@@ -67,7 +91,9 @@ export class AdministrarCarreras implements OnInit {
   }
 
   guardarEdicion(): void {
+
     if (!this.carreraEditando || !this.nombreEditado.trim()) {
+      this.mensaje = 'Ingresá un nombre para la carrera.';
       return;
     }
 
@@ -85,6 +111,7 @@ export class AdministrarCarreras implements OnInit {
         this.cancelarEdicion();
         this.cargarCarreras();
       },
+
       error: (error) => {
         console.error(error);
         this.mensaje = 'No se pudo actualizar la carrera.';
@@ -93,6 +120,7 @@ export class AdministrarCarreras implements OnInit {
   }
 
   eliminarCarrera(carrera: Carrera): void {
+
     const confirmar = confirm(
       `¿Seguro que querés eliminar la carrera "${carrera.nombre}"?`
     );
@@ -101,11 +129,14 @@ export class AdministrarCarreras implements OnInit {
       return;
     }
 
-    this.http.delete(`${this.apiUrl}/${carrera.id}`).subscribe({
+    this.http.delete(
+      `${this.apiUrl}/${carrera.id}`
+    ).subscribe({
       next: () => {
         this.mensaje = 'Carrera eliminada correctamente.';
         this.cargarCarreras();
       },
+
       error: (error) => {
         console.error(error);
         this.mensaje = 'No se pudo eliminar la carrera.';

@@ -108,11 +108,11 @@ export class RegistrarComision implements OnInit {
   }
 
   cerrarExito(): void {
-    this.mostrarExito = false;
-    this.router.navigate(['/gestion-comisiones']);
-  }
+  this.mostrarExito = false;
+  this.router.navigate(['/gestion-comisiones/administrar-comisiones']);
+}
 
-  cancelar(): void {
-    this.router.navigate(['/gestion-comisiones']);
-  }
+ cancelar(): void {
+  this.router.navigate(['/gestion-comisiones/administrar-comisiones']);
+}
 }

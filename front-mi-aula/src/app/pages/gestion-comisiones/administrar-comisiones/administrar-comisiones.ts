@@ -51,7 +51,9 @@ export class AdministrarComisiones implements OnInit {
   profesores: Usuario[] = [];
 
   busqueda = '';
+
   comisionEditando: Comision | null = null;
+
   mensaje = '';
 
   constructor(private http: HttpClient) {}
@@ -62,69 +64,173 @@ export class AdministrarComisiones implements OnInit {
 
   cargarDatos(): void {
 
-    this.http.get<Asignatura[]>(`${this.apiUrl}/asignaturas`)
-      .subscribe(data => this.asignaturas = data);
+    this.http.get<Asignatura[]>(
+      `${this.apiUrl}/asignaturas`
+    ).subscribe({
+      next: (data) => {
+        this.asignaturas = data;
+      },
+      error: (error) => {
+        console.error('Error cargando asignaturas:', error);
+      }
+    });
 
-    this.http.get<Carrera[]>(`${this.apiUrl}/carreras`)
-      .subscribe(data => this.carreras = data);
+    this.http.get<Carrera[]>(
+      `${this.apiUrl}/carreras`
+    ).subscribe({
+      next: (data) => {
+        this.carreras = data;
+      },
+      error: (error) => {
+        console.error('Error cargando carreras:', error);
+      }
+    });
 
-    this.http.get<Usuario[]>(`${this.apiUrl}/usuarios`)
-      .subscribe(data => {
+    this.http.get<Usuario[]>(
+      `${this.apiUrl}/usuarios`
+    ).subscribe({
+      next: (data) => {
         this.profesores = data.filter(usuario =>
-          usuario.rol === 'PROFESOR' && usuario.activo
+          usuario.rol === 'PROFESOR' &&
+          usuario.activo
         );
-      });
+      },
+      error: (error) => {
+        console.error('Error cargando usuarios:', error);
+      }
+    });
 
     this.cargarComisiones();
   }
 
   cargarComisiones(): void {
-    this.http.get<Comision[]>(`${this.apiUrl}/comisiones`).subscribe({
+
+    this.http.get<Comision[]>(
+      `${this.apiUrl}/comisiones`
+    ).subscribe({
       next: (data) => {
         this.comisiones = data;
-        this.comisionesFiltradas = data;
+        this.comisionesFiltradas = [...data];
+        this.mensaje = '';
+
+        console.log(
+          'Comisiones cargadas:',
+          this.comisiones
+        );
       },
+
       error: (error) => {
-        console.error(error);
-        this.mensaje = 'No se pudieron cargar las comisiones.';
+        console.error(
+          'Error cargando comisiones:',
+          error
+        );
+
+        this.comisiones = [];
+        this.comisionesFiltradas = [];
+
+        this.mensaje =
+          'No se pudieron cargar las comisiones.';
       }
     });
   }
 
-  buscar(): void {
-    const texto = this.busqueda.toLowerCase().trim();
+  mostrarTodas(): void {
 
-    this.comisionesFiltradas = this.comisiones.filter(comision =>
-      comision.nombre.toLowerCase().includes(texto) ||
-      this.obtenerAsignatura(comision.asignatura_id)
-        .toLowerCase().includes(texto) ||
-      this.obtenerCarrera(comision.carrera_id)
-        .toLowerCase().includes(texto) ||
-      this.obtenerProfesor(comision.usuario_profesor_id)
-        .toLowerCase().includes(texto)
+    console.log('Click en buscador');
+
+    console.log(
+      'Comisiones disponibles:',
+      this.comisiones
     );
+
+    this.comisionesFiltradas = [
+      ...this.comisiones
+    ];
+  }
+
+  buscar(): void {
+
+    const texto =
+      this.busqueda
+        .toLowerCase()
+        .trim();
+
+    console.log(
+      'Texto buscado:',
+      texto
+    );
+
+    if (!texto) {
+
+      this.comisionesFiltradas = [
+        ...this.comisiones
+      ];
+
+      return;
+    }
+
+    this.comisionesFiltradas =
+      this.comisiones.filter(comision =>
+
+        comision.nombre
+          .toLowerCase()
+          .includes(texto)
+
+        ||
+
+        this.obtenerAsignatura(
+          comision.asignatura_id
+        )
+          .toLowerCase()
+          .includes(texto)
+
+        ||
+
+        this.obtenerCarrera(
+          comision.carrera_id
+        )
+          .toLowerCase()
+          .includes(texto)
+
+        ||
+
+        this.obtenerProfesor(
+          comision.usuario_profesor_id
+        )
+          .toLowerCase()
+          .includes(texto)
+
+      );
   }
 
   obtenerAsignatura(id: number): string {
-    const asignatura = this.asignaturas.find(
-      a => Number(a.id) === Number(id)
-    );
 
-    return asignatura?.nombre_asignatura ?? 'Sin asignatura';
+    const asignatura =
+      this.asignaturas.find(
+        a => Number(a.id) === Number(id)
+      );
+
+    return asignatura?.nombre_asignatura
+      ?? 'Sin asignatura';
   }
 
   obtenerCarrera(id: number): string {
-    const carrera = this.carreras.find(
-      c => Number(c.id) === Number(id)
-    );
 
-    return carrera?.nombre ?? 'Sin carrera';
+    const carrera =
+      this.carreras.find(
+        c => Number(c.id) === Number(id)
+      );
+
+    return carrera?.nombre
+      ?? 'Sin carrera';
   }
 
   obtenerProfesor(id: number): string {
-    const profesor = this.profesores.find(
-      p => Number(p.id) === Number(id)
-    );
+
+    const profesor =
+      this.profesores.find(
+        p => Number(p.id) === Number(id)
+      );
 
     return profesor
       ? `${profesor.apellido}, ${profesor.nombre}`
@@ -132,11 +238,16 @@ export class AdministrarComisiones implements OnInit {
   }
 
   editarComision(comision: Comision): void {
-    this.comisionEditando = { ...comision };
+
+    this.comisionEditando = {
+      ...comision
+    };
+
     this.mensaje = '';
   }
 
   cancelarEdicion(): void {
+
     this.comisionEditando = null;
   }
 
@@ -147,13 +258,20 @@ export class AdministrarComisiones implements OnInit {
     }
 
     if (
-      !this.comisionEditando.nombre.trim() ||
-      !this.comisionEditando.cantidad_alumnos ||
-      !this.comisionEditando.asignatura_id ||
-      !this.comisionEditando.carrera_id ||
+      !this.comisionEditando.nombre.trim()
+      ||
+      !this.comisionEditando.cantidad_alumnos
+      ||
+      !this.comisionEditando.asignatura_id
+      ||
+      !this.comisionEditando.carrera_id
+      ||
       !this.comisionEditando.usuario_profesor_id
     ) {
-      this.mensaje = 'Completá todos los campos.';
+
+      this.mensaje =
+        'Completá todos los campos.';
+
       return;
     }
 
@@ -162,18 +280,28 @@ export class AdministrarComisiones implements OnInit {
       this.comisionEditando
     ).subscribe({
       next: () => {
-        this.mensaje = 'Comisión actualizada correctamente.';
+
+        this.mensaje =
+          'Comisión actualizada correctamente.';
+
         this.comisionEditando = null;
+
         this.cargarComisiones();
       },
+
       error: (error) => {
+
         console.error(error);
-        this.mensaje = 'No se pudo actualizar la comisión.';
+
+        this.mensaje =
+          'No se pudo actualizar la comisión.';
       }
     });
   }
 
-  eliminarComision(comision: Comision): void {
+  eliminarComision(
+    comision: Comision
+  ): void {
 
     const confirmar = confirm(
       `¿Seguro que querés eliminar la comisión "${comision.nombre}"?`
@@ -187,12 +315,19 @@ export class AdministrarComisiones implements OnInit {
       `${this.apiUrl}/comisiones/${comision.id}`
     ).subscribe({
       next: () => {
-        this.mensaje = 'Comisión eliminada correctamente.';
+
+        this.mensaje =
+          'Comisión eliminada correctamente.';
+
         this.cargarComisiones();
       },
+
       error: (error) => {
+
         console.error(error);
-        this.mensaje = 'No se pudo eliminar la comisión.';
+
+        this.mensaje =
+          'No se pudo eliminar la comisión.';
       }
     });
   }

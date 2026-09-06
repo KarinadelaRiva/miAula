@@ -3,29 +3,53 @@
   <div class="administrar-card">
 
     <div class="header">
+
       <div>
-        <h1>Administrar Carreras</h1>
-        <p>Consultar, editar o eliminar carreras.</p>
+        <h1>Gestión de Carreras</h1>
+        <p>Consultar, editar, eliminar o registrar carreras.</p>
       </div>
 
-      <button
-        routerLink="/gestion-carreras"
-        class="btn-volver">
-        ← Volver
-      </button>
+      <div class="header-actions">
+
+        <button
+          type="button"
+          routerLink="/gestion-carreras/registrar-carrera"
+          class="btn-nuevo">
+          + Nueva Carrera
+        </button>
+
+        <button
+          type="button"
+          routerLink="/dashboard"
+          class="btn-volver">
+          ← Volver
+        </button>
+
+      </div>
+
     </div>
 
+    <!-- BUSCADOR -->
+
     <div class="buscador">
+
       <input
         type="text"
         placeholder="Buscar carrera..."
         [(ngModel)]="busqueda"
-        (input)="buscar()">
+        (click)="mostrarTodas()"
+        (input)="buscar()"
+        aria-label="Buscar carrera">
+
     </div>
+
+    <!-- MENSAJE -->
 
     <div *ngIf="mensaje" class="mensaje">
       {{ mensaje }}
     </div>
+
+    <!-- TABLA -->
 
     <div class="tabla-container">
 
@@ -43,14 +67,17 @@
 
           <tr *ngFor="let carrera of carrerasFiltradas">
 
-            <td>{{ carrera.id }}</td>
+            <td>
+              {{ carrera.id }}
+            </td>
 
             <td>
 
               <input
                 *ngIf="carreraEditando?.id === carrera.id"
                 class="input-edicion"
-                [(ngModel)]="nombreEditado">
+                [(ngModel)]="nombreEditado"
+                aria-label="Editar nombre de carrera">
 
               <span *ngIf="carreraEditando?.id !== carrera.id">
                 {{ carrera.nombre }}
@@ -63,12 +90,14 @@
               <ng-container *ngIf="carreraEditando?.id === carrera.id">
 
                 <button
+                  type="button"
                   class="btn-guardar"
                   (click)="guardarEdicion()">
                   Guardar
                 </button>
 
                 <button
+                  type="button"
                   class="btn-cancelar"
                   (click)="cancelarEdicion()">
                   Cancelar
@@ -79,12 +108,14 @@
               <ng-container *ngIf="carreraEditando?.id !== carrera.id">
 
                 <button
+                  type="button"
                   class="btn-editar"
                   (click)="editarCarrera(carrera)">
                   Editar
                 </button>
 
                 <button
+                  type="button"
                   class="btn-eliminar"
                   (click)="eliminarCarrera(carrera)">
                   Eliminar
@@ -99,6 +130,14 @@
         </tbody>
 
       </table>
+
+      <div
+        *ngIf="carrerasFiltradas.length === 0"
+        class="sin-resultados">
+
+        No se encontraron carreras.
+
+      </div>
 
     </div>
 
