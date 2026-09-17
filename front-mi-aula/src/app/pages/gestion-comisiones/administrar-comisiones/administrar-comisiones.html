@@ -2,11 +2,12 @@
 
   <div class="administrar-card">
 
-    <div class="header">
+    <div class="administrar-header">
 
       <div>
+        <span class="eyebrow">Panel administrativo</span>
         <h1>Gestión de Comisiones</h1>
-        <p>Consultar, editar, eliminar o registrar comisiones.</p>
+        <p>Consultá, modificá y administrá las comisiones del sistema.</p>
       </div>
 
       <div class="header-actions">
@@ -15,7 +16,7 @@
           type="button"
           routerLink="/gestion-comisiones/registrar-comision"
           class="btn-nuevo">
-          + Nueva Comisión
+          + Nueva comisión
         </button>
 
         <button
@@ -29,12 +30,11 @@
 
     </div>
 
-    <!-- BUSCADOR -->
-
-    <div class="buscador">
+    <div class="filtros-section">
 
       <input
         type="text"
+        class="input-buscar"
         placeholder="Buscar por comisión, asignatura, carrera o profesor..."
         [(ngModel)]="busqueda"
         (click)="mostrarTodas()"
@@ -43,13 +43,9 @@
 
     </div>
 
-    <!-- MENSAJE -->
-
     <div *ngIf="mensaje" class="mensaje">
       {{ mensaje }}
     </div>
-
-    <!-- TABLA -->
 
     <div class="tabla-container">
 
@@ -70,31 +66,29 @@
 
           <tr *ngFor="let comision of comisionesFiltradas">
 
-            <!-- MODO NORMAL -->
-
             <ng-container *ngIf="comisionEditando?.id !== comision.id">
 
-              <td>
-                {{ comision.nombre }}
+              <td data-label="Comisión">
+                <strong>{{ comision.nombre }}</strong>
               </td>
 
-              <td>
+              <td data-label="Alumnos">
                 {{ comision.cantidad_alumnos }}
               </td>
 
-              <td>
+              <td data-label="Asignatura">
                 {{ obtenerAsignatura(comision.asignatura_id) }}
               </td>
 
-              <td>
+              <td data-label="Carrera">
                 {{ obtenerCarrera(comision.carrera_id) }}
               </td>
 
-              <td>
+              <td data-label="Profesor">
                 {{ obtenerProfesor(comision.usuario_profesor_id) }}
               </td>
 
-              <td class="acciones">
+              <td data-label="Acciones" class="acciones">
 
                 <button
                   type="button"
@@ -114,12 +108,10 @@
 
             </ng-container>
 
-            <!-- MODO EDICIÓN -->
-
             <ng-container
               *ngIf="comisionEditando?.id === comision.id && comisionEditando as editando">
 
-              <td>
+              <td data-label="Comisión">
 
                 <input
                   type="text"
@@ -128,7 +120,7 @@
 
               </td>
 
-              <td>
+              <td data-label="Alumnos">
 
                 <input
                   type="number"
@@ -138,7 +130,7 @@
 
               </td>
 
-              <td>
+              <td data-label="Asignatura">
 
                 <select
                   [(ngModel)]="editando.asignatura_id"
@@ -147,16 +139,14 @@
                   <option
                     *ngFor="let asignatura of asignaturas"
                     [ngValue]="+asignatura.id">
-
                     {{ asignatura.nombre_asignatura }}
-
                   </option>
 
                 </select>
 
               </td>
 
-              <td>
+              <td data-label="Carrera">
 
                 <select
                   [(ngModel)]="editando.carrera_id"
@@ -165,16 +155,14 @@
                   <option
                     *ngFor="let carrera of carreras"
                     [ngValue]="+carrera.id">
-
                     {{ carrera.nombre }}
-
                   </option>
 
                 </select>
 
               </td>
 
-              <td>
+              <td data-label="Profesor">
 
                 <select
                   [(ngModel)]="editando.usuario_profesor_id"
@@ -183,16 +171,14 @@
                   <option
                     *ngFor="let profesor of profesores"
                     [ngValue]="+profesor.id">
-
                     {{ profesor.apellido }}, {{ profesor.nombre }}
-
                   </option>
 
                 </select>
 
               </td>
 
-              <td class="acciones">
+              <td data-label="Acciones" class="acciones">
 
                 <button
                   type="button"
@@ -221,9 +207,7 @@
       <div
         *ngIf="comisionesFiltradas.length === 0"
         class="sin-resultados">
-
         No se encontraron comisiones.
-
       </div>
 
     </div>

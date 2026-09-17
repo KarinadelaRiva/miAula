@@ -1,12 +1,10 @@
-<div class="form-container">
+<div class="registrar-container">
 
-  <div class="form-card">
+  <div class="registrar-content">
 
-    <div class="form-header">
-      <div>
-        <h1>Registrar Carrera</h1>
-        <p>Ingresá los datos de la nueva carrera.</p>
-      </div>
+    <div class="registrar-header">
+
+      <h1>Registrar Nueva Carrera</h1>
 
       <button
         type="button"
@@ -14,28 +12,35 @@
         (click)="cancelar()">
         ← Volver
       </button>
+
     </div>
 
-    <form (ngSubmit)="guardarCarrera()">
+    <form
+      (ngSubmit)="guardarCarrera()"
+      class="registrar-form">
 
-      <div class="form-group">
+      <div class="campo">
 
-        <label for="nombre">
-          Nombre de la carrera *
+        <label for="nombreCarrera">
+          Nombre de la carrera
         </label>
 
         <input
-          id="nombre"
-          name="nombre"
+          id="nombreCarrera"
           type="text"
+          name="nombre"
           [(ngModel)]="nombre"
-          placeholder="Ej: Ingeniería Industrial"
+          placeholder="Ej: Tecnicatura Universitaria en Programación"
           required>
 
       </div>
 
-      <div *ngIf="mensajeError" class="mensaje-error">
+      <div
+        *ngIf="mensajeError"
+        class="mensaje-resultado error">
+
         {{ mensajeError }}
+
       </div>
 
       <div class="form-actions">
@@ -49,7 +54,7 @@
 
         <button
           type="submit"
-          class="btn-guardar"
+          class="btn-registrar"
           [disabled]="guardando">
 
           {{ guardando ? 'Guardando...' : 'Registrar Carrera' }}
@@ -65,7 +70,7 @@
 </div>
 
 
-<!-- EMERGENTE DE ÉXITO -->
+<!-- MODAL DE ÉXITO -->
 
 <div
   *ngIf="mostrarExito"
@@ -87,9 +92,7 @@
       type="button"
       class="btn-aceptar"
       (click)="cerrarExito()">
-
       Aceptar
-
     </button>
 
   </div>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -23,7 +23,8 @@ export class RegistrarCarrera {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   guardarCarrera(): void {
@@ -41,28 +42,46 @@ export class RegistrarCarrera {
     };
 
     this.http.post(this.apiUrl, nuevaCarrera).subscribe({
-      next: () => {
+
+      next: (respuesta) => {
+
+        console.log('Carrera registrada correctamente:', respuesta);
+
         this.guardando = false;
         this.mostrarExito = true;
         this.nombre = '';
+
+        this.cdr.detectChanges();
       },
 
       error: (error) => {
-        console.error(error);
+
+        console.error(
+          'Error registrando carrera:',
+          error
+        );
+
         this.guardando = false;
-        this.mensajeError = 'No se pudo registrar la carrera.';
+        this.mensajeError =
+          'No se pudo registrar la carrera.';
+
+        this.cdr.detectChanges();
       }
+
     });
   }
 
   cerrarExito(): void {
+
     this.mostrarExito = false;
+
     this.router.navigate([
       '/gestion-carreras/administrar-carreras'
     ]);
   }
 
   cancelar(): void {
+
     this.router.navigate([
       '/gestion-carreras/administrar-carreras'
     ]);

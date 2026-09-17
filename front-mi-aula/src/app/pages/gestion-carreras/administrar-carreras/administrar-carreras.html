@@ -2,11 +2,12 @@
 
   <div class="administrar-card">
 
-    <div class="header">
+    <div class="administrar-header">
 
       <div>
+        <span class="eyebrow">Panel administrativo</span>
         <h1>Gestión de Carreras</h1>
-        <p>Consultar, editar, eliminar o registrar carreras.</p>
+        <p>Consultá, modificá y administrá las carreras del sistema.</p>
       </div>
 
       <div class="header-actions">
@@ -15,7 +16,7 @@
           type="button"
           routerLink="/gestion-carreras/registrar-carrera"
           class="btn-nuevo">
-          + Nueva Carrera
+          + Nueva carrera
         </button>
 
         <button
@@ -29,12 +30,11 @@
 
     </div>
 
-    <!-- BUSCADOR -->
-
-    <div class="buscador">
+    <div class="filtros-section">
 
       <input
         type="text"
+        class="input-buscar"
         placeholder="Buscar carrera..."
         [(ngModel)]="busqueda"
         (click)="mostrarTodas()"
@@ -43,13 +43,9 @@
 
     </div>
 
-    <!-- MENSAJE -->
-
     <div *ngIf="mensaje" class="mensaje">
       {{ mensaje }}
     </div>
-
-    <!-- TABLA -->
 
     <div class="tabla-container">
 
@@ -67,11 +63,11 @@
 
           <tr *ngFor="let carrera of carrerasFiltradas">
 
-            <td>
+            <td data-label="ID">
               {{ carrera.id }}
             </td>
 
-            <td>
+            <td data-label="Carrera">
 
               <input
                 *ngIf="carreraEditando?.id === carrera.id"
@@ -79,13 +75,13 @@
                 [(ngModel)]="nombreEditado"
                 aria-label="Editar nombre de carrera">
 
-              <span *ngIf="carreraEditando?.id !== carrera.id">
+              <strong *ngIf="carreraEditando?.id !== carrera.id">
                 {{ carrera.nombre }}
-              </span>
+              </strong>
 
             </td>
 
-            <td class="acciones">
+            <td data-label="Acciones" class="acciones">
 
               <ng-container *ngIf="carreraEditando?.id === carrera.id">
 
@@ -134,9 +130,7 @@
       <div
         *ngIf="carrerasFiltradas.length === 0"
         class="sin-resultados">
-
         No se encontraron carreras.
-
       </div>
 
     </div>

@@ -1,13 +1,10 @@
-<div class="form-container">
+<div class="registrar-container">
 
-  <div class="form-card">
+  <div class="registrar-content">
 
-    <div class="form-header">
+    <div class="registrar-header">
 
-      <div>
-        <h1>Registrar Comisión</h1>
-        <p>Ingresá los datos de la nueva comisión.</p>
-      </div>
+      <h1>Registrar Nueva Comisión</h1>
 
       <button
         type="button"
@@ -18,52 +15,50 @@
 
     </div>
 
-    <form (ngSubmit)="guardarComision()">
+    <form
+      (ngSubmit)="guardarComision()"
+      class="registrar-form">
 
-      <!-- NOMBRE DE LA COMISIÓN -->
+      <div class="form-row">
 
-      <div class="form-group">
+        <div class="campo">
 
-        <label for="nombreComision">
-          Nombre de la comisión *
-        </label>
+          <label for="nombreComision">
+            Nombre de la comisión
+          </label>
 
-        <input
-          id="nombreComision"
-          type="text"
-          name="nombre"
-          [(ngModel)]="comision.nombre"
-          placeholder="Ej: Prog1-C1-TM"
-          required>
+          <input
+            id="nombreComision"
+            type="text"
+            name="nombre"
+            [(ngModel)]="comision.nombre"
+            placeholder="Ej: Prog1-C1-TM"
+            required>
+
+        </div>
+
+        <div class="campo">
+
+          <label for="cantidadAlumnos">
+            Cantidad de alumnos
+          </label>
+
+          <input
+            id="cantidadAlumnos"
+            type="number"
+            name="cantidad_alumnos"
+            [(ngModel)]="comision.cantidad_alumnos"
+            min="1"
+            required>
+
+        </div>
 
       </div>
 
-
-      <!-- CANTIDAD DE ALUMNOS -->
-
-      <div class="form-group">
-
-        <label for="cantidadAlumnos">
-          Cantidad de alumnos *
-        </label>
-
-        <input
-          id="cantidadAlumnos"
-          type="number"
-          name="cantidad_alumnos"
-          [(ngModel)]="comision.cantidad_alumnos"
-          min="1"
-          required>
-
-      </div>
-
-
-      <!-- ASIGNATURA -->
-
-      <div class="form-group">
+      <div class="campo">
 
         <label for="asignatura">
-          Asignatura *
+          Asignatura
         </label>
 
         <select
@@ -89,13 +84,10 @@
 
       </div>
 
-
-      <!-- CARRERA -->
-
-      <div class="form-group">
+      <div class="campo">
 
         <label for="carrera">
-          Carrera *
+          Carrera
         </label>
 
         <select
@@ -121,13 +113,10 @@
 
       </div>
 
-
-      <!-- PROFESOR -->
-
-      <div class="form-group">
+      <div class="campo">
 
         <label for="profesor">
-          Profesor *
+          Profesor
         </label>
 
         <select
@@ -153,19 +142,13 @@
 
       </div>
 
-
-      <!-- MENSAJE DE ERROR -->
-
       <div
         *ngIf="mensajeError"
-        class="mensaje-error">
+        class="mensaje-resultado error">
 
         {{ mensajeError }}
 
       </div>
-
-
-      <!-- BOTONES -->
 
       <div class="form-actions">
 
@@ -178,7 +161,7 @@
 
         <button
           type="submit"
-          class="btn-guardar"
+          class="btn-registrar"
           [disabled]="guardando">
 
           {{ guardando ? 'Guardando...' : 'Registrar Comisión' }}

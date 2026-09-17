@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -51,7 +51,8 @@ export class RegistrarComision implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -60,59 +61,151 @@ export class RegistrarComision implements OnInit {
 
   cargarDatos(): void {
 
-    this.http.get<Asignatura[]>('http://localhost:3000/asignaturas')
-      .subscribe(data => this.asignaturas = data);
+    this.http
+      .get<Asignatura[]>('http://localhost:3000/asignaturas')
+      .subscribe({
+        next: (data) => {
+          this.asignaturas = data;
+        },
+        error: (error) => {
+          console.error('Error cargando asignaturas:', error);
+        }
+      });
 
-    this.http.get<Carrera[]>('http://localhost:3000/carreras')
-      .subscribe(data => this.carreras = data);
+    this.http
+      .get<Carrera[]>('http://localhost:3000/carreras')
+      .subscribe({
+        next: (data) => {
+          this.carreras = data;
+        },
+        error: (error) => {
+          console.error('Error cargando carreras:', error);
+        }
+      });
 
-    this.http.get<Usuario[]>('http://localhost:3000/usuarios')
-      .subscribe(data => {
-        this.profesores = data.filter(usuario =>
-          usuario.rol === 'PROFESOR' && usuario.activo
-        );
+    this.http
+      .get<Usuario[]>('http://localhost:3000/usuarios')
+      .subscribe({
+        next: (data) => {
+
+          this.profesores = data.filter(usuario =>
+            usuario.rol === 'PROFESOR' &&
+            usuario.activo
+          );
+
+        },
+        error: (error) => {
+          console.error('Error cargando profesores:', error);
+        }
       });
   }
 
   guardarComision(): void {
 
+    console.log(
+      'Datos de comisión antes de guardar:',
+      this.comision
+    );
+
+    if (!this.comision.nombre.trim()) {
+      this.mensajeError =
+        'Ingresá el nombre de la comisión.';
+      return;
+    }
+
     if (
-      !this.comision.nombre.trim() ||
-      !this.comision.cantidad_alumnos ||
-      !this.comision.asignatura_id ||
-      !this.comision.carrera_id ||
-      !this.comision.usuario_profesor_id
+      this.comision.cantidad_alumnos === null ||
+      this.comision.cantidad_alumnos <= 0
     ) {
-      this.mensajeError = 'Completá todos los campos obligatorios.';
+      this.mensajeError =
+        'Ingresá una cantidad de alumnos válida.';
+      return;
+    }
+
+    if (this.comision.asignatura_id === null) {
+      this.mensajeError =
+        'Seleccioná una asignatura.';
+      return;
+    }
+
+    if (this.comision.carrera_id === null) {
+      this.mensajeError =
+        'Seleccioná una carrera.';
+      return;
+    }
+
+    if (this.comision.usuario_profesor_id === null) {
+      this.mensajeError =
+        'Seleccioná un profesor.';
       return;
     }
 
     this.guardando = true;
     this.mensajeError = '';
 
+    const nuevaComision = {
+      nombre: this.comision.nombre.trim(),
+      cantidad_alumnos: Number(this.comision.cantidad_alumnos),
+      asignatura_id: Number(this.comision.asignatura_id),
+      carrera_id: Number(this.comision.carrera_id),
+      usuario_profesor_id: Number(
+        this.comision.usuario_profesor_id
+      )
+    };
+
+    console.log(
+      'Comisión enviada:',
+      nuevaComision
+    );
+
     this.http.post(
       'http://localhost:3000/comisiones',
-      this.comision
+      nuevaComision
     ).subscribe({
-      next: () => {
+
+      next: (respuesta) => {
+
+        console.log(
+          'Comisión registrada correctamente:',
+          respuesta
+        );
+
         this.guardando = false;
         this.mostrarExito = true;
+
+        this.cdr.detectChanges();
       },
 
       error: (error) => {
-        console.error(error);
+
+        console.error(
+          'Error registrando comisión:',
+          error
+        );
+
         this.guardando = false;
-        this.mensajeError = 'No se pudo registrar la comisión.';
+        this.mensajeError =
+          'No se pudo registrar la comisión.';
+
+        this.cdr.detectChanges();
       }
+
     });
   }
 
   cerrarExito(): void {
-  this.mostrarExito = false;
-  this.router.navigate(['/gestion-comisiones/administrar-comisiones']);
-}
 
- cancelar(): void {
-  this.router.navigate(['/gestion-comisiones/administrar-comisiones']);
-}
+    this.mostrarExito = false;
+
+    this.router.navigate([
+      '/gestion-comisiones/administrar-comisiones'
+    ]);
+  }
+
+  cancelar(): void {
+
+    this.router.navigate([
+      '/gestion-comisiones/administrar-comisiones'
+    ]);
+  }
 }
