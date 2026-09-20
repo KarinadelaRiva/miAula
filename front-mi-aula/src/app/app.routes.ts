@@ -64,6 +64,11 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'reservas-anteriores',
+    loadComponent: () => import('./pages/gestor-reservas/reservas-anteriores/reservas-anteriores.component').then(m => m.ReservasAnterioresComponent),
+    canActivate: [adminGuard]
+  },
+  {
     path: 'mis-reservas',
     loadComponent: () => import('./pages/calendario/calendario.component').then(m => m.CalendarioComponent),
     canActivate: [authGuard]

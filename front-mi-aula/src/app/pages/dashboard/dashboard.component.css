@@ -15,16 +15,35 @@
 }
 
 .welcome-section {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem 1rem;
+  border-radius: 10px;
+  background: url('/fondo.png') center center / cover no-repeat;
   text-align: center;
   margin-bottom: 3rem;
-  color: #0b3d91;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(15, 50, 90, 0.14);
+}
+
+.welcome-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 25, 48, 0.38);
+  pointer-events: none;
+}
+
+.welcome-section > * {
+  position: relative;
+  z-index: 1;
 }
 
 .welcome-section h1 {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: #0b3d91;
+  color: #fff;
   text-shadow: none;
 }
 
@@ -32,11 +51,11 @@
   font-size: 1rem;
   opacity: 0.95;
   margin-bottom: 1.5rem;
-  color: #33485a;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .user-info {
-  background: #f8fbff;
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 15px;
   padding: 1rem 2rem;
   margin: 1rem auto;

@@ -1,18 +1,28 @@
-<main class="container">
-    <section class="header">
-        <h1>Gestión de Reservas</h1>
-        <button type="button" routerLink="/dashboard" class="btn-secondary">
-            ← Volver
-        </button>
-    </section>
+<main class="gestion-container">
+    <div class="gestion-card">
+        <section class="gestion-header">
+            <div>
+                <span class="eyebrow">Panel administrativo</span>
+                <h1>Gestión de Reservas</h1>
+                <p>Consultá el estado y los detalles de las reservas de Mi Aula.</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" routerLink="/reservas-anteriores" class="btn-anteriores">
+                    Ver reservas anteriores
+                </button>
+                <button type="button" routerLink="/dashboard" class="btn-volver">
+                    ← Volver
+                </button>
+            </div>
+        </section>
 
-    <section class="grid-container sector activas">
+    <section class="grid-container sector activas" aria-labelledby="reservas-activas-title">
         <div class="section-header">
-            <h2 class="list-title">Reservas Activas</h2>
+            <h2 id="reservas-activas-title" class="list-title">Reservas Activas</h2>
             <span class="section-count activas-count">{{ activas().length }}</span>
         </div>
         <div class="grid-list">
-            @for(r of activas(); track r.id) {
+            @for(r of activasPaginadas(); track r.id) {
             <article class="card" role="button" tabindex="0" (click)="openDetails(r)" (keydown.enter)="openDetails(r)" (keydown.space)="$event.preventDefault(); openDetails(r)">
                 <div class="card-content">
                     <h2>{{ r.asignatura }}</h2>
@@ -35,36 +45,14 @@
             <p class="empty-message">No hay reservas activas</p>
             }
         </div>
-    </section>
-
-    <section class="grid-container sector pasadas">
-        <div class="section-header">
-            <h2 class="list-title">Reservas Pasadas</h2>
-            <span class="section-count pasadas-count">{{ pasadas().length }}</span>
-        </div>
-        <div class="grid-list">
-            @for(r of pasadas(); track r.id) {
-            <article class="card" role="button" tabindex="0" (click)="openDetails(r)" (keydown.enter)="openDetails(r)" (keydown.space)="$event.preventDefault(); openDetails(r)">
-                <div class="card-content">
-                    <h2>{{ r.asignatura }}</h2>
-                    <div class="meta">
-                        <span class="day">{{ r.dia }}</span>
-                        <span class="horas"><strong>Horario:</strong> {{ formatHora(r.fecha_inicio) }} - {{ formatHora(r.fecha_fin) }}</span>
-                        <span class="fechas"><strong>Fecha:</strong> {{ formatFecha(r.fecha_inicio) }}</span>
-                        <span class="espacio"><strong>Aula:</strong> {{ r.espacio }}</span>
-                        <span class="profesor"><strong>Profesor:</strong> {{ r.profesor }}</span>
-                    </div>
-                </div>
-                <div class="right">
-                    <div class="card-footer">
-                        <span class="status pasada">FINALIZADA</span>
-                    </div>
-                </div>
-            </article>
-            }
-            @if (pasadas().length === 0) {
-            <p class="empty-message">No hay reservas pasadas</p>
-            }
+        <div class="paginacion">
+            <button class="btn-paginacion" [disabled]="paginaActual() === 1" (click)="anteriorPagina()">
+                ← Anterior
+            </button>
+            <span class="pagina-info">Página {{ paginaActual() }} de {{ totalPaginas() || 1 }}</span>
+            <button class="btn-paginacion" [disabled]="paginaActual() >= totalPaginas() || totalPaginas() === 0" (click)="siguientePagina()">
+                Siguiente →
+            </button>
         </div>
     </section>
 
@@ -107,4 +95,5 @@
         </div>
     </div>
     }
+    </div>
 </main>

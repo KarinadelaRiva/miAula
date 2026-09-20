@@ -1,13 +1,17 @@
 <div class="perfil-container">
   <div class="perfil-card">
     <div class="perfil-header">
-      <h1>Mi Perfil</h1>
+      <div>
+        <span class="eyebrow">Cuenta personal</span>
+        <h1>Mi Perfil</h1>
+        <p>Actualizá tus datos y la contraseña de acceso.</p>
+      </div>
       <button (click)="volver()" class="btn-volver">← Volver</button>
     </div>
 
     <!-- Formulario perfil -->
     <form [formGroup]="formPerfil" (ngSubmit)="enviarDatos()" class="perfil-form">
-      <div class="form-section">
+      <div class="form-section datos-section">
         <h3>Información Personal</h3>
 
         <div class="form-row">
@@ -74,7 +78,7 @@
 
     <!-- Formulario contraseña -->
     <form [formGroup]="formPassword" (ngSubmit)="enviarPassword()" class="perfil-form">
-      <div class="form-section">
+      <div class="form-section password-section">
         <h3>Cambiar Contraseña</h3>
 
         <div class="form-group">
@@ -143,7 +147,7 @@
       <!-- Botones -->
       <div class="form-actions">
         <button (click)="abrirAlertaEliminar()" type="button" class="btn-delete">
-          Cerrar Cuenta
+          Eliminar Cuenta
         </button>
 
         <div class="form-actions-right">
@@ -163,10 +167,10 @@
       <div class="modal-overlay" (click)="cerrarAlertaEliminar()">
         <div class="modal-content" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h2>Confirmar Cierre de Cuenta</h2>
+            <h2>Confirmar Eliminación de Cuenta</h2>
           </div>
           <div class="modal-body">
-            <p>¿Estás seguro de que deseas cerrar tu cuenta?</p>
+            <p>¿Estás seguro de que deseas eliminar tu cuenta?</p>
             <p class="modal-warning">Esta acción desactivará tu cuenta y cerrarás sesión inmediatamente.</p>
           </div>
           <div class="modal-actions">

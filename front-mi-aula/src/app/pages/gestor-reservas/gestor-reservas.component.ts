@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReservaService } from '../../services/reserva.service';
@@ -31,6 +31,13 @@ export class GestorReservasComponent implements OnInit {
   reservas: WritableSignal<ReservaCompleta[]> = signal<ReservaCompleta[]>([]);
   activas: WritableSignal<ReservaCompleta[]> = signal<ReservaCompleta[]>([]);
   pasadas: WritableSignal<ReservaCompleta[]> = signal<ReservaCompleta[]>([]);
+  paginaActual = signal(1);
+  limite = 8;
+  totalPaginas = computed(() => Math.ceil(this.activas().length / this.limite));
+  activasPaginadas = computed(() => {
+    const inicio = (this.paginaActual() - 1) * this.limite;
+    return this.activas().slice(inicio, inicio + this.limite);
+  });
   
   // Reserva seleccionada para ver detalles
   private _selectedReserva: WritableSignal<ReservaCompleta | null> = signal<ReservaCompleta | null>(null);
@@ -81,9 +88,22 @@ export class GestorReservasComponent implements OnInit {
 
     this.activas.set(activas);
     this.pasadas.set(pasadas);
+    this.paginaActual.set(1);
     
     console.log('📋 Reservas activas:', activas.length);
     console.log('📋 Reservas pasadas:', pasadas.length);
+  }
+
+  siguientePagina(): void {
+    if (this.paginaActual() < this.totalPaginas()) {
+      this.paginaActual.update(pagina => pagina + 1);
+    }
+  }
+
+  anteriorPagina(): void {
+    if (this.paginaActual() > 1) {
+      this.paginaActual.update(pagina => pagina - 1);
+    }
   }
 
   formatFecha(fecha: string): string {

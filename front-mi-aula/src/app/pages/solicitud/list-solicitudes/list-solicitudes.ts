@@ -1,5 +1,5 @@
 
-import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Solicitud as SolicitudService } from '../../../services/solicitud';
 import { AuthService } from '../../../auth/service/auth-service';
@@ -27,6 +27,15 @@ export class ListSolicitudes implements OnInit {
   aprobadas: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
   rechazadas: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
   otras: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
+  pestanaActiva = signal<'pendientes' | 'aprobadas' | 'rechazadas' | 'otras'>('pendientes');
+  paginaActual = signal(1);
+  limite = 8;
+  solicitudesActivas = computed(() => this.obtenerSolicitudesPorPestana(this.pestanaActiva()));
+  totalPaginas = computed(() => Math.ceil(this.solicitudesActivas().length / this.limite));
+  solicitudesPaginadas = computed(() => {
+    const inicio = (this.paginaActual() - 1) * this.limite;
+    return this.solicitudesActivas().slice(inicio, inicio + this.limite);
+  });
 
   // Señal privada para la solicitud seleccionada (usada por los helpers siguientes)
   private _selected: WritableSignal<SolicitudModel | null> = signal<SolicitudModel | null>(null);
@@ -217,6 +226,23 @@ export class ListSolicitudes implements OnInit {
     this._selectedEspacio.set(null);
   }
 
+  seleccionarPestana(pestana: 'pendientes' | 'aprobadas' | 'rechazadas' | 'otras'): void {
+    this.pestanaActiva.set(pestana);
+    this.paginaActual.set(1);
+  }
+
+  siguientePagina(): void {
+    if (this.paginaActual() < this.totalPaginas()) {
+      this.paginaActual.update(pagina => pagina + 1);
+    }
+  }
+
+  anteriorPagina(): void {
+    if (this.paginaActual() > 1) {
+      this.paginaActual.update(pagina => pagina - 1);
+    }
+  }
+
   isCancelling(): boolean {
     return this._isCancelling();
   }
@@ -258,6 +284,16 @@ export class ListSolicitudes implements OnInit {
     this.aprobadas.set(aprobadas);
     this.rechazadas.set(rechazadas);
     this.otras.set(otras);
+    this.paginaActual.set(1);
+  }
+
+  private obtenerSolicitudesPorPestana(pestana: 'pendientes' | 'aprobadas' | 'rechazadas' | 'otras'): SolicitudModel[] {
+    return {
+      pendientes: this.pendientes(),
+      aprobadas: this.aprobadas(),
+      rechazadas: this.rechazadas(),
+      otras: this.otras(),
+    }[pestana];
   }
 
    // Ejemplo de helper para formatear la fecha 
