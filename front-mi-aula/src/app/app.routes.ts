@@ -11,7 +11,6 @@ import { RegistrarUsuario } from './pages/gestion-usuarios/registrar-usuario/reg
 import { AdministrarUsuario } from './pages/gestion-usuarios/administrar-usuario/administrar-usuario';
 import { RegistrarEspacio } from './pages/gestor-espacios/registrar-espacio/registrar-espacio';
 import { AdministrarEspacios } from './pages/gestor-espacios/administrar-espacios/administrar-espacios';
-import { GestorRecursos } from './pages/gestor-recursos/gestor-recursos';
 import { RegistrarRecurso } from './pages/gestor-recursos/registrar-recurso/registrar-recurso';
 import { AdministrarRecursos } from './pages/gestor-recursos/administrar-recursos/administrar-recursos';
 import { GestionCarreras } from './pages/gestion-carreras/gestion-carreras';
@@ -153,8 +152,8 @@ loadComponent: () => import('./pages/coming-soon/coming-soon').then(m => m.Comin
   },
   {
     path: 'recursos',
-    component: GestorRecursos,
-    canActivate: [adminGuard]
+    redirectTo: 'recursos/administrar',
+    pathMatch: 'full'
   },
   {
     path: 'recursos/registrar',
