@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { EspacioCreateDto } from '../../../models/espacioCreateDto';
@@ -14,12 +14,12 @@ export class RegistrarEspacio {
   private fb = inject(FormBuilder);
   private espacioService = inject(EspacioService);
 
-  error: string | null = null;
-  exito: string | null = null;
+  error = signal('');
+  exito = signal('');
 
   form = this.fb.group({
     code: ['', [Validators.required, Validators.maxLength(6)]],
-    name: ['', [Validators.required, Validators.maxLength(50)]],
+    name: ['', [Validators.required, Validators.maxLength(25)]],
     capacity: [null as number | null, [Validators.required, Validators.min(1)]],
     floor_number: [null as number | null, [Validators.required, Validators.min(0)]],
     enabled: [true, [Validators.required]],
@@ -31,8 +31,8 @@ export class RegistrarEspacio {
       return;
     }
 
-    this.error = null;
-    this.exito = null;
+    this.error.set('');
+    this.exito.set('');
 
     const value = this.form.getRawValue();
     const payload: EspacioCreateDto = {
@@ -50,10 +50,10 @@ export class RegistrarEspacio {
           capacity: null,
           floor_number: null,
         });
-        this.exito = 'Espacio registrado correctamente.';
+        this.exito.set('Espacio registrado correctamente.');
       },
       error: () => {
-        this.error = 'No se pudo registrar el espacio.';
+        this.error.set('No se pudo registrar el espacio.');
       },
     });
   }

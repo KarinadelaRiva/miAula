@@ -20,6 +20,12 @@ export class AdministrarEspacios {
   filtroEstado = model<string | boolean>('');
   espacioSeleccionado = signal<Espacio | null>(null);
   listaEspacios = signal<Espacio[]>([]);
+  espacioEditando = signal<Espacio | null>(null);
+  codigoEditado = '';
+  nombreEditado = '';
+  capacidadEditado = 0;
+  pisoEditado = 0;
+  mensaje = signal('');
 
   ngOnInit() {
     this.cargarEspacios();
@@ -106,5 +112,50 @@ export class AdministrarEspacios {
 
   estaHabilitado(espacio: Espacio): boolean {
     return Number(espacio.enabled) === 1;
+  }
+
+  editarEspacio(espacio: Espacio) {
+    this.espacioEditando.set(espacio);
+    this.codigoEditado = espacio.code;
+    this.nombreEditado = espacio.name;
+    this.capacidadEditado = espacio.capacity;
+    this.pisoEditado = espacio.floor_number;
+    this.mensaje.set('');
+  }
+
+  guardarEdicion() {
+    const espacio = this.espacioEditando();
+    const code = this.codigoEditado.trim();
+    const name = this.nombreEditado.trim();
+    const capacity = this.capacidadEditado;
+    const floor_number = this.pisoEditado;
+
+    if (!espacio || !code || !name || !capacity || !floor_number) {
+      this.mensaje.set('Completá todos los campos para poder guardar.');
+      return;
+    }
+
+    this.espacioService.actualizarEspacio({
+      ...espacio,
+      code,
+      name,
+      capacity,
+      floor_number,
+    }).subscribe({
+      next: () => {
+        this.mensaje.set('Usuario actualizado correctamente.');
+        this.cancelarEdicion();
+        this.cargarEspacios();
+      },
+      error: () => this.mensaje.set('No se pudo actualizar el usuario.'),
+    });
+  }
+
+  cancelarEdicion() {
+    this.espacioEditando.set(null);
+    this.codigoEditado = '';
+    this.nombreEditado = '';
+    this.capacidadEditado = 0;
+    this.pisoEditado = 0;
   }
 }

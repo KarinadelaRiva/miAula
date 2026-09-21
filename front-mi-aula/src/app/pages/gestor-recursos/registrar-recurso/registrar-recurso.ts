@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { RecursoCreateDto } from '../../../models/recursoCreateDto';
@@ -14,15 +14,14 @@ export class RegistrarRecurso {
   private fb = inject(FormBuilder);
   private recursoService = inject(RecursoService);
 
-  error: string | null = null;
-  exito: string | null = null;
+  error = signal('');
+  exito = signal('');
 
   form = this.fb.group({
-    code: ['', [Validators.required, Validators.maxLength(6)]],
+    code: ['', [Validators.required, Validators.maxLength(10)]],
     name: ['', [Validators.required, Validators.maxLength(50)]],
     description: ['', [Validators.required, Validators.maxLength(200)]],
     quantity: [null as number | null, [Validators.required, Validators.min(1)]],
-    enabled: [true, [Validators.required]],
   });
 
   registrarRecurso() {
@@ -31,8 +30,8 @@ export class RegistrarRecurso {
       return;
     }
 
-    this.error = null;
-    this.exito = null;
+    this.error.set('');
+    this.exito.set('');
 
     const value = this.form.getRawValue();
     const payload: RecursoCreateDto = {
@@ -49,12 +48,11 @@ export class RegistrarRecurso {
           name: '',
           description: '',
           quantity: null,
-          enabled: true,
         });
-        this.exito = 'Recurso registrado correctamente.';
+        this.exito.set('Recurso registrado correctamente.');
       },
       error: () => {
-        this.error = 'No se pudo registrar el recurso.';
+        this.error.set('No se pudo registrar el recurso.');
       },
     });
   }

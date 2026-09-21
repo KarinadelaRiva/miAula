@@ -1,46 +1,68 @@
-<div class="gestion-container">
-  <div class="gestion-card">
-    <div class="gestion-header">
+<div class="registrar-container">
+  <div class="registrar-content">
+    <div class="registrar-header">
       <h1>Registrar Recurso</h1>
-      <button routerLink="/recursos" class="btn-volver">← Volver</button>
+      <button routerLink="/recursos/administrar" class="btn-volver">← Volver</button>
     </div>
 
-    <div class="seccion">
-      <h2>Datos del recurso</h2>
-      <form [formGroup]="form" (ngSubmit)="registrarRecurso()">
-        <div class="form-grid">
-          <label>
-            Código
-            <input type="text" maxlength="6" formControlName="code" />
-          </label>
-
-          <label>
-            Nombre
-            <input type="text" maxlength="50" formControlName="name" />
-          </label>
-
-          <label>
-            Cantidad
-            <input type="number" min="1" formControlName="quantity" />
-          </label>
-
-          <label class="descripcion-field">
-            Descripción
-            <textarea rows="4" maxlength="200" formControlName="description"></textarea>
-          </label>
+    <form [formGroup]="form" (ngSubmit)="registrarRecurso()" class="registrar-form">
+      <div class="form-row">
+        <div class="campo">
+          <label for="codigo">Código</label>
+          <input id="codigo" type="text" maxlength="10" formControlName="code" placeholder="Ej. R101" />
+          @if (form.get('code')?.dirty && form.get('code')?.hasError('required')) {
+            <span class="error">El código es obligatorio</span>
+          }
+          @if (form.get('code')?.dirty && form.get('code')?.hasError('maxlength')) {
+            <span class="error">El código no puede superar 6 caracteres</span>
+          }
         </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn-opcion">Registrar</button>
+        <div class="campo">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" type="text" maxlength="50" formControlName="name" placeholder="Ej. Proyector" />
+          @if (form.get('name')?.dirty && form.get('name')?.hasError('required')) {
+            <span class="error">El nombre es obligatorio</span>
+          }
+          @if (form.get('name')?.dirty && form.get('name')?.hasError('maxlength')) {
+            <span class="error">El nombre no puede superar 50 caracteres</span>
+          }
         </div>
-      </form>
-    </div>
+      </div>
 
-    @if (error) {
-      <p class="error">{{ error }}</p>
-    }
-    @if (exito) {
-      <p class="success">{{ exito }}</p>
-    }
+      <div class="form-row">
+        <div class="campo">
+          <label for="quantity">Cantidad</label>
+          <input id="quantity" type="number" min="1" formControlName="quantity" placeholder="Cantidad disponible" />
+          @if (form.get('quantity')?.dirty && form.get('quantity')?.hasError('required')) {
+            <span class="error">La cantidad es obligatoria</span>
+          }
+          @if (form.get('quantity')?.dirty && form.get('quantity')?.hasError('min')) {
+            <span class="error">La cantidad debe ser mayor o igual a 1</span>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="description">Descripción</label>
+          <textarea id="description" rows="4" maxlength="200" formControlName="description" placeholder="Descripción del recurso"></textarea>
+          @if (form.get('description')?.dirty && form.get('description')?.hasError('required')) {
+            <span class="error">La descripción es obligatoria</span>
+          }
+          @if (form.get('description')?.dirty && form.get('description')?.hasError('maxlength')) {
+            <span class="error">La descripción no puede superar 200 caracteres</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button [disabled]="form.invalid" type="submit" class="btn-registrar">Registrar recurso</button>
+      </div>
+
+      @if (error()) {
+        <span class="mensaje-resultado error">{{ error() }}</span>
+      } @else if (exito()) {
+        <span class="mensaje-resultado exito">{{ exito() }}</span>
+      }
+    </form>
   </div>
 </div>
