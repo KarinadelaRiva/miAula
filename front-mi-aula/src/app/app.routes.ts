@@ -9,7 +9,6 @@ import { ListSolicitudes } from './pages/solicitud/list-solicitudes/list-solicit
 // import { ComingSoon } from './pages/coming-soon/coming-soon';
 import { RegistrarUsuario } from './pages/gestion-usuarios/registrar-usuario/registrar-usuario';
 import { AdministrarUsuario } from './pages/gestion-usuarios/administrar-usuario/administrar-usuario';
-import { GestorEspacios } from './pages/gestor-espacios/gestor-espacios';
 import { RegistrarEspacio } from './pages/gestor-espacios/registrar-espacio/registrar-espacio';
 import { AdministrarEspacios } from './pages/gestor-espacios/administrar-espacios/administrar-espacios';
 import { GestorRecursos } from './pages/gestor-recursos/gestor-recursos';
@@ -139,8 +138,8 @@ loadComponent: () => import('./pages/coming-soon/coming-soon').then(m => m.Comin
 },
   {
     path: 'espacios',
-    component: GestorEspacios,
-    canActivate: [adminGuard]
+    redirectTo: 'espacios/administrar',
+    pathMatch: 'full'
   },
   {
     path: 'espacios/registrar',

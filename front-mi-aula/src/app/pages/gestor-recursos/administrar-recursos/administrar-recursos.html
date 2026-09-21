@@ -1,15 +1,22 @@
-<div class="recursos-container">
-  <div class="recursos-content">
-    <div class="recursos-header">
-      <h1>Administrar Recursos</h1>
-      <button routerLink="/recursos" class="btn-volver">← Volver</button>
+<div class="administrar-container">
+  <div class="administrar-card">
+    <div class="administrar-header">
+      <div>
+        <span class="eyebrow">Panel administrativo</span>
+        <h1>Administrar Recursos</h1>
+        <p>Consultá, modificá y administrá los recursos del sistema.</p>
+      </div>
+      <div class="header-actions">
+        <button routerLink="/recursos/registrar" class="btn-nuevo">+ Nuevo recurso</button>
+        <button routerLink="/dashboard" class="btn-volver">← Volver</button>
+      </div>
     </div>
 
     <div class="filtros-section">
       <input
         type="text"
         class="input-buscar"
-        placeholder="Buscar por código, nombre o descripción..."
+        placeholder="Buscar por nombre o código..."
         [(ngModel)]="filtroBusqueda"
         (ngModelChange)="aplicarFiltros()"
       />
@@ -20,19 +27,65 @@
       </select>
     </div>
 
-    <div class="recursos-grid">
-      @for (recurso of listaRecursos(); track recurso.id) {
-        <div class="recurso-card" (click)="abrirModal(recurso)">
-          <div class="recurso-info">
-            <h3>{{ recurso.name }}</h3>
-            <p><strong>Código:</strong> {{ recurso.code }}</p>
-            <p><strong>Cantidad:</strong> {{ recurso.quantity }}</p>
-            <p>{{ recurso.description }}</p>
-            <span class="estado-badge" [class.inactivo]="!estaHabilitado(recurso)">
-              {{ estaHabilitado(recurso) ? 'Habilitado' : 'Deshabilitado' }}
-            </span>
-          </div>
-        </div>
+    @if (mensaje()) {
+      <div class="mensaje">{{ mensaje() }}</div>
+    }
+
+    <div class="tabla-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th>Cantidad</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (recurso of listaRecursos(); track recurso.id) {
+            <tr>
+              @if (recursoEditando()?.id === recurso.id) {
+                <td><input [(ngModel)]="nombreEditado" aria-label="Editar nombre" /></td>
+                <td><input [(ngModel)]="codigoEditado" aria-label="Editar código" /></td>
+                <td><input [(ngModel)]="descripcionEditada" aria-label="Editar descripción" /></td>
+                <td><input [(ngModel)]="cantidadEditada" type="number" aria-label="Editar cantidad" /></td>
+                <td>
+                  <span class="estado" [class.inactivo]="!estaHabilitado(recurso)">
+                    {{ estaHabilitado(recurso) ? 'Habilitado' : 'Deshabilitado' }}
+                  </span>
+                </td>
+                <td class="acciones">
+                  <button type="button" class="btn-guardar" (click)="guardarEdicion()">Guardar</button>
+                  <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+                </td>
+              } @else {
+                <td><strong>{{ recurso.name }}</strong></td>
+                <td>{{ recurso.code }}</td>
+                <td>{{ recurso.description }}</td>
+                <td>{{ recurso.quantity }}</td>
+                <td>
+                  <span class="estado" [class.inactivo]="!estaHabilitado(recurso)">
+                    {{ estaHabilitado(recurso) ? 'Habilitado' : 'Deshabilitado' }}
+                  </span>
+                </td>
+                <td class="acciones">
+                  <button type="button" class="btn-editar" (click)="editarRecurso(recurso)">Editar</button>
+                  @if (estaHabilitado(recurso)) {
+                    <button type="button" class="btn-eliminar" (click)="abrirModal(recurso)">Eliminar</button>
+                  } @else {
+                    <button type="button" class="btn-reactivar" (click)="abrirModal(recurso)">Reactivar</button>
+                  }
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (listaRecursos().length === 0) {
+        <div class="sin-resultados">No se encontraron recursos.</div>
       }
     </div>
 
@@ -64,13 +117,13 @@
         </div>
 
         <div class="detalle-grupo">
-          <label>Código:</label>
-          <p>{{ recursoSeleccionado()!.code }}</p>
+          <label>Nombre:</label>
+          <p>{{ recursoSeleccionado()!.name }}</p>
         </div>
 
         <div class="detalle-grupo">
-          <label>Nombre:</label>
-          <p>{{ recursoSeleccionado()!.name }}</p>
+          <label>Código:</label>
+          <p>{{ recursoSeleccionado()!.code }}</p>
         </div>
 
         <div class="detalle-grupo">
@@ -89,9 +142,9 @@
         </div>
 
         @if (estaHabilitado(recursoSeleccionado()!)) {
-          <button (click)="eliminar()" class="btn-eliminar-recurso">Eliminar Recurso</button>
+          <button (click)="eliminar()" class="btn-eliminar-usuario">Eliminar Recurso</button>
         } @else {
-          <button (click)="reactivar()" class="btn-reactivar-recurso">Reactivar Recurso</button>
+          <button (click)="reactivar()" class="btn-reactivar-usuario">Reactivar Recurso</button>
         }
       </div>
     </div>

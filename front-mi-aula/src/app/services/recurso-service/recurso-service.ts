@@ -19,6 +19,10 @@ export class RecursoService {
     return this.http.get<Recurso>(`${this.baseDatosUrl}/${id}`);
   }
 
+  actualizarRecurso(recurso: Recurso): Observable<Recurso> {
+    return this.http.put<Recurso>(`${this.baseDatosUrl}/${recurso.id}`, recurso);
+  }
+
   crear(recursoNuevo: RecursoCreateDto): Observable<Recurso> {
     const recurso = {
       ...recursoNuevo,

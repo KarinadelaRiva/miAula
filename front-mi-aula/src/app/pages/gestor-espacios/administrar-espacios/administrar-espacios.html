@@ -1,15 +1,22 @@
-<div class="espacios-container">
-  <div class="espacios-content">
-    <div class="espacios-header">
-      <h1>Administrar Espacios</h1>
-      <button routerLink="/espacios" class="btn-volver">← Volver</button>
+<div class="administrar-container">
+  <div class="administrar-card">
+    <div class="administrar-header">
+      <div>
+        <span class="eyebrow">Panel administrativo</span>
+        <h1>Administrar Espacios</h1>
+        <p>Consultá, modificá y administrá los espacios educativos.</p>
+      </div>
+      <div class="header-actions">
+        <button routerLink="/espacios/registrar" class="btn-nuevo">+ Nuevo espacio</button>
+        <button routerLink="/dashboard" class="btn-volver">← Volver</button>
+      </div>
     </div>
 
     <div class="filtros-section">
       <input
         type="text"
         class="input-buscar"
-        placeholder="Buscar por código, nombre o piso..."
+        placeholder="Buscar por nombre o código..."
         [(ngModel)]="filtroBusqueda"
         (ngModelChange)="aplicarFiltros()"
       />
@@ -20,19 +27,63 @@
       </select>
     </div>
 
-    <div class="espacios-grid">
-      @for (espacio of listaEspacios(); track espacio.id) {
-        <div class="espacio-card" (click)="abrirModal(espacio)">
-          <div class="espacio-info">
-            <h3>{{ espacio.name }}</h3>
-            <p><strong>Código:</strong> {{ espacio.code }}</p>
-            <p><strong>Capacidad:</strong> {{ espacio.capacity }} personas</p>
-            <p><strong>Piso:</strong> {{ espacio.floor_number }}</p>
-            <span class="estado-badge" [class.inactivo]="!estaHabilitado(espacio)">
-              {{ estaHabilitado(espacio) ? 'Habilitado' : 'Deshabilitado' }}
-            </span>
-          </div>
-        </div>
+    @if (mensaje()) {
+      <div class="mensaje">{{ mensaje() }}</div>
+    }
+
+    <div class="tabla-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Capacidad</th>
+            <th>Piso</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (espacio of listaEspacios(); track espacio.id) {
+            <tr>
+            @if (espacioEditando()?.id === espacio.id) {
+
+              <td class="edicion-datos"><input [(ngModel)]="codigoEditado" aria-label="Editar código" /></td>
+              <td><input [(ngModel)]="nombreEditado" aria-label="Editar nombre" /></td>
+              <td><input [(ngModel)]="capacidadEditado" type="number" aria-label="Editar capacidad" /></td>
+              <td><input [(ngModel)]="pisoEditado" type="number" aria-label="Editar piso" /></td>
+
+              <td><span class="estado" [class.inactivo]="!estaHabilitado(espacio)">{{ espacio.enabled ? 'Activo' : 'Eliminado' }}</span></td>
+              <td class="acciones">
+                <button type="button" class="btn-guardar" (click)="guardarEdicion()">Guardar</button>
+                <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
+              </td>
+            } @else {
+                            <td><strong>{{ espacio.code }}</strong></td>
+              <td>{{ espacio.name }}</td>
+              <td>{{ espacio.capacity }} personas</td>
+              <td>{{ espacio.floor_number }}</td>
+              <td>
+                <span class="estado" [class.inactivo]="!estaHabilitado(espacio)">
+                  {{ estaHabilitado(espacio) ? 'Habilitado' : 'Deshabilitado' }}
+                </span>
+              </td>
+              <td class="acciones">
+                <button type="button" class="btn-editar" (click)="editarEspacio(espacio)">Editar</button>
+                @if (estaHabilitado(espacio)) {
+                  <button type="button" class="btn-eliminar" (click)="abrirModal(espacio)">Eliminar</button>
+                } @else {
+                  <button type="button" class="btn-reactivar" (click)="abrirModal(espacio)">Reactivar</button>
+                }
+              </td>
+            }
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (listaEspacios().length === 0) {
+        <div class="sin-resultados">No se encontraron espacios.</div>
       }
     </div>
 
@@ -89,9 +140,9 @@
         </div>
 
         @if (estaHabilitado(espacioSeleccionado()!)) {
-          <button (click)="eliminar()" class="btn-eliminar-espacio">Eliminar Espacio</button>
+          <button (click)="eliminar()" class="btn-eliminar-usuario">Eliminar Espacio</button>
         } @else {
-          <button (click)="reactivar()" class="btn-reactivar-espacio">Reactivar Espacio</button>
+          <button (click)="reactivar()" class="btn-reactivar-usuario">Reactivar Espacio</button>
         }
       </div>
     </div>

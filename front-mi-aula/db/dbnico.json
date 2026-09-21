@@ -4,7 +4,7 @@
       "id": "1",
       "code": "A101",
       "name": "Aula 101",
-      "capacity": 40,
+      "capacity": 42,
       "floor_number": 1,
       "enabled": 1
     },
@@ -1574,7 +1574,7 @@
       "code": "PRJ01",
       "name": "Proyector",
       "description": "Proyector multimedia portátil para aulas.",
-      "quantity": 4,
+      "quantity": 7,
       "enabled": 1
     },
     {
@@ -1607,6 +1607,14 @@
       "name": "Cámara",
       "description": "Cámara web para grabaciones y videollamadas.",
       "quantity": 3,
+      "enabled": 0
+    },
+    {
+      "id": "36e0",
+      "code": "EJEMPLO",
+      "name": "recurso",
+      "description": "hfghfghf",
+      "quantity": 45,
       "enabled": 0
     }
   ]
