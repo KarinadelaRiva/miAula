@@ -17,6 +17,11 @@ export class MisSolicitudes implements OnInit {
 
   // Signal que contendrá el array de solicitudes para renderizar en el template
   solicitudes: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
+  pendientes: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
+  aprobadas: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
+  rechazadas: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
+  otras: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
+  pestanaActiva = signal<'pendientes' | 'aprobadas' | 'rechazadas' | 'otras'>('pendientes');
   // Signal para la solicitud seleccionada y mostrar modal
   selectedSolicitud: WritableSignal<SolicitudModel | null> = signal<SolicitudModel | null>(null);
   // Signal para indicar que se está procesando la cancelación
@@ -26,6 +31,19 @@ export class MisSolicitudes implements OnInit {
 
   ngOnInit(): void {
     this.loadSolicitudes();
+  }
+
+  solicitudesActivas(): SolicitudModel[] {
+    return {
+      pendientes: this.pendientes(),
+      aprobadas: this.aprobadas(),
+      rechazadas: this.rechazadas(),
+      otras: this.otras(),
+    }[this.pestanaActiva()];
+  }
+
+  seleccionarPestana(pestana: 'pendientes' | 'aprobadas' | 'rechazadas' | 'otras'): void {
+    this.pestanaActiva.set(pestana);
   }
 
   // Carga las solicitudes desde el servidor y filtra las del usuario logueado
@@ -54,11 +72,38 @@ export class MisSolicitudes implements OnInit {
         });
 
         this.solicitudes.set(filtered);
+        this.categorizeSolicitudes(filtered);
       },
       error: (err) => {
         console.error('Error cargando solicitudes', err);
       },
     });
+  }
+
+  private categorizeSolicitudes(data: SolicitudModel[]): void {
+    const pendientes: SolicitudModel[] = [];
+    const aprobadas: SolicitudModel[] = [];
+    const rechazadas: SolicitudModel[] = [];
+    const otras: SolicitudModel[] = [];
+
+    for (const solicitud of data) {
+      const estado = String(solicitud.estado ?? '').toLowerCase();
+
+      if (estado.includes('pend')) {
+        pendientes.push(solicitud);
+      } else if (estado.includes('aprob')) {
+        aprobadas.push(solicitud);
+      } else if (estado.includes('rech')) {
+        rechazadas.push(solicitud);
+      } else {
+        otras.push(solicitud);
+      }
+    }
+
+    this.pendientes.set(pendientes);
+    this.aprobadas.set(aprobadas);
+    this.rechazadas.set(rechazadas);
+    this.otras.set(otras);
   }
 
   openDetails(solicitud: SolicitudModel): void {

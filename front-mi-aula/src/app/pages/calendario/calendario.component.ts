@@ -1,9 +1,11 @@
 import { ChangeDetectorRef, Component, inject, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Reserva } from '../../models/reserva';
 import { Carrera, Comision, ReservaService } from '../../services/reserva.service';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../auth/service/auth-service';
 
 interface Aula {
   id: number;
@@ -13,7 +15,7 @@ interface Aula {
 @Component({
   selector: 'app-calendario',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './calendario.component.html',
   styleUrl: './calendario.component.css'
 })
@@ -21,6 +23,7 @@ export class CalendarioComponent implements OnInit {
   @Input() reservas: Reserva[] = [];
   private readonly reservaService = inject(ReservaService);
   private readonly changeDetector = inject(ChangeDetectorRef);
+  readonly authService = inject(AuthService);
 
   aulas: Aula[] = [];
   fechaSeleccionada = this.obtenerFechaLocal();

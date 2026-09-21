@@ -134,3 +134,120 @@ textarea { resize: vertical; min-height: 84px; }
 
 /* Helpers */
 .small-note { color: #718096; font-size: 0.875rem; }
+
+.gestion-container {
+  min-height: 100vh;
+  padding: 1rem;
+  background: #edf4fb;
+  font-family: var(--font-sans, Arial, sans-serif);
+}
+
+.gestion-card { max-width: 1100px; margin: 0 auto; }
+
+.gestion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #133e87, #608bc1);
+  box-shadow: 0 4px 12px rgba(15, 50, 90, 0.14);
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.gestion-header h1 { margin: 0; font-size: 1.5rem; }
+.gestion-header p { margin: 0.35rem 0 0; opacity: 0.86; }
+
+.btn-volver {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-volver:hover { background: rgba(255, 255, 255, 0.28); }
+
+.nueva-card {
+  max-width: none;
+  padding: 1rem 1.25rem 1.25rem;
+  border: 1px solid #c8d7e8;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(15, 50, 90, 0.1);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #d8e3ef;
+}
+
+.list-title { margin: 0; color: #213547; font-size: 1.125rem; }
+
+.form-group label { color: #52677d; }
+
+input[type="date"], input[type="time"], select, textarea, input[type="text"], input[type="number"] {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #b8c8d9;
+  border-radius: 4px;
+  color: #213547;
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #2563a6;
+  box-shadow: 0 0 0 3px rgba(37, 99, 166, 0.12);
+}
+
+.acciones { gap: 0.5rem; margin-top: 0.25rem; }
+.acciones button { padding: 0.55rem 0.8rem; border-radius: 4px; }
+.btn-primary { background: #2563a6; color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #133e87; }
+.btn-secondary { border: 1px solid #b8c8d9; color: #334e68; background: #fff; }
+.btn-secondary:hover { border-color: #608bc1; background: #f8fbff; }
+
+.mensaje, .error {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+
+.mensaje { border: 1px solid #b9dfc4; color: #24613a; background: #e4f3e8; }
+.error { border: 1px solid #edb9b1; color: #8a3329; background: #fbe3df; }
+.error-message { color: #c0392b; }
+.small-note { color: #52677d; font-size: 0.85rem; }
+
+@media (max-width: 720px) {
+  .gestion-header { align-items: flex-start; flex-direction: column; }
+  .btn-volver { width: 100%; }
+  .nueva-card { padding: 0.9rem; }
+  .form-row { grid-template-columns: 1fr; }
+  .acciones { align-items: stretch; flex-direction: column; }
+  .acciones button { width: 100%; }
+}
+
+@media (max-width: 420px) {
+  .gestion-container { padding: 0.75rem; }
+}

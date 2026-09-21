@@ -1,12 +1,35 @@
-<section class="header">
-    <h1>Mis Solicitudes</h1>
-	<button type="button" routerLink="/dashboard" class="btn-secondary">
-        ← Volver
-    </button>
-</section>
+<main class="gestion-container">
+	<div class="gestion-card">
+		<section class="gestion-header">
+			<div>
+				<span class="eyebrow">Gestión de reservas</span>
+				<h1>Solicitudes</h1>
+				<p>Solicitá espacios y consultá el estado de tus reservas.</p>
+			</div>
+			<div class="header-actions">
+				<button type="button" routerLink="/solicitud/nueva" class="btn-nueva">+ Nueva solicitud</button>
+				<button type="button" routerLink="/dashboard" class="btn-volver">← Volver</button>
+			</div>
+		</section>
 
-<section class="grid-container">
-	@for (s of solicitudes(); track s.id) {
+		<section class="solicitudes-panel">
+			<nav class="pestanas" aria-label="Estados de mis solicitudes">
+				<button class="pestana pendientes" [class.activa]="pestanaActiva() === 'pendientes'" (click)="seleccionarPestana('pendientes')">
+					Pendientes <span>{{ pendientes().length }}</span>
+				</button>
+				<button class="pestana aprobadas" [class.activa]="pestanaActiva() === 'aprobadas'" (click)="seleccionarPestana('aprobadas')">
+					Aprobadas <span>{{ aprobadas().length }}</span>
+				</button>
+				<button class="pestana rechazadas" [class.activa]="pestanaActiva() === 'rechazadas'" (click)="seleccionarPestana('rechazadas')">
+					Rechazadas <span>{{ rechazadas().length }}</span>
+				</button>
+				<button class="pestana otras" [class.activa]="pestanaActiva() === 'otras'" (click)="seleccionarPestana('otras')">
+					Canceladas <span>{{ otras().length }}</span>
+				</button>
+			</nav>
+
+			<section class="grid-container">
+	@for (s of solicitudesActivas(); track s.id) {
 		<article class="card">
 			<div class="card-content">
 				<h2>Solicitud #{{ s.id }}</h2>
@@ -25,10 +48,13 @@
 		</article>
 	}
 
-	@if (solicitudes().length === 0) {
+	@if (solicitudesActivas().length === 0) {
 		<div class="empty">No hay solicitudes para mostrar.</div>
 	}
-</section>
+			</section>
+		</section>
+	</div>
+</main>
 
 @if (selectedSolicitud()) {
 	<div class="modal-overlay" (click)="closeDetails()">
