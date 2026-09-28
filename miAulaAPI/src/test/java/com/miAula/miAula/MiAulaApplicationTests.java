@@ -1,4 +1,4 @@
-package com.tfi.miAula;
+package com.miAula.miAula;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
