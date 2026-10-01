@@ -16,8 +16,8 @@ export class RegistrarCarrera {
   nombre = '';
 
   guardando = false;
-  mostrarExito = false;
   mensajeError = '';
+  mensajeExito = '';
 
   private apiUrl = 'http://localhost:3000/carreras';
 
@@ -29,26 +29,38 @@ export class RegistrarCarrera {
 
   guardarCarrera(): void {
 
+    this.mensajeError = '';
+    this.mensajeExito = '';
+
     if (!this.nombre.trim()) {
-      this.mensajeError = 'Ingresá el nombre de la carrera.';
+      this.mensajeError =
+        'Ingresá el nombre de la carrera.';
       return;
     }
 
     this.guardando = true;
-    this.mensajeError = '';
 
     const nuevaCarrera = {
       nombre: this.nombre.trim()
     };
 
-    this.http.post(this.apiUrl, nuevaCarrera).subscribe({
+    this.http.post(
+      this.apiUrl,
+      nuevaCarrera
+    ).subscribe({
 
       next: (respuesta) => {
 
-        console.log('Carrera registrada correctamente:', respuesta);
+        console.log(
+          'Carrera registrada correctamente:',
+          respuesta
+        );
 
         this.guardando = false;
-        this.mostrarExito = true;
+
+        this.mensajeExito =
+          '¡Carrera registrada correctamente!';
+
         this.nombre = '';
 
         this.cdr.detectChanges();
@@ -62,6 +74,7 @@ export class RegistrarCarrera {
         );
 
         this.guardando = false;
+
         this.mensajeError =
           'No se pudo registrar la carrera.';
 
@@ -69,15 +82,6 @@ export class RegistrarCarrera {
       }
 
     });
-  }
-
-  cerrarExito(): void {
-
-    this.mostrarExito = false;
-
-    this.router.navigate([
-      '/gestion-carreras/administrar-carreras'
-    ]);
   }
 
   cancelar(): void {

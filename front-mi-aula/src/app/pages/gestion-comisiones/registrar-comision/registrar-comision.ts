@@ -1,8 +1,14 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef
+} from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+
 
 interface Asignatura {
   id: string;
@@ -24,10 +30,14 @@ interface Usuario {
   activo: boolean;
 }
 
+
 @Component({
   selector: 'app-registrar-comision',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule
+  ],
   templateUrl: './registrar-comision.html',
   styleUrl: './registrar-comision.css'
 })
@@ -46,8 +56,9 @@ export class RegistrarComision implements OnInit {
   profesores: Usuario[] = [];
 
   guardando = false;
-  mostrarExito = false;
+
   mensajeError = '';
+  mensajeExito = '';
 
   constructor(
     private http: HttpClient,
@@ -62,101 +73,142 @@ export class RegistrarComision implements OnInit {
   cargarDatos(): void {
 
     this.http
-      .get<Asignatura[]>('http://localhost:3000/asignaturas')
+      .get<Asignatura[]>(
+        'http://localhost:3000/asignaturas'
+      )
       .subscribe({
         next: (data) => {
           this.asignaturas = data;
         },
         error: (error) => {
-          console.error('Error cargando asignaturas:', error);
+          console.error(
+            'Error cargando asignaturas:',
+            error
+          );
         }
       });
 
+
     this.http
-      .get<Carrera[]>('http://localhost:3000/carreras')
+      .get<Carrera[]>(
+        'http://localhost:3000/carreras'
+      )
       .subscribe({
         next: (data) => {
           this.carreras = data;
         },
         error: (error) => {
-          console.error('Error cargando carreras:', error);
+          console.error(
+            'Error cargando carreras:',
+            error
+          );
         }
       });
 
+
     this.http
-      .get<Usuario[]>('http://localhost:3000/usuarios')
+      .get<Usuario[]>(
+        'http://localhost:3000/usuarios'
+      )
       .subscribe({
         next: (data) => {
 
-          this.profesores = data.filter(usuario =>
-            usuario.rol === 'PROFESOR' &&
-            usuario.activo
+          this.profesores = data.filter(
+            usuario =>
+              usuario.rol === 'PROFESOR' &&
+              usuario.activo
           );
 
         },
         error: (error) => {
-          console.error('Error cargando profesores:', error);
+          console.error(
+            'Error cargando profesores:',
+            error
+          );
         }
       });
   }
 
+
   guardarComision(): void {
 
-    console.log(
-      'Datos de comisión antes de guardar:',
-      this.comision
-    );
+    this.mensajeError = '';
+    this.mensajeExito = '';
 
     if (!this.comision.nombre.trim()) {
+
       this.mensajeError =
         'Ingresá el nombre de la comisión.';
+
       return;
     }
+
 
     if (
       this.comision.cantidad_alumnos === null ||
       this.comision.cantidad_alumnos <= 0
     ) {
+
       this.mensajeError =
         'Ingresá una cantidad de alumnos válida.';
+
       return;
     }
+
 
     if (this.comision.asignatura_id === null) {
+
       this.mensajeError =
         'Seleccioná una asignatura.';
+
       return;
     }
+
 
     if (this.comision.carrera_id === null) {
+
       this.mensajeError =
         'Seleccioná una carrera.';
+
       return;
     }
 
-    if (this.comision.usuario_profesor_id === null) {
+
+    if (
+      this.comision.usuario_profesor_id === null
+    ) {
+
       this.mensajeError =
         'Seleccioná un profesor.';
+
       return;
     }
 
+
     this.guardando = true;
-    this.mensajeError = '';
+
 
     const nuevaComision = {
-      nombre: this.comision.nombre.trim(),
-      cantidad_alumnos: Number(this.comision.cantidad_alumnos),
-      asignatura_id: Number(this.comision.asignatura_id),
-      carrera_id: Number(this.comision.carrera_id),
-      usuario_profesor_id: Number(
-        this.comision.usuario_profesor_id
-      )
+
+      nombre:
+        this.comision.nombre.trim(),
+
+      cantidad_alumnos:
+        Number(this.comision.cantidad_alumnos),
+
+      asignatura_id:
+        Number(this.comision.asignatura_id),
+
+      carrera_id:
+        Number(this.comision.carrera_id),
+
+      usuario_profesor_id:
+        Number(
+          this.comision.usuario_profesor_id
+        )
+
     };
 
-    console.log(
-      'Comisión enviada:',
-      nuevaComision
-    );
 
     this.http.post(
       'http://localhost:3000/comisiones',
@@ -171,10 +223,23 @@ export class RegistrarComision implements OnInit {
         );
 
         this.guardando = false;
-        this.mostrarExito = true;
+
+        this.mensajeExito =
+          '¡Comisión registrada correctamente!';
+
+
+        this.comision = {
+          nombre: '',
+          cantidad_alumnos: null,
+          asignatura_id: null,
+          carrera_id: null,
+          usuario_profesor_id: null
+        };
+
 
         this.cdr.detectChanges();
       },
+
 
       error: (error) => {
 
@@ -184,6 +249,7 @@ export class RegistrarComision implements OnInit {
         );
 
         this.guardando = false;
+
         this.mensajeError =
           'No se pudo registrar la comisión.';
 
@@ -193,14 +259,6 @@ export class RegistrarComision implements OnInit {
     });
   }
 
-  cerrarExito(): void {
-
-    this.mostrarExito = false;
-
-    this.router.navigate([
-      '/gestion-comisiones/administrar-comisiones'
-    ]);
-  }
 
   cancelar(): void {
 

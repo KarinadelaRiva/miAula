@@ -35,6 +35,7 @@
 
       </div>
 
+
       <div
         *ngIf="mensajeError"
         class="mensaje-resultado error">
@@ -42,6 +43,16 @@
         {{ mensajeError }}
 
       </div>
+
+
+      <div
+        *ngIf="mensajeExito"
+        class="mensaje-resultado exito">
+
+        {{ mensajeExito }}
+
+      </div>
+
 
       <div class="form-actions">
 
@@ -57,43 +68,17 @@
           class="btn-registrar"
           [disabled]="guardando">
 
-          {{ guardando ? 'Guardando...' : 'Registrar Carrera' }}
+          {{
+            guardando
+              ? 'Guardando...'
+              : 'Registrar Carrera'
+          }}
 
         </button>
 
       </div>
 
     </form>
-
-  </div>
-
-</div>
-
-
-<!-- MODAL DE ÉXITO -->
-
-<div
-  *ngIf="mostrarExito"
-  class="modal-overlay">
-
-  <div class="modal-exito">
-
-    <div class="icono-exito">
-      ✓
-    </div>
-
-    <h2>¡Carrera registrada!</h2>
-
-    <p>
-      La carrera fue registrada correctamente.
-    </p>
-
-    <button
-      type="button"
-      class="btn-aceptar"
-      (click)="cerrarExito()">
-      Aceptar
-    </button>
 
   </div>
 

@@ -5,10 +5,21 @@
     <div class="administrar-header">
 
       <div>
-        <span class="eyebrow">Panel administrativo</span>
-        <h1>Gestión de Carreras</h1>
-        <p>Consultá, modificá y administrá las carreras del sistema.</p>
+
+        <span class="eyebrow">
+          Panel administrativo
+        </span>
+
+        <h1>
+          Gestión de Carreras
+        </h1>
+
+        <p>
+          Consultá, modificá y administrá las carreras del sistema.
+        </p>
+
       </div>
+
 
       <div class="header-actions">
 
@@ -30,6 +41,7 @@
 
     </div>
 
+
     <div class="filtros-section">
 
       <input
@@ -37,35 +49,52 @@
         class="input-buscar"
         placeholder="Buscar carrera..."
         [(ngModel)]="busqueda"
-        (click)="mostrarTodas()"
         (input)="buscar()"
         aria-label="Buscar carrera">
 
     </div>
 
-    <div *ngIf="mensaje" class="mensaje">
+
+    <div
+      *ngIf="mensaje"
+      class="mensaje">
+
       {{ mensaje }}
+
     </div>
+
 
     <div class="tabla-container">
 
       <table>
 
         <thead>
+
           <tr>
+
             <th>ID</th>
+
             <th>Carrera</th>
+
             <th>Acciones</th>
+
           </tr>
+
         </thead>
+
 
         <tbody>
 
-          <tr *ngFor="let carrera of carrerasFiltradas">
+          <tr
+            *ngFor="let carrera of carrerasFiltradas">
+
 
             <td data-label="ID">
+
               {{ carrera.id }}
+
             </td>
+
 
             <td data-label="Carrera">
 
@@ -75,15 +104,24 @@
                 [(ngModel)]="nombreEditado"
                 aria-label="Editar nombre de carrera">
 
-              <strong *ngIf="carreraEditando?.id !== carrera.id">
+
+              <strong
+                *ngIf="carreraEditando?.id !== carrera.id">
+
                 {{ carrera.nombre }}
+
               </strong>
 
             </td>
 
-            <td data-label="Acciones" class="acciones">
 
-              <ng-container *ngIf="carreraEditando?.id === carrera.id">
+            <td
+              data-label="Acciones"
+              class="acciones">
+
+
+              <ng-container
+                *ngIf="carreraEditando?.id === carrera.id">
 
                 <button
                   type="button"
@@ -91,6 +129,7 @@
                   (click)="guardarEdicion()">
                   Guardar
                 </button>
+
 
                 <button
                   type="button"
@@ -101,7 +140,9 @@
 
               </ng-container>
 
-              <ng-container *ngIf="carreraEditando?.id !== carrera.id">
+
+              <ng-container
+                *ngIf="carreraEditando?.id !== carrera.id">
 
                 <button
                   type="button"
@@ -110,10 +151,11 @@
                   Editar
                 </button>
 
+
                 <button
                   type="button"
                   class="btn-eliminar"
-                  (click)="eliminarCarrera(carrera)">
+                  (click)="abrirConfirmacionEliminar(carrera)">
                   Eliminar
                 </button>
 
@@ -127,11 +169,61 @@
 
       </table>
 
+
       <div
         *ngIf="carrerasFiltradas.length === 0"
         class="sin-resultados">
+
         No se encontraron carreras.
+
       </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- CONFIRMACIÓN DE ELIMINACIÓN -->
+
+<div
+  *ngIf="mostrarConfirmacionEliminar"
+  class="modal-overlay">
+
+  <div class="modal-confirmacion">
+
+    <h2>
+      Eliminar carrera
+    </h2>
+
+    <p>
+
+      ¿Seguro que querés eliminar la carrera
+
+      <strong>
+        "{{ carreraAEliminar?.nombre }}"
+      </strong>?
+
+    </p>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn-cancelar"
+        (click)="cancelarEliminar()">
+        Cancelar
+      </button>
+
+
+      <button
+        type="button"
+        class="btn-eliminar"
+        (click)="confirmarEliminar()">
+        Eliminar
+      </button>
 
     </div>
 
