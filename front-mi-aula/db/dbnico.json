@@ -127,6 +127,13 @@
       "capacity": 2,
       "floor_number": 1,
       "enabled": false
+    },
+    {
+      "id": "6959",
+      "codigo": "999",
+      "nombre": "test backend",
+      "capacidad": 33,
+      "nroPiso": 3
     }
   ],
   "asignaturas": [

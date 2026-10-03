@@ -36,10 +36,10 @@ export class RegistrarEspacio {
 
     const value = this.form.getRawValue();
     const payload: EspacioCreateDto = {
-      code: (value.code || '').trim().toUpperCase(),
-      name: (value.name || '').trim(),
-      capacity: Number(value.capacity),
-      floor_number: Number(value.floor_number),
+      codigo: (value.code || '').trim().toUpperCase(),
+      nombre: (value.name || '').trim(),
+      capacidad: Number(value.capacity),
+      nroPiso: Number(value.floor_number),
     };
 
     this.espacioService.crear(payload).subscribe({

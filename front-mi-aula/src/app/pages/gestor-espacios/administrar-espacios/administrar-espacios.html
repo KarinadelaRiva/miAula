@@ -53,16 +53,16 @@
               <td><input [(ngModel)]="capacidadEditado" type="number" aria-label="Editar capacidad" /></td>
               <td><input [(ngModel)]="pisoEditado" type="number" aria-label="Editar piso" /></td>
 
-              <td><span class="estado" [class.inactivo]="!estaHabilitado(espacio)">{{ espacio.enabled ? 'Activo' : 'Eliminado' }}</span></td>
+              <td><span class="estado" [class.inactivo]="!estaHabilitado(espacio)">{{ espacio.activo ? 'Activo' : 'Eliminado' }}</span></td>
               <td class="acciones">
                 <button type="button" class="btn-guardar" (click)="guardarEdicion()">Guardar</button>
                 <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
               </td>
             } @else {
-                            <td><strong>{{ espacio.code }}</strong></td>
-              <td>{{ espacio.name }}</td>
-              <td>{{ espacio.capacity }} personas</td>
-              <td>{{ espacio.floor_number }}</td>
+                            <td><strong>{{ espacio.codigo }}</strong></td>
+              <td>{{ espacio.nombre }}</td>
+              <td>{{ espacio.capacidad }} personas</td>
+              <td>{{ espacio.nroPiso }}</td>
               <td>
                 <span class="estado" [class.inactivo]="!estaHabilitado(espacio)">
                   {{ estaHabilitado(espacio) ? 'Habilitado' : 'Deshabilitado' }}
@@ -116,22 +116,22 @@
 
         <div class="detalle-grupo">
           <label>Código:</label>
-          <p>{{ espacioSeleccionado()!.code }}</p>
+          <p>{{ espacioSeleccionado()!.codigo }}</p>
         </div>
 
         <div class="detalle-grupo">
           <label>Nombre:</label>
-          <p>{{ espacioSeleccionado()!.name }}</p>
+          <p>{{ espacioSeleccionado()!.nombre }}</p>
         </div>
 
         <div class="detalle-grupo">
           <label>Capacidad:</label>
-          <p>{{ espacioSeleccionado()!.capacity }} personas</p>
+          <p>{{ espacioSeleccionado()!.capacidad }} personas</p>
         </div>
 
         <div class="detalle-grupo">
           <label>Piso:</label>
-          <p>{{ espacioSeleccionado()!.floor_number }}</p>
+          <p>{{ espacioSeleccionado()!.nroPiso }}</p>
         </div>
 
         <div class="detalle-grupo">

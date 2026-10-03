@@ -31,6 +31,7 @@ export class AdministrarEspacios {
     this.cargarEspacios();
   }
 
+  /*
   cargarEspacios() {
     this.espacioService
       .obtenerEspaciosPaginados(this.paginaActual(), this.limite, this.filtroBusqueda(), this.filtroEstado())
@@ -44,6 +45,15 @@ export class AdministrarEspacios {
           this.totalPaginas.set(0);
         },
       });
+  }
+  */
+
+  cargarEspacios() {
+    this.espacioService.getAll().subscribe({
+      next:(data) => {
+        this.listaEspacios.set(data);
+      }
+    });
   }
 
   aplicarFiltros() {
@@ -111,36 +121,36 @@ export class AdministrarEspacios {
   }
 
   estaHabilitado(espacio: Espacio): boolean {
-    return Number(espacio.enabled) === 1;
+    return Number(espacio.activo) === 1;
   }
 
   editarEspacio(espacio: Espacio) {
     this.espacioEditando.set(espacio);
-    this.codigoEditado = espacio.code;
-    this.nombreEditado = espacio.name;
-    this.capacidadEditado = espacio.capacity;
-    this.pisoEditado = espacio.floor_number;
+    this.codigoEditado = espacio.codigo;
+    this.nombreEditado = espacio.nombre;
+    this.capacidadEditado = espacio.capacidad;
+    this.pisoEditado = espacio.nroPiso;
     this.mensaje.set('');
   }
 
   guardarEdicion() {
     const espacio = this.espacioEditando();
-    const code = this.codigoEditado.trim();
-    const name = this.nombreEditado.trim();
-    const capacity = this.capacidadEditado;
-    const floor_number = this.pisoEditado;
+    const codigo = this.codigoEditado.trim();
+    const nombre = this.nombreEditado.trim();
+    const capacidad = this.capacidadEditado;
+    const nroPiso = this.pisoEditado;
 
-    if (!espacio || !code || !name || !capacity || !floor_number) {
+    if (!espacio || !codigo || !nombre || !capacidad || !nroPiso) {
       this.mensaje.set('Completá todos los campos para poder guardar.');
       return;
     }
 
     this.espacioService.actualizarEspacio({
       ...espacio,
-      code,
-      name,
-      capacity,
-      floor_number,
+      codigo,
+      nombre,
+      capacidad,
+      nroPiso,
     }).subscribe({
       next: () => {
         this.mensaje.set('Usuario actualizado correctamente.');

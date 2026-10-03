@@ -1,8 +1,8 @@
 export interface Espacio {
   id: number;
-  code: string;
-  name: string;
-  capacity: number;
-  floor_number: number;
-  enabled: number;
+  codigo: string;
+  nombre: string;
+  capacidad: number;
+  nroPiso: number;
+  activo: number;
 }
