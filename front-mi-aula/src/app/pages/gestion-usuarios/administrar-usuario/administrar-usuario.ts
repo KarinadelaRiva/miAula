@@ -34,6 +34,7 @@ export class AdministrarUsuario implements OnInit {
     this.cargarUsuarios();
   }
 
+  /*
   cargarUsuarios() {
     const activo = this.filtroActivo() === '' ? undefined : this.filtroActivo() as boolean;
     
@@ -51,6 +52,15 @@ export class AdministrarUsuario implements OnInit {
           this.totalPaginas.set(Math.ceil(data.total / this.limite));
         },
       });
+  }
+  */
+
+  cargarUsuarios() {
+    this.usuarioService.getAll().subscribe({
+      next:(data) => {
+        this.listaUsuarios.set(data);
+      },
+    });
   }
 
   aplicarFiltros() {

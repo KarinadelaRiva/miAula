@@ -1,0 +1,63 @@
+package com.miAula.miAula.security.jwt;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+
+import javax.crypto.SecretKey;
+
+@Service
+public class JwtService {
+
+    // Clave ubicada en el archivo de configuración (application.properties)
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    // Genera un token para un usuario autenticado
+    public String generateToken(UserDetails userDetails) {
+        return Jwts.builder()
+                .subject(userDetails.getUsername()) // El "dueño" del token (ej: nombre de usuario)
+                .claim("roles", userDetails.getAuthorities()) // Información adicional: los roles del usuario
+                .issuedAt(new Date(System.currentTimeMillis())) // Cuándo fue generado
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // Expira en 1 hora
+                .signWith(getKey()) // Firma el token con HS256 y la clave secreta
+                .compact(); // Lo convierte a una cadena tipo JWT (header.payload.firma)
+    }
+
+    //  Verifica si un token es válido para un usuario dado
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token); // extrae el usuario desde el token
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    // Extrae el nombre de usuario desde el token (campo "sub")
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    // Verifica si el token está vencido (exp < fecha actual)
+    private boolean isTokenExpired(String token) {
+        return extractAllClaims(token).getExpiration().before(new Date());
+    }
+
+    // Extrae todos los datos (claims) del token
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getKey()) // Le dice con qué clave validar la firma
+                .build()
+                .parseSignedClaims(token) // Parsea el JWT completo y lo valida
+                .getPayload(); // Devuelve el contenido (payload)
+    }
+
+    //Convierte la clave secreta en un objeto Key para usar con la librería jjwt
+    private SecretKey getKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes); // Usa HMAC con SHA-256
+    }
+}

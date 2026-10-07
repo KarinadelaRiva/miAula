@@ -10,9 +10,10 @@ import { EspacioCreateDto } from '../../models/espacioCreateDto';
 export class EspacioService {
   private http = inject(HttpClient);
   private baseDatosUrl = 'http://localhost:3000/espacios';
+  private baseDatosUrlBack = 'http://localhost:8080/espacios';
 
   getAll(): Observable<Espacio[]> {
-    return this.http.get<Espacio[]>(this.baseDatosUrl);
+    return this.http.get<Espacio[]>(this.baseDatosUrlBack);
   }
 
   getEspacioById(id: number): Observable<Espacio> {
@@ -36,11 +37,12 @@ export class EspacioService {
   }
 
   crear(espacioNuevo: EspacioCreateDto): Observable<Espacio> {
+    /*
     const espacio = {
       ...espacioNuevo,
-      enabled: true,
-    };
-    return this.http.post<Espacio>(this.baseDatosUrl, espacio);
+      //activo: true,
+    };*/
+    return this.http.post<Espacio>(this.baseDatosUrlBack, espacioNuevo);
   }
 
   obtenerEspaciosPaginados(
@@ -57,16 +59,16 @@ export class EspacioService {
           const textoLower = filtroTexto.toLowerCase();
           espacios = espacios.filter(
             (espacio) =>
-              espacio.code.toLowerCase().includes(textoLower) ||
-              espacio.name.toLowerCase().includes(textoLower) ||
-              String(espacio.floor_number).includes(textoLower)
+              espacio.codigo.toLowerCase().includes(textoLower) ||
+              espacio.nombre.toLowerCase().includes(textoLower) ||
+              String(espacio.nroPiso).includes(textoLower)
           );
         }
 
         if (filtroEstado !== undefined && filtroEstado !== '') {
           const valorEstado = String(filtroEstado).toLowerCase();
           const activo = valorEstado === 'true' || valorEstado === '1';
-          espacios = espacios.filter((espacio) => Number(espacio.enabled) === Number(activo));
+          espacios = espacios.filter((espacio) => Number(espacio.activo) === Number(activo));
         }
 
         const inicio = (pagina - 1) * limite;

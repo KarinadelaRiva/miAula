@@ -10,9 +10,10 @@ import { UsuarioCreateDto } from '../../models/usuarioCreateDto';
 export class UsuarioService {
   private http = inject(HttpClient);
   private baseDatosUrl = 'http://localhost:3000/usuarios';
+  private baseDatosUrlBack = 'http://localhost:8080/usuarios';
 
   getAll(): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(this.baseDatosUrl);
+    return this.http.get<Usuario[]>(this.baseDatosUrlBack);
   }
 
   getUsuarioById(id: string): Observable<Usuario> {
