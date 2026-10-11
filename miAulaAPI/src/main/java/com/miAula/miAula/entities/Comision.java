@@ -45,6 +45,10 @@ public class Comision {
     @JoinColumn(name = "materia_id")
     private Materia materia;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profesor_id")
+    private Long profesorId;
+
     @OneToMany(mappedBy = "comision", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Reserva> reservas = new ArrayList<>();
