@@ -21,6 +21,23 @@
 
       <div class="campo">
 
+        <label for="codigoCarrera">
+          Código de la carrera
+        </label>
+
+        <input
+          id="codigoCarrera"
+          type="text"
+          name="codigo"
+          [(ngModel)]="codigo"
+          placeholder="Ej: TUP"
+          maxlength="6"
+          required>
+
+      </div>
+
+      <div class="campo">
+
         <label for="nombreCarrera">
           Nombre de la carrera
         </label>
@@ -31,10 +48,10 @@
           name="nombre"
           [(ngModel)]="nombre"
           placeholder="Ej: Tecnicatura Universitaria en Programación"
+          maxlength="50"
           required>
 
       </div>
-
 
       <div
         *ngIf="mensajeError"
@@ -44,7 +61,6 @@
 
       </div>
 
-
       <div
         *ngIf="mensajeExito"
         class="mensaje-resultado exito">
@@ -52,7 +68,6 @@
         {{ mensajeExito }}
 
       </div>
-
 
       <div class="form-actions">
 

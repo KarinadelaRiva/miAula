@@ -47,7 +47,7 @@
       <input
         type="text"
         class="input-buscar"
-        placeholder="Buscar carrera..."
+        placeholder="Buscar por código o carrera..."
         [(ngModel)]="busqueda"
         (input)="buscar()"
         aria-label="Buscar carrera">
@@ -74,6 +74,8 @@
 
             <th>ID</th>
 
+            <th>Código</th>
+
             <th>Carrera</th>
 
             <th>Acciones</th>
@@ -96,12 +98,33 @@
             </td>
 
 
+            <td data-label="Código">
+
+              <input
+                *ngIf="carreraEditando?.id === carrera.id"
+                class="input-edicion"
+                [(ngModel)]="codigoEditado"
+                maxlength="6"
+                aria-label="Editar código de carrera">
+
+
+              <strong
+                *ngIf="carreraEditando?.id !== carrera.id">
+
+                {{ carrera.codigo }}
+
+              </strong>
+
+            </td>
+
+
             <td data-label="Carrera">
 
               <input
                 *ngIf="carreraEditando?.id === carrera.id"
                 class="input-edicion"
                 [(ngModel)]="nombreEditado"
+                maxlength="50"
                 aria-label="Editar nombre de carrera">
 
 
@@ -202,7 +225,7 @@
       ¿Seguro que querés eliminar la carrera
 
       <strong>
-        "{{ carreraAEliminar?.nombre }}"
+        "{{ carreraAEliminar?.codigo }} - {{ carreraAEliminar?.nombre }}"
       </strong>?
 
     </p>

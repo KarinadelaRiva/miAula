@@ -11,7 +11,8 @@ import { HttpClient } from '@angular/common/http';
 
 
 interface Carrera {
-  id: string;
+  id: number;
+  codigo: string;
   nombre: string;
 }
 
@@ -30,7 +31,7 @@ interface Carrera {
 export class AdministrarCarreras implements OnInit {
 
   private apiUrl =
-    'http://localhost:3000/carreras';
+    'http://localhost:8080/carreras';
 
 
   carreras: Carrera[] = [];
@@ -39,6 +40,8 @@ export class AdministrarCarreras implements OnInit {
   busqueda = '';
 
   carreraEditando: Carrera | null = null;
+
+  codigoEditado = '';
   nombreEditado = '';
 
   mensaje = '';
@@ -71,8 +74,6 @@ export class AdministrarCarreras implements OnInit {
           this.carrerasFiltradas = [
             ...data
           ];
-
-          this.mensaje = '';
 
           console.log(
             'Carreras cargadas:',
@@ -124,6 +125,10 @@ export class AdministrarCarreras implements OnInit {
           carrera.nombre
             .toLowerCase()
             .includes(texto)
+          ||
+          carrera.codigo
+            .toLowerCase()
+            .includes(texto)
       );
   }
 
@@ -133,6 +138,9 @@ export class AdministrarCarreras implements OnInit {
   ): void {
 
     this.carreraEditando = carrera;
+
+    this.codigoEditado =
+      carrera.codigo;
 
     this.nombreEditado =
       carrera.nombre;
@@ -147,6 +155,7 @@ export class AdministrarCarreras implements OnInit {
 
     this.carreraEditando = null;
 
+    this.codigoEditado = '';
     this.nombreEditado = '';
 
     this.cdr.detectChanges();
@@ -155,10 +164,43 @@ export class AdministrarCarreras implements OnInit {
 
   guardarEdicion(): void {
 
-    if (
-      !this.carreraEditando ||
-      !this.nombreEditado.trim()
-    ) {
+    if (!this.carreraEditando) {
+      return;
+    }
+
+    const codigoLimpio =
+      this.codigoEditado
+        .trim()
+        .toUpperCase();
+
+    const nombreLimpio =
+      this.nombreEditado
+        .trim();
+
+
+    if (!codigoLimpio) {
+
+      this.mensaje =
+        'Ingresá un código para la carrera.';
+
+      this.cdr.detectChanges();
+
+      return;
+    }
+
+
+    if (codigoLimpio.length > 6) {
+
+      this.mensaje =
+        'El código no puede superar los 6 caracteres.';
+
+      this.cdr.detectChanges();
+
+      return;
+    }
+
+
+    if (!nombreLimpio) {
 
       this.mensaje =
         'Ingresá un nombre para la carrera.';
@@ -169,12 +211,23 @@ export class AdministrarCarreras implements OnInit {
     }
 
 
-    const carreraActualizada: Carrera = {
+    if (nombreLimpio.length > 50) {
 
-      ...this.carreraEditando,
+      this.mensaje =
+        'El nombre no puede superar los 50 caracteres.';
 
-      nombre:
-        this.nombreEditado.trim()
+      this.cdr.detectChanges();
+
+      return;
+    }
+
+
+    const carreraActualizada = {
+
+      codigo: codigoLimpio,
+
+      nombre: nombreLimpio
+
     };
 
 
@@ -186,14 +239,15 @@ export class AdministrarCarreras implements OnInit {
 
       next: () => {
 
-        this.mensaje =
-          'Carrera actualizada correctamente.';
-
         this.carreraEditando = null;
 
+        this.codigoEditado = '';
         this.nombreEditado = '';
 
         this.cargarCarreras();
+
+        this.mensaje =
+          'Carrera actualizada correctamente.';
 
         this.cdr.detectChanges();
       },
@@ -205,8 +259,17 @@ export class AdministrarCarreras implements OnInit {
           error
         );
 
-        this.mensaje =
-          'No se pudo actualizar la carrera.';
+        if (error.status === 400) {
+
+          this.mensaje =
+            'Revisá los datos ingresados.';
+
+        } else {
+
+          this.mensaje =
+            'No se pudo actualizar la carrera.';
+
+        }
 
         this.cdr.detectChanges();
       }
@@ -219,21 +282,11 @@ export class AdministrarCarreras implements OnInit {
     carrera: Carrera
   ): void {
 
-    console.log(
-      'Botón eliminar carrera:',
-      carrera
-    );
-
     this.carreraAEliminar =
       carrera;
 
     this.mostrarConfirmacionEliminar =
       true;
-
-    console.log(
-      'Mostrar modal:',
-      this.mostrarConfirmacionEliminar
-    );
 
     this.cdr.detectChanges();
   }
@@ -277,10 +330,10 @@ export class AdministrarCarreras implements OnInit {
         this.mostrarConfirmacionEliminar =
           false;
 
+        this.cargarCarreras();
+
         this.mensaje =
           'Carrera eliminada correctamente.';
-
-        this.cargarCarreras();
 
         this.cdr.detectChanges();
       },
