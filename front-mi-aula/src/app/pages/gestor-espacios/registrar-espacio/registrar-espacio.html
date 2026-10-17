@@ -9,22 +9,22 @@
       <div class="form-row">
         <div class="campo">
           <label for="codigo">Código</label>
-          <input id="codigo" type="text" maxlength="10" formControlName="code" placeholder="Ej. A101" />
-          @if (form.get('code')?.dirty && form.get('code')?.hasError('required')) {
+          <input id="codigo" type="text" maxlength="6" formControlName="codigo" placeholder="Ej. A101" />
+          @if (form.get('codigo')?.dirty && form.get('codigo')?.hasError('required')) {
             <span class="error">El código es obligatorio</span>
           }
-          @if (form.get('code')?.dirty && form.get('code')?.hasError('maxlength')) {
+          @if (form.get('codigo')?.dirty && form.get('codigo')?.hasError('maxlength')) {
             <span class="error">El código no puede superar 6 caracteres</span>
           }
         </div>
 
         <div class="campo">
           <label for="nombre">Nombre</label>
-          <input id="nombre" type="text" maxlength="25" formControlName="name" placeholder="Ej. Aula 100" />
-          @if (form.get('name')?.dirty && form.get('name')?.hasError('required')) {
+          <input id="nombre" type="text" maxlength="50" formControlName="nombre" placeholder="Ej. Aula 100" />
+          @if (form.get('nombre')?.dirty && form.get('nombre')?.hasError('required')) {
             <span class="error">El nombre es obligatorio</span>
           }
-          @if (form.get('name')?.dirty && form.get('name')?.hasError('maxlength')) {
+          @if (form.get('nombre')?.dirty && form.get('nombre')?.hasError('maxlength')) {
             <span class="error">El nombre no puede superar 50 caracteres</span>
           }
         </div>
@@ -32,24 +32,21 @@
 
       <div class="form-row">
         <div class="campo">
-          <label for="capacity">Capacidad</label>
-          <input id="capacity" type="number" min="1" formControlName="capacity" placeholder="Cantidad de personas" />
-          @if (form.get('capacity')?.dirty && form.get('capacity')?.hasError('required')) {
+          <label for="capacidad">Capacidad</label>
+          <input id="capacidad" type="number" min="1" formControlName="capacidad" placeholder="Cantidad de personas" />
+          @if (form.get('capacidad')?.dirty && form.get('capacidad')?.hasError('required')) {
             <span class="error">La capacidad es obligatoria</span>
           }
-          @if (form.get('capacity')?.dirty && form.get('capacity')?.hasError('min')) {
+          @if (form.get('capacidad')?.dirty && form.get('capacidad')?.hasError('min')) {
             <span class="error">La capacidad debe ser mayor o igual a 1</span>
           }
         </div>
 
         <div class="campo">
-          <label for="floor_number">Piso</label>
-          <input id="floor_number" type="number" min="0" formControlName="floor_number" placeholder="Número de piso" />
-          @if (form.get('floor_number')?.dirty && form.get('floor_number')?.hasError('required')) {
+          <label for="nroPiso">Piso</label>
+          <input id="nroPiso" type="number" formControlName="nroPiso" placeholder="Número de piso" />
+          @if (form.get('nroPiso')?.dirty && form.get('nroPiso')?.hasError('required')) {
             <span class="error">El piso es obligatorio</span>
-          }
-          @if (form.get('floor_number')?.dirty && form.get('floor_number')?.hasError('min')) {
-            <span class="error">El piso no puede ser menor a 0</span>
           }
         </div>
       </div>

@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ComisionRepository extends JpaRepository<Comision, Long> {
-    Optional<Comision> findByCantidadAlumnos(Integer cantidad);
-    List<Comision> findByCantidadAlumnosBetween(Integer minimo, Integer maximo);
-    List<Comision> findByAsignaturaId(Long asignaturaId);
+    Optional<Comision> findByCantidadEstudiantes(Integer cantidad);
+    List<Comision> findByCantidadEstudiantesBetween(Integer minimo, Integer maximo);
+    List<Comision> findByMateriaId(Long asignaturaId);
     List<Comision> findByProfesorId(Long profesorId);
-    boolean existsByNombreAndAsignaturaId(String nombre, Long asignaturaId);
+    boolean existsByNombreAndMateriaId(String nombre, Long asignaturaId);
 
 }

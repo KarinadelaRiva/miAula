@@ -4,5 +4,5 @@ export interface Espacio {
   nombre: string;
   capacidad: number;
   nroPiso: number;
-  activo: number;
+  activo: boolean;
 }

@@ -50,7 +50,7 @@
 
               <td class="edicion-datos"><input [(ngModel)]="codigoEditado" aria-label="Editar código" /></td>
               <td><input [(ngModel)]="nombreEditado" aria-label="Editar nombre" /></td>
-              <td><input [(ngModel)]="capacidadEditado" type="number" aria-label="Editar capacidad" /></td>
+              <td><input [(ngModel)]="capacidadEditado" type="number" min="1" aria-label="Editar capacidad" /></td>
               <td><input [(ngModel)]="pisoEditado" type="number" aria-label="Editar piso" /></td>
 
               <td><span class="estado" [class.inactivo]="!estaHabilitado(espacio)">{{ espacio.activo ? 'Activo' : 'Eliminado' }}</span></td>
@@ -71,7 +71,7 @@
               <td class="acciones">
                 <button type="button" class="btn-editar" (click)="editarEspacio(espacio)">Editar</button>
                 @if (estaHabilitado(espacio)) {
-                  <button type="button" class="btn-eliminar" (click)="abrirModal(espacio)">Eliminar</button>
+                  <button type="button" class="btn-eliminar" (click)="abrirModal(espacio)">Deshabilitar</button>
                 } @else {
                   <button type="button" class="btn-reactivar" (click)="abrirModal(espacio)">Reactivar</button>
                 }
@@ -140,7 +140,7 @@
         </div>
 
         @if (estaHabilitado(espacioSeleccionado()!)) {
-          <button (click)="eliminar()" class="btn-eliminar-usuario">Eliminar Espacio</button>
+          <button (click)="eliminar()" class="btn-eliminar-usuario">Deshabilitar Espacio</button>
         } @else {
           <button (click)="reactivar()" class="btn-reactivar-usuario">Reactivar Espacio</button>
         }

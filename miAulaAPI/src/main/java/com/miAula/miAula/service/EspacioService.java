@@ -2,6 +2,8 @@ package com.miAula.miAula.service;
 
 import java.util.List;
 
+import com.miAula.miAula.dtos.espacio.EspacioUpdateDTO;
+import com.miAula.miAula.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.miAula.miAula.dtos.espacio.EspacioCreateDTO;
@@ -19,7 +21,7 @@ public class EspacioService {
         this.espacioRepository = espacioRepository;
     }
 
-    private EspacioResponseDTO espacioToEspacioResponseDto(Espacio espacio) {
+    private static EspacioResponseDTO espacioToEspacioResponseDto(Espacio espacio) {
         return EspacioResponseDTO.builder()
             .id(espacio.getId())
             .codigo(espacio.getCodigo())
@@ -30,7 +32,7 @@ public class EspacioService {
             .build();
     }
 
-    private Espacio espacioCreateDtoToEspacio(EspacioCreateDTO dto) {
+    private static Espacio espacioCreateDtoToEspacio(EspacioCreateDTO dto) {
         return Espacio.builder()
             .codigo(dto.getCodigo())
             .nombre(dto.getNombre())
@@ -40,14 +42,53 @@ public class EspacioService {
     }
 
     public List<EspacioResponseDTO> getAllEspaciosDTO() {
-        List<Espacio> espacios = espacioRepository.findAll();
-        return espacios.stream()
-            .map(this::espacioToEspacioResponseDto)
+        return espacioRepository.findAll().stream()
+            .map(EspacioService::espacioToEspacioResponseDto)
             .toList();
     }
 
+    public Espacio obtenerPorId(Long id) {
+        return espacioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Espacio no encontrado con ID: " + id));
+    }
+
+    public EspacioResponseDTO obtenerDTOPorId(Long id) {
+        return espacioRepository.findById(id)
+                .map(EspacioService::espacioToEspacioResponseDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Espacio no encontrado con ID: " + id));
+    }
+
+    public EspacioResponseDTO obtenerPorCodigo(String codigo) {
+        return espacioRepository.findByCodigo(codigo)
+                .map(EspacioService::espacioToEspacioResponseDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Espacio no encontrado con código: " + codigo));
+    }
+
+    public EspacioResponseDTO obtenerPorNombre(String nombre) {
+        return espacioRepository.findByNombre(nombre)
+                .map(EspacioService::espacioToEspacioResponseDto)
+                .orElseThrow(() -> new ResourceNotFoundException("Espacio no encontrado con nombre: " + nombre));
+    }
+
+//    public List<ReservaResponseDTO> obtenerReservasPorEspacio(Long espacioId) {
+//        return obtenerPorId(espacioId).getReservas().stream()
+//                .map(reservaService::reservaToReservaResponseDTO)
+//                .toList();
+//    }
+
+    public List<EspacioResponseDTO> obtenerPorCapacidadMayorA(Integer capacidad) {
+        return espacioRepository.findByCapacidadGreaterThanEqual(capacidad)
+                .stream()
+                .map(EspacioService::espacioToEspacioResponseDto)
+                .toList();
+    }
+
     public Espacio guardar(EspacioCreateDTO espacioDTO) {
-        System.err.println("GUARDAR");
+
+        //Validación de código duplicado
+        if (espacioRepository.existsByCodigo(espacioDTO.getCodigo())) {
+            throw new ResourceConflictException("Ya existe un espacio con ese código");
+        }
 
         // Validación de nombre duplicado
         if (espacioRepository.existsByNombre(espacioDTO.getNombre())) {
@@ -59,13 +100,48 @@ public class EspacioService {
             throw new IllegalArgumentException("La capacidad debe ser mayor a 0");
         }
 
-        System.err.println("VALIDACIONES HECHAS");
-
         Espacio nuevoEspacio = espacioCreateDtoToEspacio(espacioDTO);
 
-        System.err.println("FIN");
-
         return espacioRepository.save(nuevoEspacio);
+    }
+
+    public Espacio actualizar(EspacioUpdateDTO nuevoEspacio) {
+        Espacio existente = obtenerPorId(nuevoEspacio.getId());
+
+        if (!existente.getCodigo().equals(nuevoEspacio.getCodigo()) && espacioRepository.existsByCodigo(nuevoEspacio.getCodigo())) {
+            throw new ResourceConflictException("Ya existe otro espacio con ese código");
+        }
+
+        if (!existente.getNombre().equals(nuevoEspacio.getNombre()) && espacioRepository.existsByNombre(nuevoEspacio.getNombre())) {
+            throw new ResourceConflictException("Ya existe otro espacio con ese nombre");
+        }
+
+        if (nuevoEspacio.getCapacidad() == null || nuevoEspacio.getCapacidad() <= 0) {
+            throw new IllegalArgumentException("La capacidad debe ser mayor a 0");
+        }
+
+        existente.setCodigo(nuevoEspacio.getCodigo());
+        existente.setNombre(nuevoEspacio.getNombre());
+        existente.setCapacidad(nuevoEspacio.getCapacidad());
+        existente.setNroPiso(nuevoEspacio.getNroPiso());
+
+        return espacioRepository.save(existente);
+    }
+
+    public void deshabilitar(Long id) {
+        if(!espacioRepository.existsById(id)){
+            throw new ResourceNotFoundException("Espacio no encontrado");
+        }
+
+        Espacio espacio = obtenerPorId(id);
+        espacio.setActivo(false);
+        espacioRepository.save(espacio);
+    }
+
+    public Espacio actualizarEstado(Long id, Boolean activo) {
+        Espacio espacio = obtenerPorId(id);
+        espacio.setActivo(activo);
+        return espacioRepository.save(espacio);
     }
 
 }

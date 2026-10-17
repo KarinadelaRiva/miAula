@@ -57,6 +57,10 @@ public class Usuario implements UserDetails{
     @Builder.Default
     private List<Solicitud> solicitudes = new ArrayList<>();
 
+    @OneToMany(mappedBy = "profesor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Comision> comisiones = new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

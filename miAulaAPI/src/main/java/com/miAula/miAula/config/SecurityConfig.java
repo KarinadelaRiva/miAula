@@ -89,6 +89,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(rutasSinRestriccion).permitAll()
                         .requestMatchers(HttpMethod.POST, rutasSinRestriccionPOST).permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/espacios/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/espacios/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",

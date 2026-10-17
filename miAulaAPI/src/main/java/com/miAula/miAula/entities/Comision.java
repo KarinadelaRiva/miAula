@@ -47,7 +47,7 @@ public class Comision {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profesor_id")
-    private Long profesorId;
+    private Usuario profesor;
 
     @OneToMany(mappedBy = "comision", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

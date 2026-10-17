@@ -31,11 +31,10 @@ public class Espacio {
     @Column(nullable = false, length = 50)
     private String nombre;
 
-    @Min(0)
+    @Min(1)
     @Column(nullable = false)
     private Integer capacidad;
 
-    @Min(0)
     @Column(nullable = false)
     private Integer nroPiso;
 
