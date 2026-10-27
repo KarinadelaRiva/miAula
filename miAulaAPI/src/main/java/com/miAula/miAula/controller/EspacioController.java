@@ -9,13 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.miAula.miAula.dtos.espacio.EspacioCreateDTO;
 import com.miAula.miAula.dtos.espacio.EspacioResponseDTO;
 import com.miAula.miAula.entities.Espacio;
 import com.miAula.miAula.service.EspacioService;
 
-@Controller 
+@RestController
 @RequestMapping("/espacios")
 public class EspacioController {
     
@@ -30,7 +31,7 @@ public class EspacioController {
         return new ResponseEntity<>(espacioService.getAllEspaciosDTO(), HttpStatus.OK);
     }
 
-    @PostMapping 
+    @PostMapping
     public ResponseEntity<Espacio> crearEspacio(@RequestBody EspacioCreateDTO espacio) {
         System.err.println("CONTROLLER");
         return new ResponseEntity<>(espacioService.guardar(espacio), HttpStatus.CREATED);

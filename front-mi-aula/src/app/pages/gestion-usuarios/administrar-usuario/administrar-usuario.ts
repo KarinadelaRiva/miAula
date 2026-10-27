@@ -95,7 +95,9 @@ export class AdministrarUsuario implements OnInit {
     this.nombreEditado = usuario.nombre;
     this.apellidoEditado = usuario.apellido;
     this.emailEditado = usuario.email;
-    this.rolEditado = usuario.rol ?? 'PROFESOR';
+    this.rolEditado = usuario.roles?.some((rol) =>
+      ['ADMIN', 'ADMINISTRADOR'].includes(rol.toUpperCase().replace(/^ROLE_/, ''))
+    ) ? 'ADMIN' : 'PROFESOR';
     this.mensaje.set('');
   }
 
@@ -123,7 +125,7 @@ export class AdministrarUsuario implements OnInit {
       nombre,
       apellido,
       email,
-      rol: this.rolEditado,
+      roles: [this.rolEditado],
     }).subscribe({
       next: () => {
         this.mensaje.set('Usuario actualizado correctamente.');
@@ -138,7 +140,7 @@ export class AdministrarUsuario implements OnInit {
     const usuario = this.usuarioSeleccionado();
     if (!usuario) return;
 
-    this.usuarioService.eliminarById(usuario.id).subscribe({
+    this.usuarioService.eliminarById(String(usuario.id)).subscribe({
       next: () => {
         this.usuarioSeleccionado.set(null);
         this.mensaje.set('Usuario eliminado correctamente.');
@@ -151,7 +153,7 @@ export class AdministrarUsuario implements OnInit {
     const usuario = this.usuarioSeleccionado();
     if (!usuario) return;
 
-    this.usuarioService.reactivarById(usuario.id).subscribe({
+    this.usuarioService.reactivarById(String(usuario.id)).subscribe({
       next: () => {
         this.usuarioSeleccionado.set(null);
         this.mensaje.set('Usuario reactivado correctamente.');
@@ -161,9 +163,6 @@ export class AdministrarUsuario implements OnInit {
   }
 
   seleccionadoIgualLogueado(): boolean {
-    if(this.auth.infoUsuario().id === this.usuarioSeleccionado()?.id) {
-      return true;
-    }
-    return false;
+    return String(this.auth.infoUsuario()?.id) === String(this.usuarioSeleccionado()?.id);
   }
 }

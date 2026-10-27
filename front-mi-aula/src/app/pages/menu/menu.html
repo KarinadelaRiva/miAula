@@ -1,5 +1,7 @@
-<p>Id: {{authService.infoUsuario().id}} </p>
-<p>Nombre: {{authService.infoUsuario().nombre}} </p>
-<p>Apellido: {{authService.infoUsuario().apellido}} </p>
-<p>Email: {{authService.infoUsuario().email}} </p>
-<p>Rol: {{authService.infoUsuario().rol}} </p>
+@if (infoUsuario$ | async; as usuario) {
+  <p>Id: {{ usuario.id }}</p>
+  <p>Nombre: {{ usuario.nombre }}</p>
+  <p>Apellido: {{ usuario.apellido }}</p>
+  <p>Email: {{ usuario.email }}</p>
+  <p>Roles: {{ usuario.roles.join(', ') }}</p>
+}

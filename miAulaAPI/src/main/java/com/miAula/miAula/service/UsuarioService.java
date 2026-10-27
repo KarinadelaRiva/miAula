@@ -29,7 +29,9 @@ public class UsuarioService implements UserDetailsService {
                 .nombre(usuario.getNombre())
                 .apellido(usuario.getApellido())
                 .email(usuario.getUsername())
-                //.roles(usuario.getUsuarioRoles())
+                .roles(usuario.getUsuarioRoles().stream()
+                    .map(usuarioRol -> usuarioRol.getRol().getNombre())
+                    .toList())
                 .activo(usuario.getActivo())
                 .build();
     }
@@ -39,6 +41,12 @@ public class UsuarioService implements UserDetailsService {
         return usuarios.stream()
                 .map(this::usuarioToUsuarioResponseDTO)
                 .toList();
+    }
+
+    public UsuarioResponseDTO obtenerPorUsername(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con username: " + email));
+        return this.usuarioToUsuarioResponseDTO(usuario);
     }
     
     @Override

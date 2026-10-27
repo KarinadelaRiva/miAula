@@ -30,9 +30,9 @@ export class PerfilComponent implements OnInit {
   mostrarAlertaEliminar = signal(false);
 
   formPerfil = this.fb.group({
-    nombre: [this.auth.infoUsuario().nombre, [Validators.required, Validators.minLength(2)]],
-    apellido: [this.auth.infoUsuario().apellido, [Validators.required, Validators.minLength(2)]],
-    email: [this.auth.infoUsuario().email, [Validators.required, Validators.email]],
+    nombre: [this.auth.infoUsuario()?.nombre ?? '', [Validators.required, Validators.minLength(2)]],
+    apellido: [this.auth.infoUsuario()?.apellido ?? '', [Validators.required, Validators.minLength(2)]],
+    email: [this.auth.infoUsuario()?.email ?? '', [Validators.required, Validators.email]],
   });
 
   formPassword = this.fb.group({
@@ -42,7 +42,7 @@ export class PerfilComponent implements OnInit {
   });
 
   ngOnInit() {
-    if (!this.auth.usuarioLogueado) {
+    if (!this.auth.usuarioLogueado()) {
       this.router.navigate(['/login']);
       return;
     }
@@ -51,9 +51,20 @@ export class PerfilComponent implements OnInit {
   }
 
   private getUsuarioActual() {
-    this.usuarioService.getUsuarioById(this.auth.infoUsuario().id).subscribe({
+    const usuarioAutenticado = this.auth.infoUsuario();
+    if (!usuarioAutenticado) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.usuarioService.getUsuarioById(String(usuarioAutenticado.id)).subscribe({
       next: (data) => {
         this.usuarioActual.set(data);
+        this.formPerfil.patchValue({
+          nombre: data.nombre,
+          apellido: data.apellido,
+          email: data.email,
+        });
       },
       error: () => {
         this.errorPerfil.set('Fallo en el servidor');
@@ -85,7 +96,7 @@ export class PerfilComponent implements OnInit {
         this.formPerfil.markAsUntouched();
         this.getUsuarioActual();
       },
-      error: (err) => {
+      error: (err: unknown) => {
         this.errorPerfil.set('Error al actualizar el perfil');
         console.log(err);
         this.loadingPerfil = false;
@@ -104,7 +115,7 @@ export class PerfilComponent implements OnInit {
 
     if (
       !this.auth.validarPassword(
-        this.usuarioActual()!.password!,
+        this.usuarioActual()!.password ?? '',
         this.formPassword.value.passwordActual!
       )
     ) {
@@ -120,7 +131,7 @@ export class PerfilComponent implements OnInit {
     }
 
     this.usuarioService
-      .actualizarPassword(this.usuarioActual()?.id!, this.formPassword.value.passwordNuevo!)
+      .actualizarPassword(String(this.usuarioActual()?.id), this.formPassword.value.passwordNuevo!)
       .subscribe({
         next: () => {
           this.mensajePassword.set('¡Contraseña actualizada correctamente!');
@@ -129,7 +140,7 @@ export class PerfilComponent implements OnInit {
           this.formPassword.markAsUntouched();
           this.getUsuarioActual();
         },
-        error: (err) => {
+        error: (err: unknown) => {
           this.errorPassword.set('Error al actualizar la contraseña');
           console.log(err);
           this.loadingPassword = false;
@@ -150,13 +161,13 @@ export class PerfilComponent implements OnInit {
   }
 
   confirmarEliminar() {
-    this.usuarioService.eliminarById(this.usuarioActual()!.id).subscribe({
+    this.usuarioService.eliminarById(String(this.usuarioActual()!.id)).subscribe({
       next: () => {
         this.cerrarAlertaEliminar();
         this.auth.logout();
         this.router.navigate(['/home']);
       },
-      error: (err) => {
+      error: (err: unknown) => {
         alert('Error al intentar eliminar la cuenta...');
         console.log(err);
         this.cerrarAlertaEliminar();
@@ -164,4 +175,3 @@ export class PerfilComponent implements OnInit {
     });
   }
 }
-

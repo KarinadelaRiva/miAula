@@ -17,11 +17,7 @@ export class Login {
   private router = inject(Router);
 
   constructor() {
-    effect(() => {
-      if(this.authService.usuarioLogueado()) {
-        this.router.navigateByUrl('/dashboard');
-      }
-    });
+
   }
 
   form = this.fb.group({
@@ -36,7 +32,7 @@ export class Login {
 
     this.mensajeError.set('');
 
-    this.authService.validarCredenciales(this.form.value as LoginRequest).subscribe({
+    this.authService.login(this.form.value as LoginRequest).subscribe({
       next: () => {
         this.router.navigateByUrl('/dashboard');
       },

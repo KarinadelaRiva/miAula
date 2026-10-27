@@ -1,8 +1,8 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../auth/service/auth-service';
 import { Solicitud as SolicitudService } from '../../services/solicitud';
+import { AuthService } from '../../auth/service/auth-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,14 +12,11 @@ import { Solicitud as SolicitudService } from '../../services/solicitud';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
-  private auth = inject(AuthService);
   private router = inject(Router);
   private solicitudService = inject(SolicitudService);
+  private auth = inject(AuthService);
 
-  usuario = computed(() => {
-    const user = this.auth.infoUsuario();
-    return user.id === '' ? null : user;
-  });
+  usuario = computed(() => this.auth.infoUsuario());
 
   // Simulamos solicitudes pendientes - después se conectará con el servicio real
   private pendingCount = signal<number>(0);
@@ -36,6 +33,14 @@ export class DashboardComponent {
       }
       const pending = sols.filter((s) => s.estado === 'PENDIENTE').length;
       this.pendingCount.set(pending);
+    });
+  }
+
+  tieneRol(rolEsperado: 'ADMIN' | 'PROFESOR'): boolean {
+    return (this.usuario()?.roles ?? []).some((rol) => {
+      const normalizado = rol.toUpperCase().replace(/^ROLE_/, '');
+      return normalizado === rolEsperado ||
+        (rolEsperado === 'ADMIN' && normalizado === 'ADMINISTRADOR');
     });
   }
 

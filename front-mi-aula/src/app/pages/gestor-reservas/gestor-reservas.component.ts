@@ -134,6 +134,6 @@ export class GestorReservasComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    return String(this.authService.infoUsuario().rol) === 'ADMIN';
+    return this.authService.tieneRol('ADMIN');
   }
 }

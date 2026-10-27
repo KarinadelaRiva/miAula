@@ -1,3 +1,4 @@
+/*
 package com.miAula.miAula.controller;
 
 import com.miAula.miAula.dtos.comision.ComisionCreateDTO;
@@ -124,3 +125,4 @@ public class ComisionController {
         return ResponseEntity.ok(comisiones);
     }
 }
+*/

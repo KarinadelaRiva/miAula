@@ -70,8 +70,7 @@
             } @else {
               <td><strong>{{ u.nombre }} {{ u.apellido }}</strong></td>
               <td>{{ u.email }}</td>
-              <!--<td>{{ u.rol }}</td>-->
-              <td>no terminado</td>
+              <td>{{ u.roles.join(', ') }}</td>
               <td><span class="estado" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Eliminado' }}</span></td>
               <td class="acciones">
                 <button type="button" class="btn-editar" (click)="editarUsuario(u)">Editar</button>
@@ -136,8 +135,8 @@
       </div>
 
       <div class="detalle-grupo">
-        <label>Rol:</label>
-        <p>{{ usuarioSeleccionado()!.rol }}</p>
+        <label>Roles:</label>
+        <p>{{ usuarioSeleccionado()!.roles.join(', ') }}</p>
       </div>
 
       <div class="detalle-grupo">

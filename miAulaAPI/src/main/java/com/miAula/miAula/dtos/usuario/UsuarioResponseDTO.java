@@ -25,7 +25,7 @@ public class UsuarioResponseDTO {
 
     private String email;
 
-    //private List<RolResponseDTO> roles;
-
     private Boolean activo;
+
+    private List<String> roles;
 }

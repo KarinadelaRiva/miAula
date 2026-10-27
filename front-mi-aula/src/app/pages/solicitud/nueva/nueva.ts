@@ -29,7 +29,7 @@ export class Nueva implements OnInit {
 
   ngOnInit() {
     const usuario = this.auth.infoUsuario();
-    if (!usuario || !usuario.id) {
+    if (!usuario?.id) {
       this.router.navigate(['/login']);
       return;
     }
@@ -116,6 +116,10 @@ export class Nueva implements OnInit {
     }
 
     const usuario = this.auth.infoUsuario();
+    if (!usuario) {
+      this.router.navigate(['/login']);
+      return;
+    }
     const form = this.form.value;
 
     // Validaciones simples

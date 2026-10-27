@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.miAula.miAula.dtos.usuario.UsuarioResponseDTO;
 import com.miAula.miAula.service.UsuarioService;
+
 
 @RestController 
 @RequestMapping("/usuarios")
@@ -26,6 +28,12 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios() {
         List<UsuarioResponseDTO> usuarios = usuarioService.getAllUsuariosDTO();
         return new ResponseEntity<>(usuarios, HttpStatus.OK);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioResponseDTO> obtenerUsuarioLogueado(Authentication authentication) {
+        String username = authentication.getName();
+        return new ResponseEntity<>(usuarioService.obtenerPorUsername(username), HttpStatus.OK);
     }
 
 }

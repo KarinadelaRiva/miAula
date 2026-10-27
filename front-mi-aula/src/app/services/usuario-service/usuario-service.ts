@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of, throwError } from 'rxjs';
 import { Usuario } from '../../models/usuario';
 import { UsuarioCreateDto } from '../../models/usuarioCreateDto';
+import { UsuarioResponseDto } from '../../models/usuarioResponseDto';
 
 @Injectable({
   providedIn: 'root',
@@ -10,10 +11,23 @@ import { UsuarioCreateDto } from '../../models/usuarioCreateDto';
 export class UsuarioService {
   private http = inject(HttpClient);
   private baseDatosUrl = 'http://localhost:3000/usuarios';
-  private baseDatosUrlBack = 'http://localhost:8080/usuarios';
+  private api = 'http://localhost:8080/usuarios';
+
+  me(): Observable<UsuarioResponseDto> {
+    return this.http.get<UsuarioResponseDto>(`${this.api}/me`).pipe(
+      catchError((error: HttpErrorResponse) => throwError(() => error))
+    );
+  }
+
+  usuarioLogueado(): Observable<boolean> {
+    return this.me().pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
+  }
 
   getAll(): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(this.baseDatosUrlBack);
+    return this.http.get<Usuario[]>(this.api);
   }
 
   getUsuarioById(id: string): Observable<Usuario> {
@@ -102,4 +116,13 @@ export class UsuarioService {
         })
       );
   }
+
+  getUsuarioLogueado(): Observable<UsuarioResponseDto> {
+    return this.http.get<UsuarioResponseDto>(`${this.baseDatosUrl}/me`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        return throwError(() => error);
+      })
+    );
+  }
+
 }

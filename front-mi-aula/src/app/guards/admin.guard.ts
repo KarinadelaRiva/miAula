@@ -1,35 +1,29 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 import { AuthService } from '../auth/service/auth-service';
 
 export const adminGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  console.log('AdminGuard: verificando rol admin...', auth.usuarioLogueado());
-  
-  if (!auth.usuarioLogueado()) {
-    // No logueado: dejar como está (redirige a login)
-    window.alert('No tienes permiso para acceder a esta página');
-    console.log('AdminGuard: Usuario no logueado, redirigiendo a login');
-    router.navigate(['/login']);
-    return false;
+  if (!localStorage.getItem('jwt')) {
+    auth.logout();
+    return router.createUrlTree(['/login']);
   }
 
-  const usuario = auth.infoUsuario();
-  console.log('AdminGuard: Usuario rol:', usuario.rol);
-  
-  if (usuario.rol !== 'ADMIN') {
-    window.alert('No tienes permiso para acceder a esta página');
-    // Redirigir a dashboard según rol
-    if (usuario.rol === 'PROFESOR') {
-      router.navigate(['/dashboard']);
-    } else {
-      router.navigate(['/home']);
-    }
-    return false;
-  }
-  
-  console.log('AdminGuard: Usuario admin autenticado, acceso permitido');
-  return true;
+  return auth.cargarUsuarioActual().pipe(
+    map(() => {
+      if (auth.tieneRol('ADMIN')) {
+        return true;
+      }
+
+      return router.createUrlTree(['/dashboard']);
+    }),
+    catchError((error) => {
+      console.error('No se pudo obtener el usuario:', error);
+      auth.logout();
+      return of(router.createUrlTree(['/login']));
+    })
+  );
 };

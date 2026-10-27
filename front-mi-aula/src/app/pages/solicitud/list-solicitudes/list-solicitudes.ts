@@ -143,7 +143,7 @@ export class ListSolicitudes implements OnInit {
   }
 
   isAdmin(): boolean {
-    return String(this.authService.infoUsuario().rol) === 'ADMIN';
+    return this.authService.tieneRol('ADMIN');
   }
 
   saveComentarioEstado(): void {

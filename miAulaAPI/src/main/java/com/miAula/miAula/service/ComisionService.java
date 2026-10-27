@@ -1,4 +1,4 @@
-package com.miAula.miAula.service;
+/*package com.miAula.miAula.service;
 
 import com.miAula.miAula.dtos.comision.ComisionCreateDTO;
 import com.miAula.miAula.dtos.comision.ComisionResponseDTO;
@@ -157,3 +157,4 @@ public class ComisionService {
     }
 
 }
+*/

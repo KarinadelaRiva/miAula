@@ -1,3 +1,4 @@
+/*
 package com.miAula.miAula.dtos.cronograma;
 
 import com.miAula.miAula.dtos.reserva.ReservaResponseDTO;
@@ -20,3 +21,4 @@ public class CronogramaEspaciosDTO {
     @Schema(description = "Lista de reservas asociadas al espacio")
     private List<ReservaResponseDTO> reservas;
 }
+*/

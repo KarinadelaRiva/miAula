@@ -1,9 +1,9 @@
 export interface Usuario {
-    id:string;
+    id: string | number;
     apellido:string;
     nombre: string;
-    password?:string;
-    rol?: 'ADMIN' | 'PROFESOR';
-    email:string;
-    activo:boolean;
+    roles: string[]; // "administrador" o "profesor"
+    email: string;
+    activo: boolean;
+    password?: string;
 }

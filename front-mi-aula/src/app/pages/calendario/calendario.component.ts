@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { Reserva } from '../../models/reserva';
 import { Carrera, Comision, ReservaService } from '../../services/reserva.service';
 import { forkJoin } from 'rxjs';
-import { AuthService } from '../../auth/service/auth-service';
+import { UsuarioService } from '../../services/usuario-service/usuario-service';
 
 interface Aula {
   id: number;
@@ -23,7 +23,8 @@ export class CalendarioComponent implements OnInit {
   @Input() reservas: Reserva[] = [];
   private readonly reservaService = inject(ReservaService);
   private readonly changeDetector = inject(ChangeDetectorRef);
-  readonly authService = inject(AuthService);
+  private readonly usuarioService = inject(UsuarioService);
+  readonly usuarioLogueado$ = this.usuarioService.usuarioLogueado();
 
   aulas: Aula[] = [];
   fechaSeleccionada = this.obtenerFechaLocal();

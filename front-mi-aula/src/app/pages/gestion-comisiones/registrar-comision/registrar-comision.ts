@@ -17,10 +17,11 @@ interface Carrera {
 }
 
 interface Usuario {
-  id: string;
+  id: string | number;
   apellido: string;
   nombre: string;
-  rol: string;
+  email: string;
+  roles: string[];
   activo: boolean;
 }
 
@@ -84,12 +85,12 @@ export class RegistrarComision implements OnInit {
       });
 
     this.http
-      .get<Usuario[]>('http://localhost:3000/usuarios')
+      .get<Usuario[]>('http://localhost:8080/usuarios')
       .subscribe({
         next: (data) => {
 
           this.profesores = data.filter(usuario =>
-            usuario.rol === 'PROFESOR' &&
+            usuario.roles?.some((rol) => rol.toUpperCase().replace(/^ROLE_/, '') === 'PROFESOR') &&
             usuario.activo
           );
 

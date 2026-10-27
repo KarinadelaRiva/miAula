@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/service/auth-service';
 import { Subscription } from 'rxjs';
+import { UsuarioService } from '../../services/usuario-service/usuario-service';
 
 @Component({
   selector: 'app-header',
@@ -10,7 +11,7 @@ import { Subscription } from 'rxjs';
   styleUrl: './header.css'
 })
 export class Header {
-  private authService = inject(AuthService);
+  private usuarioService = inject(UsuarioService);
   private router = inject(Router);
 
   showProfileMenu = false;
@@ -20,7 +21,7 @@ export class Header {
   }
 
   isLoggedIn(): boolean {
-    return this.authService.usuarioLogueado();
+    return !!localStorage.getItem('jwt');
   }
 
   login(): void {
@@ -28,7 +29,7 @@ export class Header {
   }
 
   logout(): void {
-    this.authService.logout();
+    localStorage.setItem('jwt', "");
     this.router.navigate(['/home']);
   }
 
