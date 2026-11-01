@@ -35,7 +35,8 @@ public class SecurityConfig {
         "/reservas/cronograma-por-dia",
         "/reservas/cronograma",
         "/usuarios",
-        "/espacios" // sin restriccion de manera provisional para tests
+        "/espacios", // sin restriccion de manera provisional para tests
+        "/recursos" // sin restriccion de manera provisional para tests
     };
     
     private final String[] rutasSinRestriccionPOST = {
@@ -91,6 +92,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, rutasSinRestriccionPOST).permitAll()
                         .requestMatchers(HttpMethod.PUT, "/espacios/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/espacios/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/recursos/*").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/recursos/*").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",

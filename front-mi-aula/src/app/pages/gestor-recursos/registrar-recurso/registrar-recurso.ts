@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -18,10 +19,10 @@ export class RegistrarRecurso {
   exito = signal('');
 
   form = this.fb.group({
-    code: ['', [Validators.required, Validators.maxLength(10)]],
-    name: ['', [Validators.required, Validators.maxLength(50)]],
-    description: ['', [Validators.required, Validators.maxLength(200)]],
-    quantity: [null as number | null, [Validators.required, Validators.min(1)]],
+    code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+    name: ['', [Validators.required, Validators.maxLength(30)]],
+    description: ['', [Validators.required, Validators.maxLength(250)]],
+    quantity: [null as number | null, [Validators.required, Validators.min(0)]],
   });
 
   registrarRecurso() {
@@ -51,8 +52,27 @@ export class RegistrarRecurso {
         });
         this.exito.set('Recurso registrado correctamente.');
       },
-      error: () => {
-        this.error.set('No se pudo registrar el recurso.');
+      error: (error: HttpErrorResponse) => {
+        if (error.status === 401 || error.status === 403) {
+          this.error.set(
+            'El backend rechazó la solicitud por falta de autenticación. La sesión actual no envía un token válido.'
+          );
+          return;
+        }
+
+        if (error.status === 400) {
+          this.error.set('El backend rechazó los datos. Revisá el código, nombre, descripción y cantidad.');
+          return;
+        }
+
+        if (error.status === 0) {
+          this.error.set(
+            'No se puede conectar con el backend en localhost:8080. Verificá que la API esté iniciada.'
+          );
+          return;
+        }
+
+        this.error.set('No se pudo registrar el recurso. Revisá la conexión con el backend e intentá nuevamente.');
       },
     });
   }
