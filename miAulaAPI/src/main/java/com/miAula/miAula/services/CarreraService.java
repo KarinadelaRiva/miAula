@@ -1,6 +1,11 @@
 package com.miAula.miAula.services;
 
+import com.miAula.miAula.dto.carrera.CarreraCreateDTO;
+import com.miAula.miAula.dto.carrera.CarreraResponseDTO;
+import com.miAula.miAula.dto.carrera.CarreraUpdateDTO;
 import com.miAula.miAula.entities.Carrera;
+import com.miAula.miAula.exceptions.ResourceConflictException;
+import com.miAula.miAula.exceptions.ResourceNotFoundException;
 import com.miAula.miAula.repositories.CarreraRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,91 +21,132 @@ public class CarreraService {
         this.carreraRepository = carreraRepository;
     }
 
-    // Listar solamente carreras activas
-    public List<Carrera> listarCarreras() {
-        return carreraRepository.findByActivoTrue();
+    // -----------------------------
+    // CONVERSIONES DTO <-> ENTITY
+    // -----------------------------
+
+    public Carrera carreraCreateDTOtoCarrera(CarreraCreateDTO dto) {
+        return Carrera.builder()
+                .codigo(dto.getCodigo().trim().toUpperCase())
+                .nombre(dto.getNombre().trim())
+                .activo(true)
+                .build();
     }
 
-    // Buscar una carrera activa por ID
-    public Carrera buscarPorId(Long id) {
+    public CarreraResponseDTO carreraToCarreraResponseDTO(Carrera carrera) {
+        return CarreraResponseDTO.builder()
+                .id(carrera.getId())
+                .codigo(carrera.getCodigo())
+                .nombre(carrera.getNombre())
+                .build();
+    }
+
+    // -----------------------------
+    // CONSULTAS
+    // -----------------------------
+
+    public List<CarreraResponseDTO> obtenerTodas() {
+        return carreraRepository.findByActivoTrue()
+                .stream()
+                .map(this::carreraToCarreraResponseDTO)
+                .toList();
+    }
+
+    public CarreraResponseDTO obtenerDTOPorId(Long id) {
+        return carreraToCarreraResponseDTO(obtenerPorId(id));
+    }
+
+    /**
+     * Devuelve la entidad Carrera.
+     * Nos va a servir después desde otros Services,
+     * por ejemplo ComisionService.
+     */
+    public Carrera obtenerPorId(Long id) {
         return carreraRepository.findByIdAndActivoTrue(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Carrera no encontrada")
+                        new ResourceNotFoundException(
+                                "Carrera no encontrada con ID: " + id
+                        )
                 );
     }
 
-    // Crear o reactivar una carrera
-    public Carrera crearCarrera(Carrera carrera) {
 
-        String codigo = carrera.getCodigo().trim().toUpperCase();
+    // CREAR
 
-        Optional<Carrera> carreraExistente =
+    public CarreraResponseDTO crearCarrera(CarreraCreateDTO dto) {
+
+        Carrera nuevaCarrera = carreraCreateDTOtoCarrera(dto);
+
+        String codigo = nuevaCarrera.getCodigo();
+
+        Optional<Carrera> existente =
                 carreraRepository.findByCodigoIgnoreCase(codigo);
 
-        if (carreraExistente.isPresent()) {
+        if (existente.isPresent()) {
 
-            Carrera existente = carreraExistente.get();
+            Carrera carreraExistente = existente.get();
 
-            // Si estaba eliminada lógicamente, la reactivamos
-            if (Boolean.FALSE.equals(existente.getActivo())) {
+            // Si existía pero estaba dada de baja,
+            // la reactivamos.
+            if (Boolean.FALSE.equals(carreraExistente.getActivo())) {
 
-                existente.setNombre(carrera.getNombre().trim());
-                existente.setActivo(true);
+                carreraExistente.setNombre(nuevaCarrera.getNombre());
+                carreraExistente.setActivo(true);
 
-                return carreraRepository.save(existente);
+                Carrera reactivada =
+                        carreraRepository.save(carreraExistente);
+
+                return carreraToCarreraResponseDTO(reactivada);
             }
 
-            // Si está activa, no permitimos duplicarla
-            throw new IllegalArgumentException(
+            // Si ya está activa, es conflicto.
+            throw new ResourceConflictException(
                     "Ya existe una carrera con el código " + codigo
             );
         }
 
-        carrera.setId(null);
-        carrera.setCodigo(codigo);
-        carrera.setNombre(carrera.getNombre().trim());
-        carrera.setActivo(true);
+        Carrera guardada =
+                carreraRepository.save(nuevaCarrera);
 
-        return carreraRepository.save(carrera);
+        return carreraToCarreraResponseDTO(guardada);
     }
 
-    // Modificar una carrera
-    public Carrera actualizarCarrera(
-            Long id,
-            Carrera datosNuevos
-    ) {
+      // ACTUALIZAR
 
-        Carrera carrera = buscarPorId(id);
+    public CarreraResponseDTO actualizarCarrera(
+            Long id,
+            CarreraUpdateDTO dto) {
+
+        Carrera existente = obtenerPorId(id);
 
         String codigoNuevo =
-                datosNuevos.getCodigo().trim().toUpperCase();
+                dto.getCodigo().trim().toUpperCase();
 
-        Optional<Carrera> otraCarrera =
+        Optional<Carrera> carreraConEseCodigo =
                 carreraRepository.findByCodigoIgnoreCase(codigoNuevo);
 
-        if (
-                otraCarrera.isPresent()
-                        &&
-                        !otraCarrera.get().getId().equals(id)
-        ) {
+        if (carreraConEseCodigo.isPresent()
+                && !carreraConEseCodigo.get().getId().equals(id)) {
 
-            throw new IllegalArgumentException(
+            throw new ResourceConflictException(
                     "Ya existe otra carrera con el código " + codigoNuevo
             );
         }
 
-        carrera.setCodigo(codigoNuevo);
-        carrera.setNombre(
-                datosNuevos.getNombre().trim()
-        );
+        existente.setCodigo(codigoNuevo);
+        existente.setNombre(dto.getNombre().trim());
 
-        return carreraRepository.save(carrera);
+        Carrera actualizada =
+                carreraRepository.save(existente);
+
+        return carreraToCarreraResponseDTO(actualizada);
     }
 
-    // Baja lógica
+   // ELIMINAR - BAJA LÓGICA
+
     public void eliminarCarrera(Long id) {
 
-        Carrera carrera = buscarPorId(id);
+        Carrera carrera = obtenerPorId(id);
 
         carrera.setActivo(false);
 

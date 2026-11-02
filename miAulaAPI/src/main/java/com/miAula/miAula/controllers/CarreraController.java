@@ -1,7 +1,10 @@
 package com.miAula.miAula.controllers;
 
-import com.miAula.miAula.dto.CarreraDTO;
-import com.miAula.miAula.entities.Carrera;
+import com.miAula.miAula.dto.carrera.CarreraCreateDTO;
+import com.miAula.miAula.dto.carrera.CarreraResponseDTO;
+import com.miAula.miAula.dto.carrera.CarreraUpdateDTO;
+import com.miAula.miAula.dto.materia.MateriaResponseDTO;
+import com.miAula.miAula.services.CarreraMateriaService;
 import com.miAula.miAula.services.CarreraService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -16,73 +19,108 @@ import java.util.List;
 public class CarreraController {
 
     private final CarreraService carreraService;
+    private final CarreraMateriaService carreraMateriaService;
 
-    public CarreraController(CarreraService carreraService) {
+    public CarreraController(
+            CarreraService carreraService,
+            CarreraMateriaService carreraMateriaService) {
+
         this.carreraService = carreraService;
+        this.carreraMateriaService = carreraMateriaService;
     }
 
-    // GET http://localhost:8080/carreras
+    // Obtener todas las carreras activas
     @GetMapping
-    public List<CarreraDTO> listarCarreras() {
-        return carreraService.listarCarreras()
-                .stream()
-                .map(this::convertirADTO)
-                .toList();
+    public ResponseEntity<List<CarreraResponseDTO>> obtenerCarreras() {
+
+        return ResponseEntity.ok(
+                carreraService.obtenerTodas()
+        );
     }
 
-    // GET http://localhost:8080/carreras/1
+    // Obtener una carrera por ID
     @GetMapping("/{id}")
-    public CarreraDTO buscarCarrera(@PathVariable Long id) {
-        Carrera carrera = carreraService.buscarPorId(id);
-        return convertirADTO(carrera);
+    public ResponseEntity<CarreraResponseDTO> obtenerCarreraPorId(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                carreraService.obtenerDTOPorId(id)
+        );
     }
 
-    // POST http://localhost:8080/carreras
+    // Obtener materias asociadas a una carrera
+    @GetMapping("/{carreraId}/materias")
+    public ResponseEntity<List<MateriaResponseDTO>> obtenerMateriasDeCarrera(
+            @PathVariable Long carreraId) {
+
+        return ResponseEntity.ok(
+                carreraMateriaService.obtenerMateriasPorCarrera(carreraId)
+        );
+    }
+
+    // Crear carrera
     @PostMapping
-    public ResponseEntity<CarreraDTO> crearCarrera(
-            @Valid @RequestBody CarreraDTO dto) {
+    public ResponseEntity<CarreraResponseDTO> crearCarrera(
+            @Valid @RequestBody CarreraCreateDTO dto) {
 
-        Carrera carrera = new Carrera();
-        carrera.setCodigo(dto.getCodigo());
-        carrera.setNombre(dto.getNombre());
-
-        Carrera guardada = carreraService.crearCarrera(carrera);
+        CarreraResponseDTO carreraCreada =
+                carreraService.crearCarrera(dto);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(convertirADTO(guardada));
+                .body(carreraCreada);
     }
 
-    // PUT http://localhost:8080/carreras/1
+    // Asignar una materia a una carrera
+    @PostMapping("/{carreraId}/materias/{materiaId}")
+    public ResponseEntity<MateriaResponseDTO> asignarMateriaACarrera(
+            @PathVariable Long carreraId,
+            @PathVariable Long materiaId) {
+
+        MateriaResponseDTO materiaAsignada =
+                carreraMateriaService.asignarMateriaACarrera(
+                        carreraId,
+                        materiaId
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(materiaAsignada);
+    }
+
+    // Actualizar carrera
     @PutMapping("/{id}")
-    public CarreraDTO actualizarCarrera(
+    public ResponseEntity<CarreraResponseDTO> actualizarCarrera(
             @PathVariable Long id,
-            @Valid @RequestBody CarreraDTO dto) {
+            @Valid @RequestBody CarreraUpdateDTO dto) {
 
-        Carrera carrera = new Carrera();
-        carrera.setCodigo(dto.getCodigo());
-        carrera.setNombre(dto.getNombre());
+        CarreraResponseDTO carreraActualizada =
+                carreraService.actualizarCarrera(id, dto);
 
-        Carrera actualizada =
-                carreraService.actualizarCarrera(id, carrera);
-
-        return convertirADTO(actualizada);
+        return ResponseEntity.ok(carreraActualizada);
     }
 
-    // DELETE http://localhost:8080/carreras/1
+    // Baja lógica de carrera
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarCarrera(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarCarrera(
+            @PathVariable Long id) {
 
         carreraService.eliminarCarrera(id);
 
         return ResponseEntity.noContent().build();
     }
 
-    private CarreraDTO convertirADTO(Carrera carrera) {
-        return new CarreraDTO(
-                carrera.getId(),
-                carrera.getCodigo(),
-                carrera.getNombre()
+    // Eliminar la relación entre una carrera y una materia
+    @DeleteMapping("/{carreraId}/materias/{materiaId}")
+    public ResponseEntity<Void> eliminarMateriaDeCarrera(
+            @PathVariable Long carreraId,
+            @PathVariable Long materiaId) {
+
+        carreraMateriaService.eliminarMateriaDeCarrera(
+                carreraId,
+                materiaId
         );
+
+        return ResponseEntity.noContent().build();
     }
 }
