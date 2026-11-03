@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 import { Usuario } from '../../../models/usuario';
-import { AuthService } from '../../../auth/service/auth-service';
 
 @Component({
   selector: 'app-administrar-usuario',
@@ -13,7 +12,7 @@ import { AuthService } from '../../../auth/service/auth-service';
 })
 export class AdministrarUsuario implements OnInit {
   usuarioService = inject(UsuarioService);
-  auth = inject(AuthService);
+  usuarioLogueadoId = signal<number | null>(null);
   paginaActual = signal(1);
   limite = 8;
   totalPaginas = signal(0);
@@ -25,13 +24,17 @@ export class AdministrarUsuario implements OnInit {
   nombreEditado = '';
   apellidoEditado = '';
   emailEditado = '';
-  rolEditado: 'ADMIN' | 'PROFESOR' = 'PROFESOR';
+  rolEditado: 'administrador' | 'profesor' = 'profesor';
   mensaje = signal('');
 
   listaUsuarios = signal<Usuario[]>([]);
 
   ngOnInit() {
     this.cargarUsuarios();
+    this.usuarioService.me().subscribe({
+      next: (usuario) => this.usuarioLogueadoId.set(usuario.id),
+      error: (error) => console.error('No se pudo obtener el usuario autenticado:', error),
+    });
   }
 
   /*
@@ -95,7 +98,7 @@ export class AdministrarUsuario implements OnInit {
     this.nombreEditado = usuario.nombre;
     this.apellidoEditado = usuario.apellido;
     this.emailEditado = usuario.email;
-    this.rolEditado = usuario.rol ?? 'PROFESOR';
+    this.rolEditado = usuario.roles?.includes('administrador') ? 'administrador' : 'profesor';
     this.mensaje.set('');
   }
 
@@ -104,7 +107,7 @@ export class AdministrarUsuario implements OnInit {
     this.nombreEditado = '';
     this.apellidoEditado = '';
     this.emailEditado = '';
-    this.rolEditado = 'PROFESOR';
+    this.rolEditado = 'profesor';
   }
 
   guardarEdicion() {
@@ -123,7 +126,7 @@ export class AdministrarUsuario implements OnInit {
       nombre,
       apellido,
       email,
-      rol: this.rolEditado,
+      roles: [this.rolEditado],
     }).subscribe({
       next: () => {
         this.mensaje.set('Usuario actualizado correctamente.');
@@ -138,7 +141,7 @@ export class AdministrarUsuario implements OnInit {
     const usuario = this.usuarioSeleccionado();
     if (!usuario) return;
 
-    this.usuarioService.eliminarById(usuario.id).subscribe({
+    this.usuarioService.eliminarById(String(usuario.id)).subscribe({
       next: () => {
         this.usuarioSeleccionado.set(null);
         this.mensaje.set('Usuario eliminado correctamente.');
@@ -151,7 +154,7 @@ export class AdministrarUsuario implements OnInit {
     const usuario = this.usuarioSeleccionado();
     if (!usuario) return;
 
-    this.usuarioService.reactivarById(usuario.id).subscribe({
+    this.usuarioService.reactivarById(String(usuario.id)).subscribe({
       next: () => {
         this.usuarioSeleccionado.set(null);
         this.mensaje.set('Usuario reactivado correctamente.');
@@ -161,9 +164,8 @@ export class AdministrarUsuario implements OnInit {
   }
 
   seleccionadoIgualLogueado(): boolean {
-    if(this.auth.infoUsuario().id === this.usuarioSeleccionado()?.id) {
-      return true;
-    }
-    return false;
+    const usuarioId = this.usuarioSeleccionado()?.id;
+    const usuarioLogueadoId = this.usuarioLogueadoId();
+    return usuarioLogueadoId === null || usuarioId === usuarioLogueadoId;
   }
 }

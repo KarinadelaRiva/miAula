@@ -13,17 +13,8 @@
     @if (usuario()) {
 
       <div class="user-info">
-
-        <p>
-          <strong>Rol:</strong>
-          {{ usuario()!.rol }}
-        </p>
-
-        <p>
-          <strong>Email:</strong>
-          {{ usuario()!.email }}
-        </p>
-
+        <p><strong>Rol:</strong> {{ usuario()!.roles.join(', ') }}</p>
+        <p><strong>Email:</strong> {{ usuario()!.email }}</p>
       </div>
 
     }
@@ -35,12 +26,9 @@
 
     <div class="action-cards">
 
+      <!-- Opciones para administradores -->
 
-      <!-- =========================
-           ADMIN
-           ========================= -->
-
-      @if (usuario()?.rol === 'ADMIN') {
+      @if (tieneRol('administrador')) {
 
 
         <!-- SOLICITUDES -->
@@ -207,11 +195,9 @@
       }
 
 
-      <!-- =========================
-           PROFESOR
-           ========================= -->
+      <!-- Opciones para profesores -->
 
-      @if (usuario()?.rol === 'PROFESOR') {
+      @if (tieneRol('profesor')) {
 
 
         <!-- MIS SOLICITUDES -->

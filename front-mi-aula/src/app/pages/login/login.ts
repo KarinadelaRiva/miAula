@@ -1,4 +1,5 @@
 import { Component, effect, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../auth/service/auth-service';
@@ -16,14 +17,6 @@ export class Login {
   private fb = inject(FormBuilder);
   private router = inject(Router);
 
-  constructor() {
-    effect(() => {
-      if(this.authService.usuarioLogueado()) {
-        this.router.navigateByUrl('/dashboard');
-      }
-    });
-  }
-
   form = this.fb.group({
     email: ['', [Validators.required]],
     password: ['', [Validators.required]]
@@ -36,12 +29,15 @@ export class Login {
 
     this.mensajeError.set('');
 
-    this.authService.validarCredenciales(this.form.value as LoginRequest).subscribe({
+    this.authService.login(this.form.value as LoginRequest).subscribe({
       next: () => {
         this.router.navigateByUrl('/dashboard');
       },
-      error: (error) => {
-        this.mensajeError.set(error.message);
+      error: (error: HttpErrorResponse) => {
+        const mensajeBackend = typeof error.error === 'string' ? error.error : '';
+        this.mensajeError.set(
+          mensajeBackend || 'No se pudo iniciar sesión. Verificá tus datos e intentá nuevamente.'
+        );
       }
     });
   }

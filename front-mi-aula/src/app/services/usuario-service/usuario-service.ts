@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of, throwError } from 'rxjs';
 import { Usuario } from '../../models/usuario';
 import { UsuarioCreateDto } from '../../models/usuarioCreateDto';
+import { UsuarioResponseDto } from '../../models/usuarioResponseDto';
 
 @Injectable({
   providedIn: 'root',
@@ -10,22 +11,43 @@ import { UsuarioCreateDto } from '../../models/usuarioCreateDto';
 export class UsuarioService {
   private http = inject(HttpClient);
   private baseDatosUrl = 'http://localhost:3000/usuarios';
-  private baseDatosUrlBack = 'http://localhost:8080/usuarios';
+  private api = 'http://localhost:8080/usuarios';
+
+  me(): Observable<UsuarioResponseDto> {
+    return this.http.get<UsuarioResponseDto>(`${this.api}/me`).pipe(
+      catchError((error: HttpErrorResponse) => throwError(() => error))
+    );
+  }
+
+  usuarioLogueado(): Observable<boolean> {
+    return this.me().pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
+  }
 
   getAll(): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(this.baseDatosUrlBack);
+    return this.http.get<Usuario[]>(this.api);
   }
 
-  getUsuarioById(id: string): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.baseDatosUrl}/${id}`);
+  getUsuarioById(id: number): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.api}/${id}`);
   }
 
+  /*
   getUsuarioByEmail(email: string): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(`${this.baseDatosUrl}?email=${email}`);
+    return this.http.get<Usuario[]>(this.api, );
+  }
+    */
+
+  existePorEmail(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.api}/buscar-email`, {
+      params: { email },
+    });
   }
 
-  actualizarUsuario(usuario: Usuario): Observable<Usuario> {
-    return this.http.put<Usuario>(`${this.baseDatosUrl}/${usuario.id}`, usuario);
+  actualizarUsuario(usuario: Usuario): Observable<UsuarioResponseDto> {
+    return this.http.put<UsuarioResponseDto>(this.api, usuario);
   }
 
   actualizarPassword(id: string, password: string): Observable<Usuario> {
@@ -40,20 +62,8 @@ export class UsuarioService {
     return this.http.patch<Usuario>(`${this.baseDatosUrl}/${id}`, { activo: true });
   }
 
-  crear(usuario: UsuarioCreateDto): Observable<Usuario> {
-    const usuarioNuevo = {
-      ...usuario,
-      activo: true
-    };
-    return this.http.post<Usuario>(this.baseDatosUrl, usuarioNuevo);
-  }
-
-  convertirRol(rol: string): 'ADMIN' | 'PROFESOR' {
-    const rolMayus = rol.toUpperCase();
-    if (rolMayus === 'ADMIN') {
-      return 'ADMIN';
-    }
-    return 'PROFESOR';
+  crear(usuario: UsuarioCreateDto): Observable<UsuarioResponseDto> {
+    return this.http.post<UsuarioResponseDto>(this.api, usuario);
   }
 
   obtenerUsuariosPaginados(
@@ -102,4 +112,13 @@ export class UsuarioService {
         })
       );
   }
+
+  getUsuarioLogueado(): Observable<UsuarioResponseDto> {
+    return this.http.get<UsuarioResponseDto>(`${this.baseDatosUrl}/me`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        return throwError(() => error);
+      })
+    );
+  }
+
 }

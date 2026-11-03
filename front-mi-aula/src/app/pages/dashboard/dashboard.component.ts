@@ -1,8 +1,9 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../auth/service/auth-service';
 import { Solicitud as SolicitudService } from '../../services/solicitud';
+import { UsuarioService } from '../../services/usuario-service/usuario-service';
+import { UsuarioResponseDto } from '../../models/usuarioResponseDto';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,14 +13,11 @@ import { Solicitud as SolicitudService } from '../../services/solicitud';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
-  private auth = inject(AuthService);
   private router = inject(Router);
   private solicitudService = inject(SolicitudService);
+  private usuarioService = inject(UsuarioService);
 
-  usuario = computed(() => {
-    const user = this.auth.infoUsuario();
-    return user.id === '' ? null : user;
-  });
+  usuario = signal<UsuarioResponseDto | null>(null);
 
   // Simulamos solicitudes pendientes - después se conectará con el servicio real
   private pendingCount = signal<number>(0);
@@ -29,6 +27,11 @@ export class DashboardComponent {
   }
 
   constructor() {
+    this.usuarioService.me().subscribe({
+      next: (usuario) => this.usuario.set(usuario),
+      error: (error) => console.error('No se pudo obtener el usuario:', error),
+    });
+
     this.solicitudService.getSolicitudes().subscribe((sols) => {
       if (!sols) {
         this.pendingCount.set(0);
@@ -37,6 +40,10 @@ export class DashboardComponent {
       const pending = sols.filter((s) => s.estado === 'PENDIENTE').length;
       this.pendingCount.set(pending);
     });
+  }
+
+  tieneRol(rolEsperado: 'administrador' | 'profesor'): boolean {
+    return (this.usuario()?.roles ?? []).includes(rolEsperado);
   }
 
   navigateTo(path: string | null) {

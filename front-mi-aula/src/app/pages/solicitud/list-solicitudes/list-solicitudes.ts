@@ -2,7 +2,6 @@
 import { Component, OnInit, computed, inject, signal, WritableSignal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Solicitud as SolicitudService } from '../../../services/solicitud';
-import { AuthService } from '../../../auth/service/auth-service';
 import type { Solicitud as SolicitudModel } from '../../../services/solicitud';
 import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 import type { Usuario } from '../../../models/usuario';
@@ -17,9 +16,9 @@ import { RouterLink } from "@angular/router";
 })
 export class ListSolicitudes implements OnInit {
   private solicitudService = inject(SolicitudService);
-  public authService = inject(AuthService);
   private usuarioService = inject(UsuarioService);
   private http = inject(HttpClient);
+  private esAdministrador = signal(false);
 
   // Señales públicas para usar en la plantilla separadas por estado
   solicitudes: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
@@ -66,6 +65,12 @@ export class ListSolicitudes implements OnInit {
 
   ngOnInit(): void {
     this.loadSolicitudes();
+    this.usuarioService.me().subscribe({
+      next: (usuario) => {
+        this.esAdministrador.set(usuario.roles.some((rol) => rol === 'administrador'));
+      },
+      error: (error) => console.error('No se pudo obtener el usuario autenticado:', error),
+    });
   }
 
   // === Helpers y acciones de detalle (usados por la plantilla) ===
@@ -90,9 +95,9 @@ export class ListSolicitudes implements OnInit {
     // Inicializar texto de edición del comentario
     this._comentarioEditing.set(s.comentario_estado || '');
     // Cargar datos del solicitante para mostrar nombre en la tarjeta de detalle
-    const uid = (s as any).usuario_id ?? (s as any).usuario?.id ?? null;
-    if (uid) {
-      this.usuarioService.getUsuarioById(String(uid)).subscribe({
+    const uid = Number((s as any).usuario_id ?? (s as any).usuario?.id);
+    if (Number.isFinite(uid) && uid > 0) {
+      this.usuarioService.getUsuarioById(uid).subscribe({
         next: (u) => this._selectedUsuario.set(u),
         error: (err) => {
           console.error('Error cargando usuario', err);
@@ -143,7 +148,7 @@ export class ListSolicitudes implements OnInit {
   }
 
   isAdmin(): boolean {
-    return String(this.authService.infoUsuario().rol) === 'ADMIN';
+    return this.esAdministrador();
   }
 
   saveComentarioEstado(): void {

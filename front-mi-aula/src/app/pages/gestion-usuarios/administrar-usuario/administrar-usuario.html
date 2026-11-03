@@ -22,8 +22,8 @@
       />
       <select class="select-filtro" [(ngModel)]="filtroRol" (ngModelChange)="aplicarFiltros()">
         <option value="">Todos los roles</option>
-        <option value="ADMIN">Administrador</option>
-        <option value="PROFESOR">Profesor</option>
+        <option value="administrador">Administrador</option>
+        <option value="profesor">Profesor</option>
       </select>
       <select class="select-filtro" [(ngModel)]="filtroActivo" (ngModelChange)="aplicarFiltros()">
         <option value="">Todos los estados</option>
@@ -58,8 +58,8 @@
               <td><input [(ngModel)]="emailEditado" type="email" aria-label="Editar email" /></td>
               <td>
                 <select [(ngModel)]="rolEditado" aria-label="Editar rol">
-                  <option value="ADMIN">Administrador</option>
-                  <option value="PROFESOR">Profesor</option>
+                  <option value="administrador">Administrador</option>
+                  <option value="profesor">Profesor</option>
                 </select>
               </td>
               <td><span class="estado" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Eliminado' }}</span></td>
@@ -70,8 +70,7 @@
             } @else {
               <td><strong>{{ u.nombre }} {{ u.apellido }}</strong></td>
               <td>{{ u.email }}</td>
-              <!--<td>{{ u.rol }}</td>-->
-              <td>no terminado</td>
+              <td>{{ u.roles.join(', ') }}</td>
               <td><span class="estado" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Eliminado' }}</span></td>
               <td class="acciones">
                 <button type="button" class="btn-editar" (click)="editarUsuario(u)">Editar</button>
@@ -136,8 +135,8 @@
       </div>
 
       <div class="detalle-grupo">
-        <label>Rol:</label>
-        <p>{{ usuarioSeleccionado()!.rol }}</p>
+        <label>Roles:</label>
+        <p>{{ usuarioSeleccionado()!.roles.join(', ') }}</p>
       </div>
 
       <div class="detalle-grupo">

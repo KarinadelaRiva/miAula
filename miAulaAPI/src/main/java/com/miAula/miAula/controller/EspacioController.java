@@ -20,7 +20,7 @@ import com.miAula.miAula.dtos.espacio.EspacioResponseDTO;
 import com.miAula.miAula.entities.Espacio;
 import com.miAula.miAula.service.EspacioService;
 
-@Controller 
+@RestController
 @RequestMapping("/espacios")
 @Tag(name = "Espacios", description = "Operaciones relacionadas con los espacios.")
 public class EspacioController {

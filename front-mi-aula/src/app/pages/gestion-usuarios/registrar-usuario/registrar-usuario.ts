@@ -5,10 +5,8 @@ import {
   FormBuilder,
   ReactiveFormsModule,
   Validators,
-  ɵInternalFormsSharedModule,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Usuario } from '../../../models/usuario';
 import { UsuarioCreateDto } from '../../../models/usuarioCreateDto';
 
 @Component({
@@ -26,10 +24,10 @@ export class RegistrarUsuario {
   mensajeExito = signal('');
 
   form = this.fb.group({
-    nombre: ['', [Validators.required, Validators.minLength(2)]],
-    apellido: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(3)]],
+    nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
+    apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(50)]],
+    password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(255)]],
     passwordConfirmar: ['', [Validators.required]],
     rol: ['', [Validators.required]],
   });
@@ -47,37 +45,48 @@ export class RegistrarUsuario {
       return;
     }
 
-    this.usuarioService.getUsuarioByEmail(this.form.value.email!).subscribe({
-      next: (data) => {
-        if (data.length > 0) {
+    const usuario = this.buildUsuario();
+    if (!usuario) {
+      this.error.set('Seleccioná un rol válido.');
+      return;
+    }
+
+    this.usuarioService.existePorEmail(this.form.value.email!).subscribe({
+      next: (existe) => {
+        if (existe) {
           this.error.set('Ya existe un usuario registrado con este Email');
           return;
         }
 
-        this.usuarioService.crear(this.buildUsuario()).subscribe({
+        this.usuarioService.crear(usuario).subscribe({
           next: () => {
             this.mensajeExito.set('¡Usuario creado exitosamente!');
             this.form.reset();
           },
           error: (err) => {
-            console.log(err);
+            console.error('Error al registrar el nuevo usuario:', err);
             this.error.set('Error al registrar el nuevo usuario');
           },
         });
       },
       error: (err) => {
-        console.log(err);
+        console.error('Error al verificar el email:', err);
         this.error.set('Error al verificar el email');
       },
     });
   }
 
-  private buildUsuario(): UsuarioCreateDto {
+  private buildUsuario(): UsuarioCreateDto | null {
+    const rol = this.form.value.rol;
+    if (rol !== 'administrador' && rol !== 'profesor') {
+      return null;
+    }
+
     return {
       nombre: this.form.value.nombre!,
       apellido: this.form.value.apellido!,
       password: this.form.value.password!,
-      rol: this.usuarioService.convertirRol(this.form.value.rol!),
+      rol,
       email: this.form.value.email!,
     };
   }

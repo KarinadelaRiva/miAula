@@ -1,7 +1,9 @@
+import type { RolUsuario } from './usuario';
+
 export interface UsuarioCreateDto {
     apellido:string;
     nombre: string;
     password:string;
-    rol: 'ADMIN' | 'PROFESOR';
+    rol: RolUsuario;
     email:string;
 }

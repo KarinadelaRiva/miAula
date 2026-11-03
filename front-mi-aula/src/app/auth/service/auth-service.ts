@@ -1,131 +1,33 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { LoginRequest } from '../models/LoginRequest';
-import { map, Observable, tap } from 'rxjs';
-import { UsuarioService } from '../../services/usuario-service/usuario-service';
-import { AuthError } from '../errores/AuthError';
-import { Usuario } from '../../models/usuario';
+import { LoginResponse } from '../models/LoginResponse';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private usuarioService = inject(UsuarioService);
+  private readonly http = inject(HttpClient);
+  private readonly api = 'http://localhost:8080/auth';
 
-  usuarioLogueado = signal<boolean>(false);
-  infoUsuario = signal<Usuario>({
-    id: '',
-    apellido: '',
-    nombre: '',
-    rol: undefined,
-    email: '',
-    activo: false,
-  });
 
-  constructor() {
-  // Limpiar cualquier sesión previa para que siempre inicie sin usuario logueado
-  this.limpiarSesion();
-  // this.cargarSesion();
-  }
-
-  private cargarSesion(): void {
-    const usuarioGuardado = localStorage.getItem('usuario');
-    if (usuarioGuardado) {
-      try {
-        const usuario: Usuario = JSON.parse(usuarioGuardado);
-        this.usuarioLogueado.set(true);
-        this.infoUsuario.set(usuario);
-      } catch (error) {
-        localStorage.removeItem('usuario');
-      }
-    }
-  }
-
-  private limpiarSesion(): void {
-    localStorage.removeItem('usuario');
-    this.usuarioLogueado.set(false);
-    this.usuarioReset();
-  }
-
-  private guardarSesion(usuario: Usuario): void {
-    const usuarioParaGuardar = {
-      id: usuario.id,
-      email: usuario.email,
-      nombre: usuario.nombre,
-      apellido: usuario.apellido,
-      rol: usuario.rol,
-      activo: usuario.activo,
-    };
-    localStorage.setItem('usuario', JSON.stringify(usuarioParaGuardar));
-  }
-
-  actualizarInfoUsuario(usuario: Usuario): Observable<Usuario> {
-    return this.usuarioService.actualizarUsuario(usuario).pipe(
-      tap((usuarioActualizado) => {
-        this.infoUsuario.set({
-          id: usuario.id,
-          nombre: usuario.nombre,
-          apellido: usuario.apellido,
-          email: usuario.email,
-          rol: usuario.rol,
-          activo: usuario.activo,
-        });
-        this.guardarSesion(usuarioActualizado);
-      })
-    );
-  }
-
-  validarCredenciales(credenciales: LoginRequest): Observable<Usuario> {
-    console.log('validar credenciales');
-    return this.usuarioService.getUsuarioByEmail(credenciales.email).pipe(
-      map((usuarios) => {
-        if (usuarios.length > 0) {
-          const usuario = usuarios[0];
-          if(!usuario.activo){
-            throw AuthError.UsuarioEliminado();
-          }
-          if (usuario.password === credenciales.password) {
-            return usuario;
-          } else {
-            throw AuthError.CredencialesInvalidas();
-          }
-        }
-        throw AuthError.UsuarioNoRegistrado();
-      }),
-      tap((usuario) => {
-        console.log('guardar datos de sesion');
-        this.usuarioLogueado.set(true);
-        this.infoUsuario.set(usuario);
-        this.guardarSesion(usuario);
+  login(req: LoginRequest): Observable<void> {
+    return this.http.post<LoginResponse>(`${this.api}/login`, req).pipe(
+      tap(({ token }) => localStorage.setItem('jwt', token)),
+      map(() => undefined),
+      catchError((error: HttpErrorResponse) => {
+        this.logout();
+        return throwError(() => error);
       })
     );
   }
 
   validarPassword(password1: string, password2: string): boolean {
-    if (password1 === password2) {
-      return true;
-    }
-    return false;
-  }
-
-  esAdmin(): boolean {
-    const usuario = this.infoUsuario();
-    return usuario?.rol === 'ADMIN';
+    return password1 === password2;
   }
 
   logout(): void {
-    this.usuarioLogueado.set(false);
-    this.usuarioReset();
-    localStorage.removeItem('usuario');
-  }
-
-  private usuarioReset(): void {
-    this.infoUsuario.set({
-      id: '',
-      apellido: '',
-      nombre: '',
-      rol: undefined,
-      email: '',
-      activo: false,
-    });
+    localStorage.removeItem('jwt');
   }
 }

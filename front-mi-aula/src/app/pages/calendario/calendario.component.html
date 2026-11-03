@@ -12,7 +12,7 @@
       <input id="fecha-calendario" type="date" [(ngModel)]="fechaSeleccionada" />
     </div>
 
-    @if (authService.usuarioLogueado()) {
+    @if (usuarioLogueado$ | async) {
       <a class="back-button" routerLink="/dashboard">← Volver</a>
     }
   </div>

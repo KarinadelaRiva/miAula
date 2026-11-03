@@ -37,10 +37,11 @@ interface Carrera {
 
 
 interface Usuario {
-  id: string;
+  id: string | number;
   nombre: string;
   apellido: string;
-  rol: string;
+  email: string;
+  roles: string[];
   activo: boolean;
 }
 
@@ -136,7 +137,17 @@ export class AdministrarComisiones implements OnInit {
 
     this.cargarCarreras();
 
-    this.cargarProfesores();
+    this.http.get<Usuario[]>('http://localhost:8080/usuarios').subscribe({
+      next: (data) => {
+        this.profesores = data.filter(usuario =>
+          usuario.roles?.includes('profesor') &&
+          usuario.activo
+        );
+      },
+      error: (error) => {
+        console.error('Error cargando usuarios:', error);
+      }
+    });
 
     this.cargarComisiones();
 

@@ -1274,7 +1274,7 @@
       "apellido": "Principal",
       "nombre": "Admin",
       "password": "123",
-      "rol": "ADMIN",
+      "rol": "administrador",
       "email": "admin@gmail.com",
       "activo": true
     },
@@ -1283,7 +1283,7 @@
       "apellido": "Martínez",
       "nombre": "Carlos",
       "password": "profe",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "profe@gmail.com",
       "activo": true
     },
@@ -1292,7 +1292,7 @@
       "apellido": "González",
       "nombre": "María",
       "password": "$2a$10$wPHJ38iZ3bK5Abq50fHyeufyHUm4AgOWTh2a0rBTdxuB3lx0EyLRm",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "maria.gonzalez@gmail.com",
       "activo": true
     },
@@ -1301,7 +1301,7 @@
       "apellido": "Pérez",
       "nombre": "Juan",
       "password": "$2a$10$wPHJ38iZ3bK5Abq50fHyeufyHUm4AgOWTh2a0rBTdxuB3lx0EyLRm",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "juan.perez@gmail.com",
       "activo": true
     },
@@ -1310,7 +1310,7 @@
       "apellido": "Rodriguez",
       "nombre": "Ana",
       "password": "$2a$10$wPHJ38iZ3bK5Abq50fHyeufyHUm4AgOWTh2a0rBTdxuB3lx0EyLRm",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "ana.rodriguez@gmail.com",
       "activo": true
     },
@@ -1319,7 +1319,7 @@
       "apellido": "Fernández",
       "nombre": "Luis",
       "password": "$2a$10$wPHJ38iZ3bK5Abq50fHyeufyHUm4AgOWTh2a0rBTdxuB3lx0EyLRm",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "luis.fernandez@gmail.com",
       "activo": true
     },
@@ -1328,7 +1328,7 @@
       "apellido": "López",
       "nombre": "Sofia",
       "password": "$2a$10$wPHJ38iZ3bK5Abq50fHyeufyHUm4AgOWTh2a0rBTdxuB3lx0EyLRm",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "sofia.lopez@gmail.com",
       "activo": true
     },
@@ -1337,7 +1337,7 @@
       "apellido": "Ramírez",
       "nombre": "Diego",
       "password": "$2a$10$wPHJ38iZ3bK5Abq50fHyeufyHUm4AgOWTh2a0rBTdxuB3lx0EyLRm",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "diego.ramirez@gmail.com",
       "activo": false
     },
@@ -1346,7 +1346,7 @@
       "apellido": "Torres",
       "nombre": "Laura",
       "password": "$2a$10$wPHJ38iZ3bK5Abq50fHyeufyHUm4AgOWTh2a0rBTdxuB3lx0EyLRm",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "laura.torres@gmail.com",
       "activo": true
     },
@@ -1355,7 +1355,7 @@
       "apellido": "Silva",
       "nombre": "Roberto",
       "password": "$2a$10$wPHJ38iZ3bK5Abq50fHyeufyHUm4AgOWTh2a0rBTdxuB3lx0EyLRm",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "roberto.silva@gmail.com",
       "activo": true
     },
@@ -1364,7 +1364,7 @@
       "apellido": "Morales",
       "nombre": "Patricia",
       "password": "$2a$10$wPHJ38iZ3bK5Abq50fHyeufyHUm4AgOWTh2a0rBTdxuB3lx0EyLRm",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "patricia.morales@gmail.com",
       "activo": false
     },
@@ -1373,7 +1373,7 @@
       "nombre": "Gabriela",
       "apellido": "Garcia Retamar",
       "password": "1234",
-      "rol": "ADMIN",
+      "rol": "administrador",
       "email": "gabrielagarciaret@hotmail.com",
       "activo": false
     },
@@ -1382,7 +1382,7 @@
       "nombre": "Karina",
       "apellido": "de la Riva",
       "password": "1234",
-      "rol": "PROFESOR",
+      "rol": "profesor",
       "email": "delariva@gmail.com",
       "activo": true
     }

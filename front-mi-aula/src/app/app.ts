@@ -19,9 +19,9 @@ import { AuthService } from './auth/service/auth-service';
 export class App {
   protected readonly title = signal('gestor-aulas');
   private auth = inject(AuthService);
-
+/*
   get isLoggedIn() {
     // Current AuthService uses `usuarioLogueado` signal. Use it directly.
     return this.auth.usuarioLogueado();
-  }
+  } */
 }
