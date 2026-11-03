@@ -61,20 +61,6 @@ public class SecurityConfig {
         return source;
     }
 
-     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/carreras/**").permitAll()
-                        .anyRequest().permitAll()
-                );
-
-        return http.build();
-    }
-
-
     // Proveedor de autenticación que conecta al servicio de usuarios y al codificador
     @Bean
     public AuthenticationProvider authenticationProvider(UsuarioService userDetailsService) {
@@ -91,31 +77,27 @@ public class SecurityConfig {
 
     // Configuración del filtro de seguridad para proteger rutas y validar JWT
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                    JwtAuthFilter jwtAuthFilter,
-                                                    AuthenticationProvider authenticationProvider
-                                                    ) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthFilter jwtAuthFilter,
+            AuthenticationProvider authenticationProvider) throws Exception {
         return http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/carreras/**").permitAll()
                         .requestMatchers(rutasSinRestriccion).permitAll()
                         .requestMatchers(HttpMethod.POST, rutasSinRestriccionPOST).permitAll()
                         .requestMatchers(HttpMethod.PUT, "/espacios/**").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/espacios/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/recursos/*").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/recursos/*").permitAll()
-                        .requestMatchers(
-
-        http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/carreras/**").permitAll()
                         .anyRequest().permitAll()
-                );
-
-        return http.build();
+                )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
 }
