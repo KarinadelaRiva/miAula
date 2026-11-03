@@ -49,7 +49,7 @@ public class StartupSeeder implements ApplicationRunner {
             entityManager.flush();
 
             entityManager.persist(Rol.builder()
-                    .nombre("profresor")
+                    .nombre("profesor")
                     .codigo("PROFE")
                     .descripcion("Rol de profesor")
                     .build());
