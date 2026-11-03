@@ -1,8 +1,10 @@
+export type RolUsuario = 'administrador' | 'profesor';
+
 export interface Usuario {
-    id: string | number;
+    id: number;
     apellido:string;
     nombre: string;
-    roles: string[]; // "administrador" o "profesor"
+    roles: RolUsuario[];
     email: string;
     activo: boolean;
     password?: string;

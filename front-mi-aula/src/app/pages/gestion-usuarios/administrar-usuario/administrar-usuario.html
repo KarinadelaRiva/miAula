@@ -22,8 +22,8 @@
       />
       <select class="select-filtro" [(ngModel)]="filtroRol" (ngModelChange)="aplicarFiltros()">
         <option value="">Todos los roles</option>
-        <option value="ADMIN">Administrador</option>
-        <option value="PROFESOR">Profesor</option>
+        <option value="administrador">Administrador</option>
+        <option value="profesor">Profesor</option>
       </select>
       <select class="select-filtro" [(ngModel)]="filtroActivo" (ngModelChange)="aplicarFiltros()">
         <option value="">Todos los estados</option>
@@ -58,8 +58,8 @@
               <td><input [(ngModel)]="emailEditado" type="email" aria-label="Editar email" /></td>
               <td>
                 <select [(ngModel)]="rolEditado" aria-label="Editar rol">
-                  <option value="ADMIN">Administrador</option>
-                  <option value="PROFESOR">Profesor</option>
+                  <option value="administrador">Administrador</option>
+                  <option value="profesor">Profesor</option>
                 </select>
               </td>
               <td><span class="estado" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Eliminado' }}</span></td>

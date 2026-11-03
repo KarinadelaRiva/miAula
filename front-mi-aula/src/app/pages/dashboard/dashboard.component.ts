@@ -1,8 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Solicitud as SolicitudService } from '../../services/solicitud';
-import { AuthService } from '../../auth/service/auth-service';
+import { UsuarioService } from '../../services/usuario-service/usuario-service';
+import { UsuarioResponseDto } from '../../models/usuarioResponseDto';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,9 +15,9 @@ import { AuthService } from '../../auth/service/auth-service';
 export class DashboardComponent {
   private router = inject(Router);
   private solicitudService = inject(SolicitudService);
-  private auth = inject(AuthService);
+  private usuarioService = inject(UsuarioService);
 
-  usuario = computed(() => this.auth.infoUsuario());
+  usuario = signal<UsuarioResponseDto | null>(null);
 
   // Simulamos solicitudes pendientes - después se conectará con el servicio real
   private pendingCount = signal<number>(0);
@@ -26,6 +27,11 @@ export class DashboardComponent {
   }
 
   constructor() {
+    this.usuarioService.me().subscribe({
+      next: (usuario) => this.usuario.set(usuario),
+      error: (error) => console.error('No se pudo obtener el usuario:', error),
+    });
+
     this.solicitudService.getSolicitudes().subscribe((sols) => {
       if (!sols) {
         this.pendingCount.set(0);
@@ -36,12 +42,8 @@ export class DashboardComponent {
     });
   }
 
-  tieneRol(rolEsperado: 'ADMIN' | 'PROFESOR'): boolean {
-    return (this.usuario()?.roles ?? []).some((rol) => {
-      const normalizado = rol.toUpperCase().replace(/^ROLE_/, '');
-      return normalizado === rolEsperado ||
-        (rolEsperado === 'ADMIN' && normalizado === 'ADMINISTRADOR');
-    });
+  tieneRol(rolEsperado: 'administrador' | 'profesor'): boolean {
+    return (this.usuario()?.roles ?? []).includes(rolEsperado);
   }
 
   navigateTo(path: string | null) {

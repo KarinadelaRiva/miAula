@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 import { Usuario } from '../../../models/usuario';
-import { AuthService } from '../../../auth/service/auth-service';
 
 @Component({
   selector: 'app-administrar-usuario',
@@ -13,7 +12,7 @@ import { AuthService } from '../../../auth/service/auth-service';
 })
 export class AdministrarUsuario implements OnInit {
   usuarioService = inject(UsuarioService);
-  auth = inject(AuthService);
+  usuarioLogueadoId = signal<number | null>(null);
   paginaActual = signal(1);
   limite = 8;
   totalPaginas = signal(0);
@@ -25,13 +24,17 @@ export class AdministrarUsuario implements OnInit {
   nombreEditado = '';
   apellidoEditado = '';
   emailEditado = '';
-  rolEditado: 'ADMIN' | 'PROFESOR' = 'PROFESOR';
+  rolEditado: 'administrador' | 'profesor' = 'profesor';
   mensaje = signal('');
 
   listaUsuarios = signal<Usuario[]>([]);
 
   ngOnInit() {
     this.cargarUsuarios();
+    this.usuarioService.me().subscribe({
+      next: (usuario) => this.usuarioLogueadoId.set(usuario.id),
+      error: (error) => console.error('No se pudo obtener el usuario autenticado:', error),
+    });
   }
 
   /*
@@ -95,9 +98,7 @@ export class AdministrarUsuario implements OnInit {
     this.nombreEditado = usuario.nombre;
     this.apellidoEditado = usuario.apellido;
     this.emailEditado = usuario.email;
-    this.rolEditado = usuario.roles?.some((rol) =>
-      ['ADMIN', 'ADMINISTRADOR'].includes(rol.toUpperCase().replace(/^ROLE_/, ''))
-    ) ? 'ADMIN' : 'PROFESOR';
+    this.rolEditado = usuario.roles?.includes('administrador') ? 'administrador' : 'profesor';
     this.mensaje.set('');
   }
 
@@ -106,7 +107,7 @@ export class AdministrarUsuario implements OnInit {
     this.nombreEditado = '';
     this.apellidoEditado = '';
     this.emailEditado = '';
-    this.rolEditado = 'PROFESOR';
+    this.rolEditado = 'profesor';
   }
 
   guardarEdicion() {
@@ -163,6 +164,8 @@ export class AdministrarUsuario implements OnInit {
   }
 
   seleccionadoIgualLogueado(): boolean {
-    return String(this.auth.infoUsuario()?.id) === String(this.usuarioSeleccionado()?.id);
+    const usuarioId = this.usuarioSeleccionado()?.id;
+    const usuarioLogueadoId = this.usuarioLogueadoId();
+    return usuarioLogueadoId === null || usuarioId === usuarioLogueadoId;
   }
 }

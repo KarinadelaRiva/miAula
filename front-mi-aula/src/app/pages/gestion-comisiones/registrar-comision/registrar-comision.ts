@@ -90,7 +90,7 @@ export class RegistrarComision implements OnInit {
         next: (data) => {
 
           this.profesores = data.filter(usuario =>
-            usuario.roles?.some((rol) => rol.toUpperCase().replace(/^ROLE_/, '') === 'PROFESOR') &&
+            usuario.roles?.includes('profesor') &&
             usuario.activo
           );
 

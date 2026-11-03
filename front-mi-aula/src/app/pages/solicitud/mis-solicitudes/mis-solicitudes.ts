@@ -2,8 +2,9 @@ import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core
 import { CommonModule } from '@angular/common';
 import type { Solicitud as SolicitudModel } from '../../../services/solicitud';
 import { Solicitud as SolicitudService } from '../../../services/solicitud';
-import { AuthService } from '../../../auth/service/auth-service';
+import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 import { RouterLink } from "@angular/router";
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-mis-solicitudes',
@@ -13,7 +14,8 @@ import { RouterLink } from "@angular/router";
 })
 export class MisSolicitudes implements OnInit {
   private solicitudService = inject(SolicitudService);
-  private authService = inject(AuthService);
+  private usuarioService = inject(UsuarioService);
+  private usuarioLogueadoId = signal<number | null>(null);
 
   // Signal que contendrá el array de solicitudes para renderizar en el template
   solicitudes: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
@@ -48,10 +50,14 @@ export class MisSolicitudes implements OnInit {
 
   // Carga las solicitudes desde el servidor y filtra las del usuario logueado
   loadSolicitudes(): void {
-    this.solicitudService.getSolicitudes().subscribe({
+    this.usuarioService.me().pipe(
+      switchMap((usuario) => {
+        this.usuarioLogueadoId.set(usuario.id);
+        return this.solicitudService.getSolicitudes();
+      })
+    ).subscribe({
       next: (data) => {
-        const currentUser = this.authService.infoUsuario();
-        const userId = currentUser?.id ?? '';
+        const userId = this.usuarioLogueadoId();
         const filtered = data.filter((s) => String(s.usuario_id) === String(userId));
 
           // Ordenar por fecha_hora_solicitud descendente (más reciente primero)
@@ -122,8 +128,8 @@ export class MisSolicitudes implements OnInit {
   const confirmado = window.confirm('¿Estás seguro que deseas cancelar esta solicitud?');
   if (!confirmado) return;
 
-    const currentUser = this.authService.infoUsuario();
-    const currentUserIdStr = currentUser?.id ? String(currentUser.id) : '';
+    const usuarioId = this.usuarioLogueadoId();
+    const currentUserIdStr = usuarioId === null ? '' : String(usuarioId);
 
     // Prevención por si ya no está en estado PENDIENTE
     if (solicitud.estado !== 'PENDIENTE') return;

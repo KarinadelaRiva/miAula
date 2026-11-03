@@ -1,8 +1,10 @@
+import type { RolUsuario } from './usuario';
+
 export interface UsuarioResponseDto {
-    id: string | number;
+    id: number;
     nombre: string;
     apellido: string;
     email: string;
-    roles: string[];
+    roles: RolUsuario[];
     activo: boolean
 }

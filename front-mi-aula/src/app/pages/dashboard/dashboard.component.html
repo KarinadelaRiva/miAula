@@ -8,7 +8,7 @@
 
     @if (usuario()) {
       <div class="user-info">
-        <p><strong>Roles:</strong> {{ usuario()!.roles.join(', ') }}</p>
+        <p><strong>Rol:</strong> {{ usuario()!.roles.join(', ') }}</p>
         <p><strong>Email:</strong> {{ usuario()!.email }}</p>
       </div>
     }
@@ -19,9 +19,9 @@
 
     <div class="action-cards">
 
-      <!-- Cards para ADMIN -->
+      <!-- Opciones para administradores -->
 
-      @if (tieneRol('ADMIN')) {
+      @if (tieneRol('administrador')) {
 
         <!-- GESTOR DE SOLICITUDES -->
 
@@ -159,9 +159,9 @@
       }
 
 
-      <!-- Cards para PROFESOR -->
+      <!-- Opciones para profesores -->
 
-      @if (tieneRol('PROFESOR')) {
+      @if (tieneRol('profesor')) {
 
         <!-- MIS SOLICITUDES -->
 

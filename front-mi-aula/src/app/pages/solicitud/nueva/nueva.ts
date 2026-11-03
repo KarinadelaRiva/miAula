@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Solicitud as SolicitudService, Solicitud } from '../../../services/solicitud';
-import { AuthService } from '../../../auth/service/auth-service';
+import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 
 @Component({
   selector: 'app-nueva',
@@ -18,9 +18,10 @@ export class Nueva implements OnInit {
   private router = inject(Router);
   private http = inject(HttpClient);
   private solicitudService = inject(SolicitudService);
-  private auth = inject(AuthService);
+  private usuarioService = inject(UsuarioService);
 
   form!: FormGroup;
+  private usuarioLogueadoId: number | null = null;
   espacios: Array<any> = [];
   comisiones: Array<any> = [];
   loading = false;
@@ -28,12 +29,6 @@ export class Nueva implements OnInit {
   error: string | null = null;
 
   ngOnInit() {
-    const usuario = this.auth.infoUsuario();
-    if (!usuario?.id) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
     this.form = this.fb.group({
       comentario_profesor: [''],
       dia_semana: ['LUNES', [Validators.required]],
@@ -45,8 +40,14 @@ export class Nueva implements OnInit {
       comision_id: [null, [Validators.required]]
     });
 
-    this.cargarEspacios();
-    this.cargarComisionesDelProfesor(Number(usuario.id));
+    this.usuarioService.me().subscribe({
+      next: (usuario) => {
+        this.usuarioLogueadoId = usuario.id;
+        this.cargarEspacios();
+        this.cargarComisionesDelProfesor(usuario.id);
+      },
+      error: () => this.router.navigate(['/login']),
+    });
   }
 
   private cargarEspacios() {
@@ -115,8 +116,8 @@ export class Nueva implements OnInit {
       return;
     }
 
-    const usuario = this.auth.infoUsuario();
-    if (!usuario) {
+    const usuarioId = this.usuarioLogueadoId;
+    if (usuarioId === null) {
       this.router.navigate(['/login']);
       return;
     }
@@ -143,7 +144,7 @@ export class Nueva implements OnInit {
       comision_id: Number(form.comision_id),
       nuevo_espacio_id: Number(form.nuevo_espacio_id),
       reserva_original_id: null as any,
-      usuario_id: Number(usuario.id)
+      usuario_id: usuarioId
     };
     // Comprobar solapamientos con solicitudes existentes para el mismo espacio
     this.http.get<Solicitud[]>(`http://localhost:3000/solicitudes?nuevo_espacio_id=${payload.nuevo_espacio_id}`).subscribe({

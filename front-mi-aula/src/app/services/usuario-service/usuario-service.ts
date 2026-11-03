@@ -30,16 +30,24 @@ export class UsuarioService {
     return this.http.get<Usuario[]>(this.api);
   }
 
-  getUsuarioById(id: string): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.baseDatosUrl}/${id}`);
+  getUsuarioById(id: number): Observable<Usuario> {
+    return this.http.get<Usuario>(`${this.api}/${id}`);
   }
 
+  /*
   getUsuarioByEmail(email: string): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(`${this.baseDatosUrl}?email=${email}`);
+    return this.http.get<Usuario[]>(this.api, );
+  }
+    */
+
+  existePorEmail(email: string): Observable<boolean> {
+    return this.http.get<boolean>(`${this.api}/buscar-email`, {
+      params: { email },
+    });
   }
 
-  actualizarUsuario(usuario: Usuario): Observable<Usuario> {
-    return this.http.put<Usuario>(`${this.baseDatosUrl}/${usuario.id}`, usuario);
+  actualizarUsuario(usuario: Usuario): Observable<UsuarioResponseDto> {
+    return this.http.put<UsuarioResponseDto>(this.api, usuario);
   }
 
   actualizarPassword(id: string, password: string): Observable<Usuario> {
@@ -54,20 +62,8 @@ export class UsuarioService {
     return this.http.patch<Usuario>(`${this.baseDatosUrl}/${id}`, { activo: true });
   }
 
-  crear(usuario: UsuarioCreateDto): Observable<Usuario> {
-    const usuarioNuevo = {
-      ...usuario,
-      activo: true
-    };
-    return this.http.post<Usuario>(this.baseDatosUrl, usuarioNuevo);
-  }
-
-  convertirRol(rol: string): 'ADMIN' | 'PROFESOR' {
-    const rolMayus = rol.toUpperCase();
-    if (rolMayus === 'ADMIN') {
-      return 'ADMIN';
-    }
-    return 'PROFESOR';
+  crear(usuario: UsuarioCreateDto): Observable<UsuarioResponseDto> {
+    return this.http.post<UsuarioResponseDto>(this.api, usuario);
   }
 
   obtenerUsuariosPaginados(

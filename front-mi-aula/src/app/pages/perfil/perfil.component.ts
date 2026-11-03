@@ -4,7 +4,10 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../auth/service/auth-service';
 import { Usuario } from '../../models/usuario';
+import { UsuarioResponseDto } from '../../models/usuarioResponseDto';
 import { UsuarioService } from '../../services/usuario-service/usuario-service';
+import { Observable, tap } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-perfil',
@@ -30,9 +33,9 @@ export class PerfilComponent implements OnInit {
   mostrarAlertaEliminar = signal(false);
 
   formPerfil = this.fb.group({
-    nombre: [this.auth.infoUsuario()?.nombre ?? '', [Validators.required, Validators.minLength(2)]],
-    apellido: [this.auth.infoUsuario()?.apellido ?? '', [Validators.required, Validators.minLength(2)]],
-    email: [this.auth.infoUsuario()?.email ?? '', [Validators.required, Validators.email]],
+    nombre: [this.usuarioActual()?.nombre ?? '', [Validators.required, Validators.minLength(2)]],
+    apellido: [this.usuarioActual()?.apellido ?? '', [Validators.required, Validators.minLength(2)]],
+    email: [this.usuarioActual()?.email ?? '', [Validators.required, Validators.email]],
   });
 
   formPassword = this.fb.group({
@@ -42,35 +45,27 @@ export class PerfilComponent implements OnInit {
   });
 
   ngOnInit() {
-    if (!this.auth.usuarioLogueado()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    this.getUsuarioActual();    
+    this.getUsuarioActual().subscribe({
+      error: () => this.ErrorCargaUsuario(),
+    });
   }
 
-  private getUsuarioActual() {
-    const usuarioAutenticado = this.auth.infoUsuario();
-    if (!usuarioAutenticado) {
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    this.usuarioService.getUsuarioById(String(usuarioAutenticado.id)).subscribe({
-      next: (data) => {
-        this.usuarioActual.set(data);
+  private getUsuarioActual(): Observable<UsuarioResponseDto> {
+    return this.usuarioService.me().pipe(
+      tap((usuario) => {
+        this.usuarioActual.set(usuario);
         this.formPerfil.patchValue({
-          nombre: data.nombre,
-          apellido: data.apellido,
-          email: data.email,
+          nombre: usuario.nombre,
+          apellido: usuario.apellido,
+          email: usuario.email,
         });
-      },
-      error: () => {
-        this.errorPerfil.set('Fallo en el servidor');
-        this.errorPassword.set('Fallo en el servidor');
-      },
-    });
+      })
+    );
+  }
+
+  private ErrorCargaUsuario() {
+    this.errorPerfil.set('Fallo en el servidor');
+    this.errorPassword.set('Fallo en el servidor');
   }
 
   enviarDatos() {
@@ -89,16 +84,18 @@ export class PerfilComponent implements OnInit {
       email: this.formPerfil.value.email!,
     };
 
-    this.auth.actualizarInfoUsuario(usuarioActualizado).subscribe({
+    this.usuarioService.actualizarUsuario(usuarioActualizado).subscribe({
       next: () => {
         this.mensajePerfil.set('¡Perfil actualizado correctamente!');
         this.loadingPerfil = false;
         this.formPerfil.markAsUntouched();
-        this.getUsuarioActual();
+        this.getUsuarioActual().subscribe({
+          error: () => this.ErrorCargaUsuario(),
+        });
       },
-      error: (err: unknown) => {
-        this.errorPerfil.set('Error al actualizar el perfil');
-        console.log(err);
+      error: (err) => {
+        const mensajeBackend = typeof err.error === 'string' ? err.error : '';
+        this.errorPerfil.set(mensajeBackend || 'Error al actualizar el perfil');
         this.loadingPerfil = false;
       },
     });
@@ -138,12 +135,13 @@ export class PerfilComponent implements OnInit {
           this.loadingPassword = false;
           this.formPassword.reset();
           this.formPassword.markAsUntouched();
-          this.getUsuarioActual();
+          this.getUsuarioActual().subscribe({
+            error: () => this.ErrorCargaUsuario(),
+          });
         },
-        error: (err: unknown) => {
-          this.errorPassword.set('Error al actualizar la contraseña');
-          console.log(err);
-          this.loadingPassword = false;
+        error: (err: HttpErrorResponse) => {
+          const mensajeBackend = typeof err.error === 'string' ? err.error : '';
+          this.errorPassword.set(mensajeBackend || 'Error al actualizar la contraseña');
         },
       });
   }
@@ -169,7 +167,6 @@ export class PerfilComponent implements OnInit {
       },
       error: (err: unknown) => {
         alert('Error al intentar eliminar la cuenta...');
-        console.log(err);
         this.cerrarAlertaEliminar();
       }
     });

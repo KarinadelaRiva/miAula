@@ -34,7 +34,6 @@ public class SecurityConfig {
         "/auth/login",
         "/reservas/cronograma-por-dia",
         "/reservas/cronograma",
-        "/usuarios",
         "/espacios" // sin restriccion de manera provisional para tests
     };
     

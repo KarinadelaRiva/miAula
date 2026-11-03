@@ -1,13 +1,15 @@
-/*
 import { inject } from '@angular/core';
 import { CanActivateFn, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 import { AuthService } from '../auth/service/auth-service';
+import type { RolUsuario } from '../models/usuario';
+import { UsuarioService } from '../services/usuario-service/usuario-service';
 
 export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   const auth = inject(AuthService);
+  const usuarioService = inject(UsuarioService);
   const router = inject(Router);
-  const rolesPermitidos = route.data['roles'] as string[] | undefined;
+  const rolesPermitidos = route.data['roles'] as RolUsuario[] | undefined;
 
   if (!localStorage.getItem('jwt')) {
     auth.logout();
@@ -18,14 +20,9 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
     return router.createUrlTree(['/dashboard']);
   }
 
-  return auth.cargarUsuarioActual().pipe(
+  return usuarioService.me().pipe(
     map((usuario) => {
-      const roles = usuario.roles.map((rol) => rol.toUpperCase().replace(/^ROLE_/, ''));
-      return rolesPermitidos.some((rol) => {
-        const permitido = rol.toUpperCase();
-        return roles.includes(permitido) ||
-          (permitido === 'ADMIN' && roles.includes('ADMINISTRADOR'));
-      })
+      return rolesPermitidos.some((rol) => usuario.roles.includes(rol))
         ? true
         : router.createUrlTree(['/dashboard']);
     }),
@@ -36,4 +33,3 @@ export const roleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
     })
   );
 };
-*/

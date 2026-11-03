@@ -2,7 +2,6 @@ import { Component, OnInit, computed, inject, signal, WritableSignal } from '@an
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReservaService } from '../../services/reserva.service';
-import { AuthService } from '../../auth/service/auth-service';
 
 interface ReservaCompleta {
   id: number;
@@ -25,7 +24,6 @@ interface ReservaCompleta {
 })
 export class GestorReservasComponent implements OnInit {
   private reservaService = inject(ReservaService);
-  public authService = inject(AuthService);
 
   // Señales para las reservas separadas por estado
   reservas: WritableSignal<ReservaCompleta[]> = signal<ReservaCompleta[]>([]);
@@ -133,7 +131,4 @@ export class GestorReservasComponent implements OnInit {
     return this._selectedReserva();
   }
 
-  isAdmin(): boolean {
-    return this.authService.tieneRol('ADMIN');
-  }
 }
