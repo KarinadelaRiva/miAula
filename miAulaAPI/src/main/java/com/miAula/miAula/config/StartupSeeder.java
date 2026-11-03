@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class StartupSeeder implements ApplicationRunner {
 
-    private static final long ADMIN_ROLE_ID = 1L;
+    private static final String ADMIN_ROLE_CODE = "ADMIN";
     private static final String ADMIN_EMAIL = "admin@gmail.com";
 
     private final EntityManager entityManager;
@@ -34,21 +34,45 @@ public class StartupSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        Long roleCount = entityManager.createQuery(
+                        "select count(r) from Rol r",
+                        Long.class)
+                .getSingleResult();
+
+        if (roleCount == 0) {
+            Rol adminRole = Rol.builder()
+                    .nombre("administrador")
+                    .codigo(ADMIN_ROLE_CODE)
+                    .descripcion("Rol de administración")
+                    .build();
+            entityManager.persist(adminRole);
+            entityManager.flush();
+
+            entityManager.persist(Rol.builder()
+                    .nombre("profresor")
+                    .codigo("PROFE")
+                    .descripcion("Rol de profesor")
+                    .build());
+            entityManager.flush();
+        }
+
+        Rol adminRole = entityManager.createQuery(
+                        "select r from Rol r where r.codigo = :code",
+                        Rol.class)
+                .setParameter("code", ADMIN_ROLE_CODE)
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "No se puede crear el administrador: no existe el rol con código " + ADMIN_ROLE_CODE));
+
         Long adminCount = entityManager.createQuery(
                         "select count(ur) from UsuarioRol ur where ur.rol.id = :roleId",
                         Long.class)
-                .setParameter("roleId", ADMIN_ROLE_ID)
+                .setParameter("roleId", adminRole.getId())
                 .getSingleResult();
- 
+
         if (adminCount > 0) {
             return;
-        }
-
-
-        Rol adminRole = entityManager.find(Rol.class, ADMIN_ROLE_ID);
-        if (adminRole == null) {
-            throw new IllegalStateException(
-                    "No se puede crear el administrador: no existe el rol con ID " + ADMIN_ROLE_ID);
         }
 
         if (usuarioRepository.findByEmail(ADMIN_EMAIL).isPresent()) {
