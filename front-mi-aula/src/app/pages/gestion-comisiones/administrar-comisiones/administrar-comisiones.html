@@ -2,17 +2,35 @@
 
   <div class="administrar-card">
 
+    <!-- HEADER -->
     <div class="administrar-header">
 
       <div>
-        <span class="eyebrow">Panel administrativo</span>
-        <h1>Gestión de Comisiones</h1>
-        <p>Consultá, modificá y administrá las comisiones del sistema.</p>
+
+        <span class="eyebrow">
+          {{ esAdmin ? 'Panel administrativo' : 'Panel docente' }}
+        </span>
+
+        <h1>
+          {{ esAdmin ? 'Gestión de Comisiones' : 'Mis Comisiones' }}
+        </h1>
+
+        <p *ngIf="esAdmin">
+          Consultá, modificá y administrá las comisiones del sistema.
+        </p>
+
+        <p *ngIf="esProfesor">
+          Consultá las comisiones que tenés asignadas.
+        </p>
+
       </div>
+
 
       <div class="header-actions">
 
+        <!-- SOLO ADMIN -->
         <button
+          *ngIf="esAdmin"
           type="button"
           routerLink="/gestion-comisiones/registrar-comision"
           class="btn-nuevo">
@@ -30,6 +48,8 @@
 
     </div>
 
+
+    <!-- BUSCADOR -->
     <div class="filtros-section">
 
       <input
@@ -37,58 +57,117 @@
         class="input-buscar"
         placeholder="Buscar por comisión, asignatura, carrera o profesor..."
         [(ngModel)]="busqueda"
-        (click)="mostrarTodas()"
         (input)="buscar()"
         aria-label="Buscar comisiones">
 
     </div>
 
-    <div *ngIf="mensaje" class="mensaje">
+
+    <!-- MENSAJES -->
+    <div
+      *ngIf="mensaje"
+      class="mensaje">
+
       {{ mensaje }}
+
     </div>
 
+
+    <!-- TABLA -->
     <div class="tabla-container">
 
       <table>
 
         <thead>
+
           <tr>
+
             <th>Comisión</th>
+
             <th>Alumnos</th>
+
             <th>Asignatura</th>
+
             <th>Carrera</th>
+
             <th>Profesor</th>
-            <th>Acciones</th>
+
+            <th *ngIf="esAdmin">
+              Acciones
+            </th>
+
           </tr>
+
         </thead>
+
 
         <tbody>
 
-          <tr *ngFor="let comision of comisionesFiltradas">
+          <tr
+            *ngFor="let comision of comisionesFiltradas">
 
-            <ng-container *ngIf="comisionEditando?.id !== comision.id">
+
+            <!-- =========================
+                 MODO NORMAL
+                 ========================= -->
+
+            <ng-container
+              *ngIf="comisionEditando?.id !== comision.id">
 
               <td data-label="Comisión">
-                <strong>{{ comision.nombre }}</strong>
+
+                <strong>
+                  {{ comision.nombre }}
+                </strong>
+
               </td>
+
 
               <td data-label="Alumnos">
+
                 {{ comision.cantidad_alumnos }}
+
               </td>
+
 
               <td data-label="Asignatura">
-                {{ obtenerAsignatura(comision.asignatura_id) }}
+
+                {{
+                  obtenerAsignatura(
+                    comision.asignatura_id
+                  )
+                }}
+
               </td>
+
 
               <td data-label="Carrera">
-                {{ obtenerCarrera(comision.carrera_id) }}
+
+                {{
+                  obtenerCarrera(
+                    comision.carrera_id
+                  )
+                }}
+
               </td>
+
 
               <td data-label="Profesor">
-                {{ obtenerProfesor(comision.usuario_profesor_id) }}
+
+                {{
+                  obtenerProfesor(
+                    comision.usuario_profesor_id
+                  )
+                }}
+
               </td>
 
-              <td data-label="Acciones" class="acciones">
+
+              <!-- ACCIONES SOLO PARA ADMIN -->
+              <td
+                *ngIf="esAdmin"
+                data-label="Acciones"
+                class="acciones">
 
                 <button
                   type="button"
@@ -97,10 +176,11 @@
                   Editar
                 </button>
 
+
                 <button
                   type="button"
                   class="btn-eliminar"
-                  (click)="eliminarComision(comision)">
+                  (click)="abrirConfirmacionEliminar(comision)">
                   Eliminar
                 </button>
 
@@ -108,8 +188,19 @@
 
             </ng-container>
 
+
+
+            <!-- =========================
+                 MODO EDICIÓN
+                 SOLO ADMIN
+                 ========================= -->
+
             <ng-container
-              *ngIf="comisionEditando?.id === comision.id && comisionEditando as editando">
+              *ngIf="
+                esAdmin &&
+                comisionEditando?.id === comision.id &&
+                comisionEditando as editando
+              ">
 
               <td data-label="Comisión">
 
@@ -119,6 +210,7 @@
                   aria-label="Nombre de la comisión">
 
               </td>
+
 
               <td data-label="Alumnos">
 
@@ -130,6 +222,7 @@
 
               </td>
 
+
               <td data-label="Asignatura">
 
                 <select
@@ -139,12 +232,15 @@
                   <option
                     *ngFor="let asignatura of asignaturas"
                     [ngValue]="+asignatura.id">
+
                     {{ asignatura.nombre_asignatura }}
+
                   </option>
 
                 </select>
 
               </td>
+
 
               <td data-label="Carrera">
 
@@ -155,12 +251,15 @@
                   <option
                     *ngFor="let carrera of carreras"
                     [ngValue]="+carrera.id">
+
                     {{ carrera.nombre }}
+
                   </option>
 
                 </select>
 
               </td>
+
 
               <td data-label="Profesor">
 
@@ -171,14 +270,20 @@
                   <option
                     *ngFor="let profesor of profesores"
                     [ngValue]="+profesor.id">
-                    {{ profesor.apellido }}, {{ profesor.nombre }}
+
+                    {{ profesor.apellido }},
+                    {{ profesor.nombre }}
+
                   </option>
 
                 </select>
 
               </td>
 
-              <td data-label="Acciones" class="acciones">
+
+              <td
+                data-label="Acciones"
+                class="acciones">
 
                 <button
                   type="button"
@@ -186,6 +291,7 @@
                   (click)="guardarEdicion()">
                   Guardar
                 </button>
+
 
                 <button
                   type="button"
@@ -204,11 +310,66 @@
 
       </table>
 
+
+      <!-- SIN RESULTADOS -->
       <div
         *ngIf="comisionesFiltradas.length === 0"
         class="sin-resultados">
-        No se encontraron comisiones.
+
+        {{
+          esProfesor
+            ? 'No tenés comisiones asignadas.'
+            : 'No se encontraron comisiones.'
+        }}
+
       </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================
+     MODAL ELIMINAR
+     ========================= -->
+
+<div
+  *ngIf="mostrarConfirmacionEliminar"
+  class="modal-overlay">
+
+  <div class="modal-confirmacion">
+
+    <h2>
+      Eliminar comisión
+    </h2>
+
+    <p>
+      ¿Seguro que querés eliminar la comisión
+      <strong>
+        "{{ comisionAEliminar?.nombre }}"
+      </strong>?
+    </p>
+
+
+    <div class="modal-actions">
+
+      <button
+        type="button"
+        class="btn-cancelar"
+        (click)="cancelarEliminar()">
+        Cancelar
+      </button>
+
+
+      <button
+        type="button"
+        class="btn-eliminar"
+        (click)="confirmarEliminar()">
+        Eliminar
+      </button>
 
     </div>
 

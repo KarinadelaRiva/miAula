@@ -61,6 +61,18 @@ public class SecurityConfig {
         return source;
     }
 
+     @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/carreras/**").permitAll()
+                        .anyRequest().permitAll()
+                );
+
+        return http.build();
+    }
 
 
     // Proveedor de autenticación que conecta al servicio de usuarios y al codificador
@@ -95,15 +107,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/recursos/*").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/recursos/*").permitAll()
                         .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/carreras/**").permitAll()
+                        .anyRequest().permitAll()
+                );
+
+        return http.build();
     }
 
 }

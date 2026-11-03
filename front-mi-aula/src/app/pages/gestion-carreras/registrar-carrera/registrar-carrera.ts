@@ -13,13 +13,14 @@ import { HttpClient } from '@angular/common/http';
 })
 export class RegistrarCarrera {
 
+  codigo = '';
   nombre = '';
 
   guardando = false;
-  mostrarExito = false;
   mensajeError = '';
+  mensajeExito = '';
 
-  private apiUrl = 'http://localhost:3000/carreras';
+  private apiUrl = 'http://localhost:8080/carreras';
 
   constructor(
     private http: HttpClient,
@@ -29,26 +30,75 @@ export class RegistrarCarrera {
 
   guardarCarrera(): void {
 
-    if (!this.nombre.trim()) {
-      this.mensajeError = 'Ingresá el nombre de la carrera.';
+    this.mensajeError = '';
+    this.mensajeExito = '';
+
+    const codigoLimpio =
+      this.codigo
+        .trim()
+        .toUpperCase();
+
+    const nombreLimpio =
+      this.nombre
+        .trim();
+
+    if (!codigoLimpio) {
+
+      this.mensajeError =
+        'Ingresá el código de la carrera.';
+
+      return;
+    }
+
+    if (codigoLimpio.length > 6) {
+
+      this.mensajeError =
+        'El código de la carrera no puede superar los 6 caracteres.';
+
+      return;
+    }
+
+    if (!nombreLimpio) {
+
+      this.mensajeError =
+        'Ingresá el nombre de la carrera.';
+
+      return;
+    }
+
+    if (nombreLimpio.length > 50) {
+
+      this.mensajeError =
+        'El nombre de la carrera no puede superar los 50 caracteres.';
+
       return;
     }
 
     this.guardando = true;
-    this.mensajeError = '';
 
     const nuevaCarrera = {
-      nombre: this.nombre.trim()
+      codigo: codigoLimpio,
+      nombre: nombreLimpio
     };
 
-    this.http.post(this.apiUrl, nuevaCarrera).subscribe({
+    this.http.post(
+      this.apiUrl,
+      nuevaCarrera
+    ).subscribe({
 
       next: (respuesta) => {
 
-        console.log('Carrera registrada correctamente:', respuesta);
+        console.log(
+          'Carrera registrada correctamente:',
+          respuesta
+        );
 
         this.guardando = false;
-        this.mostrarExito = true;
+
+        this.mensajeExito =
+          '¡Carrera registrada correctamente!';
+
+        this.codigo = '';
         this.nombre = '';
 
         this.cdr.detectChanges();
@@ -62,22 +112,29 @@ export class RegistrarCarrera {
         );
 
         this.guardando = false;
-        this.mensajeError =
-          'No se pudo registrar la carrera.';
+
+        if (error.status === 409) {
+
+          this.mensajeError =
+            error.error?.mensaje
+            ?? 'Ya existe una carrera con ese código.';
+
+        } else if (error.status === 400) {
+
+          this.mensajeError =
+            'Revisá los datos ingresados.';
+
+        } else {
+
+          this.mensajeError =
+            'No se pudo registrar la carrera.';
+
+        }
 
         this.cdr.detectChanges();
       }
 
     });
-  }
-
-  cerrarExito(): void {
-
-    this.mostrarExito = false;
-
-    this.router.navigate([
-      '/gestion-carreras/administrar-carreras'
-    ]);
   }
 
   cancelar(): void {

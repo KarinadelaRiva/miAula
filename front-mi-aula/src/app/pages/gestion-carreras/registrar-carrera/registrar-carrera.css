@@ -10,6 +10,7 @@
   margin: 0 auto;
 }
 
+
 /* HEADER */
 
 .registrar-header {
@@ -30,6 +31,7 @@
   font-size: 1.5rem;
 }
 
+
 /* BOTÓN VOLVER */
 
 .btn-volver {
@@ -46,6 +48,7 @@
 .btn-volver:hover {
   background: rgba(255, 255, 255, 0.28);
 }
+
 
 /* FORMULARIO */
 
@@ -92,7 +95,26 @@
   color: #829ab1;
 }
 
-/* ACCIONES DEL FORMULARIO */
+
+/* MENSAJES */
+
+.mensaje-resultado {
+  display: block;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.mensaje-resultado.error {
+  color: #c0392b;
+}
+
+.mensaje-resultado.exito {
+  color: #287d59;
+}
+
+
+/* ACCIONES */
 
 .form-actions {
   display: flex;
@@ -132,85 +154,6 @@
   filter: brightness(0.92);
 }
 
-/* MENSAJES */
-
-.mensaje-resultado {
-  text-align: center;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.mensaje-resultado.error {
-  color: #c0392b;
-}
-
-/* MODAL DE ÉXITO */
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(15, 30, 45, 0.48);
-  z-index: 1000;
-}
-
-.modal-exito {
-  width: min(100%, 420px);
-  overflow: hidden;
-  border: 1px solid #c8d7e8;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 18px 45px rgba(15, 30, 45, 0.28);
-  text-align: center;
-}
-
-.icono-exito {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  margin: 1.5rem auto 0.8rem;
-  border-radius: 50%;
-  color: #fff;
-  background: #287d59;
-  font-size: 1.6rem;
-  font-weight: 700;
-}
-
-.modal-exito h2 {
-  margin: 0;
-  padding: 0 1.25rem;
-  color: #213547;
-  font-size: 1.3rem;
-}
-
-.modal-exito p {
-  margin: 0.5rem 0 0;
-  padding: 0 1.25rem 1.25rem;
-  color: #52677d;
-  font-size: 0.95rem;
-}
-
-.btn-aceptar {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  border: 0;
-  border-top: 1px solid #d8e3ef;
-  border-radius: 0;
-  color: #fff;
-  background: #2563a6;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.btn-aceptar:hover {
-  background: #1d4f86;
-}
 
 /* RESPONSIVE */
 
@@ -236,10 +179,6 @@
 
   .btn-registrar,
   .btn-cancelar {
-    width: 100%;
-  }
-
-  .modal-exito {
     width: 100%;
   }
 }
