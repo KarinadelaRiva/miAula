@@ -1,4 +1,4 @@
-package com.miAula.miAula.dto.carrera;
+package com.miAula.miAula.dtos.carrera;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

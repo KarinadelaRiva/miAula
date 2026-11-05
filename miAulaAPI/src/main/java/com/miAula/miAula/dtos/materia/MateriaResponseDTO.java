@@ -1,4 +1,4 @@
-package com.miAula.miAula.dto.materia;
+package com.miAula.miAula.dtos.materia;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

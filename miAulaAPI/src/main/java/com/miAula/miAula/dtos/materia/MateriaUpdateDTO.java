@@ -1,4 +1,4 @@
-package com.miAula.miAula.dto.materia;
+package com.miAula.miAula.dtos.materia;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

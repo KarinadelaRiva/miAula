@@ -1,4 +1,4 @@
-package com.miAula.miAula.dto.carrera;
+package com.miAula.miAula.dtos.carrera;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

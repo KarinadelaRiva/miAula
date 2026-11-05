@@ -34,7 +34,7 @@ public class SecurityConfig {
         "/auth/login",
         "/reservas/cronograma-por-dia",
         "/reservas/cronograma",
-        "/usuarios",
+        "/usuarios", // sin restriccion de manera provisional para tests
         "/espacios", // sin restriccion de manera provisional para tests
         "/recursos" // sin restriccion de manera provisional para tests
     };
@@ -87,13 +87,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/carreras/**").permitAll()
                         .requestMatchers(rutasSinRestriccion).permitAll()
                         .requestMatchers(HttpMethod.POST, rutasSinRestriccionPOST).permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/espacios/**").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/espacios/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/recursos/*").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/recursos/*").permitAll()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
