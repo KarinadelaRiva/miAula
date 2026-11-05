@@ -1,12 +1,12 @@
-package com.miAula.miAula.services;
+package com.miAula.miAula.service;
 
-import com.miAula.miAula.dto.carrera.CarreraCreateDTO;
-import com.miAula.miAula.dto.carrera.CarreraResponseDTO;
-import com.miAula.miAula.dto.carrera.CarreraUpdateDTO;
+import com.miAula.miAula.dtos.carrera.CarreraCreateDTO;
+import com.miAula.miAula.dtos.carrera.CarreraResponseDTO;
+import com.miAula.miAula.dtos.carrera.CarreraUpdateDTO;
 import com.miAula.miAula.entities.Carrera;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
-import com.miAula.miAula.repositories.CarreraRepository;
+import com.miAula.miAula.repository.CarreraRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -1,12 +1,12 @@
-package com.miAula.miAula.services;
+package com.miAula.miAula.service;
 
-import com.miAula.miAula.dto.materia.MateriaCreateDTO;
-import com.miAula.miAula.dto.materia.MateriaResponseDTO;
-import com.miAula.miAula.dto.materia.MateriaUpdateDTO;
+import com.miAula.miAula.dtos.materia.MateriaCreateDTO;
+import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
+import com.miAula.miAula.dtos.materia.MateriaUpdateDTO;
 import com.miAula.miAula.entities.Materia;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
-import com.miAula.miAula.repositories.MateriaRepository;
+import com.miAula.miAula.repository.MateriaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

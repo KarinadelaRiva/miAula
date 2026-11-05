@@ -1,13 +1,13 @@
-package com.miAula.miAula.services;
+package com.miAula.miAula.service;
 
-import com.miAula.miAula.dto.materia.MateriaResponseDTO;
+import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
 import com.miAula.miAula.entities.Carrera;
 import com.miAula.miAula.entities.Materia;
 import com.miAula.miAula.entities.tablas_intermedias.CarreraMateria;
 import com.miAula.miAula.entities.tablas_intermedias.CarreraMateriaId;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
-import com.miAula.miAula.repositories.CarreraMateriaRepository;
+import com.miAula.miAula.repository.CarreraMateriaRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

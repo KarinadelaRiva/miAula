@@ -1,4 +1,4 @@
-package com.miAula.miAula.repositories;
+package com.miAula.miAula.repository;
 
 import com.miAula.miAula.entities.Materia;
 import org.springframework.data.jpa.repository.JpaRepository;

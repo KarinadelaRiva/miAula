@@ -1,9 +1,9 @@
-package com.miAula.miAula.controllers;
+package com.miAula.miAula.controller;
 
-import com.miAula.miAula.dto.materia.MateriaCreateDTO;
-import com.miAula.miAula.dto.materia.MateriaResponseDTO;
-import com.miAula.miAula.dto.materia.MateriaUpdateDTO;
-import com.miAula.miAula.services.MateriaService;
+import com.miAula.miAula.dtos.materia.MateriaCreateDTO;
+import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
+import com.miAula.miAula.dtos.materia.MateriaUpdateDTO;
+import com.miAula.miAula.service.MateriaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

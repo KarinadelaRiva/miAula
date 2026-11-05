@@ -1,11 +1,11 @@
-package com.miAula.miAula.controllers;
+package com.miAula.miAula.controller;
 
-import com.miAula.miAula.dto.carrera.CarreraCreateDTO;
-import com.miAula.miAula.dto.carrera.CarreraResponseDTO;
-import com.miAula.miAula.dto.carrera.CarreraUpdateDTO;
-import com.miAula.miAula.dto.materia.MateriaResponseDTO;
-import com.miAula.miAula.services.CarreraMateriaService;
-import com.miAula.miAula.services.CarreraService;
+import com.miAula.miAula.dtos.carrera.CarreraCreateDTO;
+import com.miAula.miAula.dtos.carrera.CarreraResponseDTO;
+import com.miAula.miAula.dtos.carrera.CarreraUpdateDTO;
+import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
+import com.miAula.miAula.service.CarreraMateriaService;
+import com.miAula.miAula.service.CarreraService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
