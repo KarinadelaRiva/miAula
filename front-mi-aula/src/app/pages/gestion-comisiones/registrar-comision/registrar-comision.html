@@ -27,6 +27,22 @@
 
         <div class="campo">
 
+          <label for="codigoComision">
+            Código de la comisión (6 caracteres)
+          </label>
+
+          <input
+            id="codigoComision"
+            type="text"
+            name="codigo"
+            [(ngModel)]="comision.codigo"
+            maxlength="6"
+            required>
+
+        </div>
+
+        <div class="campo">
+
           <label for="nombreComision">
             Nombre de la comisión
           </label>
@@ -36,6 +52,7 @@
             type="text"
             name="nombre"
             [(ngModel)]="comision.nombre"
+            maxlength="50"
             placeholder="Ej: Prog1-C1-TM"
             required>
 
@@ -54,6 +71,7 @@
             name="cantidad_alumnos"
             [(ngModel)]="comision.cantidad_alumnos"
             min="1"
+            max="100"
             required>
 
         </div>
@@ -82,11 +100,17 @@
             *ngFor="let asignatura of asignaturas"
             [ngValue]="+asignatura.id">
 
-            {{ asignatura.nombre_asignatura }}
+            {{ asignatura.nombre }}
 
           </option>
 
         </select>
+
+        <div
+          *ngIf="errorCargaMaterias"
+          class="mensaje-resultado error">
+          {{ errorCargaMaterias }}
+        </div>
 
       </div>
 
@@ -117,6 +141,12 @@
           </option>
 
         </select>
+
+        <div
+          *ngIf="errorCargaCarreras"
+          class="mensaje-resultado error">
+          {{ errorCargaCarreras }}
+        </div>
 
       </div>
 

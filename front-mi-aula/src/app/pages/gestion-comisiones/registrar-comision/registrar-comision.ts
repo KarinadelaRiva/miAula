@@ -6,19 +6,18 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 
-interface Asignatura {
-  id: string;
-  codigo: number;
-  nombre_asignatura: string;
-  requiere_laboratorio: number;
+interface Materia {
+  id: number;
+  codigo: string;
+  nombre: string;
 }
 
 interface Carrera {
-  id: string;
+  id: number;
   nombre: string;
 }
 
@@ -45,6 +44,7 @@ interface Usuario {
 export class RegistrarComision implements OnInit {
 
   comision = {
+    codigo: '',
     nombre: '',
     cantidad_alumnos: null as number | null,
     asignatura_id: null as number | null,
@@ -52,7 +52,7 @@ export class RegistrarComision implements OnInit {
     usuario_profesor_id: null as number | null
   };
 
-  asignaturas: Asignatura[] = [];
+  asignaturas: Materia[] = [];
   carreras: Carrera[] = [];
   profesores: Usuario[] = [];
 
@@ -60,6 +60,8 @@ export class RegistrarComision implements OnInit {
 
   mensajeError = '';
   mensajeExito = '';
+  errorCargaMaterias = '';
+  errorCargaCarreras = '';
 
   constructor(
     private http: HttpClient,
@@ -74,35 +76,41 @@ export class RegistrarComision implements OnInit {
   cargarDatos(): void {
 
     this.http
-      .get<Asignatura[]>(
-        'http://localhost:3000/asignaturas'
+      .get<Materia[]>(
+        'http://localhost:8080/materias'
       )
       .subscribe({
         next: (data) => {
           this.asignaturas = data;
+          this.errorCargaMaterias = '';
         },
         error: (error) => {
           console.error(
-            'Error cargando asignaturas:',
+            'Error cargando materias:',
             error
           );
+          this.errorCargaMaterias =
+            'No se pudieron cargar las materias.';
         }
       });
 
 
     this.http
       .get<Carrera[]>(
-        'http://localhost:3000/carreras'
+        'http://localhost:8080/carreras'
       )
       .subscribe({
         next: (data) => {
           this.carreras = data;
+          this.errorCargaCarreras = '';
         },
         error: (error) => {
           console.error(
             'Error cargando carreras:',
             error
           );
+          this.errorCargaCarreras =
+            'No se pudieron cargar las carreras.';
         }
       });
 
@@ -133,6 +141,15 @@ export class RegistrarComision implements OnInit {
     this.mensajeError = '';
     this.mensajeExito = '';
 
+    const codigo = this.comision.codigo.trim().toUpperCase();
+
+    if (codigo.length !== 6) {
+      this.mensajeError =
+        'El código de la comisión debe tener 6 caracteres.';
+
+      return;
+    }
+
     if (!this.comision.nombre.trim()) {
 
       this.mensajeError =
@@ -144,11 +161,12 @@ export class RegistrarComision implements OnInit {
 
     if (
       this.comision.cantidad_alumnos === null ||
-      this.comision.cantidad_alumnos <= 0
+      this.comision.cantidad_alumnos <= 0 ||
+      this.comision.cantidad_alumnos > 100
     ) {
 
       this.mensajeError =
-        'Ingresá una cantidad de alumnos válida.';
+        'Ingresá una cantidad de alumnos entre 1 y 100.';
 
       return;
     }
@@ -187,29 +205,21 @@ export class RegistrarComision implements OnInit {
 
 
     const nuevaComision = {
-
+      codigo,
       nombre:
         this.comision.nombre.trim(),
-
-      cantidad_alumnos:
+      cantidadEstudiantes:
         Number(this.comision.cantidad_alumnos),
-
-      asignatura_id:
+      materiaId:
         Number(this.comision.asignatura_id),
-
-      carrera_id:
+      carreraId:
         Number(this.comision.carrera_id),
-
-      usuario_profesor_id:
-        Number(
-          this.comision.usuario_profesor_id
-        )
-
+      profesorId:
+        Number(this.comision.usuario_profesor_id)
     };
 
-
     this.http.post(
-      'http://localhost:3000/comisiones',
+      'http://localhost:8080/comisiones',
       nuevaComision
     ).subscribe({
 
@@ -227,6 +237,7 @@ export class RegistrarComision implements OnInit {
 
 
         this.comision = {
+          codigo: '',
           nombre: '',
           cantidad_alumnos: null,
           asignatura_id: null,
@@ -248,13 +259,34 @@ export class RegistrarComision implements OnInit {
 
         this.guardando = false;
 
-        this.mensajeError =
-          'No se pudo registrar la comisión.';
+        this.mensajeError = this.obtenerMensajeError(error);
 
         this.cdr.detectChanges();
       }
 
     });
+  }
+
+  private obtenerMensajeError(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const body: unknown = error.error;
+
+      if (typeof body === 'string' && body.trim()) {
+        return body;
+      }
+
+      if (body && typeof body === 'object') {
+        const mensajes = Object.values(body).filter(
+          (valor): valor is string => typeof valor === 'string'
+        );
+
+        if (mensajes.length > 0) {
+          return mensajes[0];
+        }
+      }
+    }
+
+    return 'No se pudo registrar la comisión.';
   }
 
 

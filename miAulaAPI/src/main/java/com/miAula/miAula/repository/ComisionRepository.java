@@ -9,8 +9,13 @@ import java.util.Optional;
 public interface ComisionRepository extends JpaRepository<Comision, Long> {
     Optional<Comision> findByCantidadEstudiantes(Integer cantidad);
     List<Comision> findByCantidadEstudiantesBetween(Integer minimo, Integer maximo);
-    List<Comision> findByMateriaId(Long asignaturaId);
+    Optional<Comision> findByCodigoContainingIgnoreCase(String codigo);
+    List<Comision> findByMateriaId(Long materiaId);
     List<Comision> findByProfesorId(Long profesorId);
-    boolean existsByNombreAndMateriaId(String nombre, Long asignaturaId);
+    List<Comision> findByProfesorIdAndActivoTrue(Long profesorId);
+    boolean existsByCodigoIgnoreCase(String codigo);
+    boolean existsByCodigoIgnoreCaseAndIdNot(String codigo, Long id);
+    boolean existsByNombreIgnoreCaseAndMateriaId(String nombre, Long materiaId);
+    boolean existsByNombreIgnoreCaseAndMateriaIdAndIdNot(String nombre, Long materiaId, Long id);
 
 }

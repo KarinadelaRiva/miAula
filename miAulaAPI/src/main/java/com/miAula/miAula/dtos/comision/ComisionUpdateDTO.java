@@ -3,6 +3,7 @@ package com.miAula.miAula.dtos.comision;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -18,12 +19,13 @@ public class ComisionUpdateDTO {
     private Long id;
 
     @Schema(description = "Código de la comisión", example = "COM001")
-    @NotNull(message = "El código de la comisión no puede ser nulo")
+    @NotBlank(message = "El código de la comisión no puede estar vacío")
     @Size(min = 6, max = 6, message = "El código de la comisión debe tener 6 caracteres")
     private String codigo;
 
     @Schema(description = "Nombre de la comisión", example = "Comisión A")
-    @NotNull(message = "El nombre de la comisión no puede ser nulo")
+    @NotBlank(message = "El nombre de la comisión no puede estar vacío")
+    @Size(max = 50, message = "El nombre de la comisión no puede tener más de 50 caracteres")
     private String nombre;
 
     @Schema(description = "ID de la carrera asociada", example = "5", required = true)

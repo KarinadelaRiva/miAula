@@ -36,7 +36,8 @@ public class SecurityConfig {
         "/reservas/cronograma",
         "/usuarios", // sin restriccion de manera provisional para tests
         "/espacios", // sin restriccion de manera provisional para tests
-        "/recursos" // sin restriccion de manera provisional para tests
+        "/recursos", // sin restriccion de manera provisional para tests
+        "/comisiones" // sin restriccion de manera provisional para tests
     };
     
     private final String[] rutasSinRestriccionPOST = {
