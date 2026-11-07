@@ -8,6 +8,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -60,6 +61,8 @@ public class SolicitudResponseDTO {
 
     @Schema(description = "Nombre de la materia asociada", example = "Matemática I")
     private String nombreMateria;
+
+    private List<RecursoSolicitudResponseDTO> recursos;
 
 //    @Schema(description = "Nombre del docente responsable", example = "Juan Pérez")
 //    private String nombreDocente;

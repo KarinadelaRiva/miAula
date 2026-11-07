@@ -1,6 +1,7 @@
 package com.miAula.miAula.controller;
 
 import com.miAula.miAula.dtos.recurso.*;
+import com.miAula.miAula.entities.enums.DiaSemana;
 import com.miAula.miAula.entities.Recurso;
 import com.miAula.miAula.service.RecursoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Controller
@@ -33,6 +35,19 @@ public class RecursoController {
             description = "Permite obtener un listado con todos los recursos.")
     public ResponseEntity<List<RecursoResponseDTO>> obtenerRecursos() {
         return new ResponseEntity<>(recursoService.getAllRecursosDTO(), HttpStatus.OK);
+    }
+
+    @GetMapping("/disponibles")
+    @Operation(summary = "Consultar recursos disponibles para un horario.")
+    public ResponseEntity<List<RecursoDisponibilidadDTO>> obtenerRecursosDisponibles(
+            @RequestParam LocalDate fechaInicio,
+            @RequestParam LocalDate fechaFin,
+            @RequestParam DiaSemana diaSemana,
+            @RequestParam LocalTime horaInicio,
+            @RequestParam LocalTime horaFin,
+            @RequestParam(required = false) Long reservaOriginalId) {
+        return ResponseEntity.ok(recursoService.obtenerDisponibles(
+                fechaInicio, fechaFin, diaSemana, horaInicio, horaFin, reservaOriginalId));
     }
 
     @GetMapping("/id/{id}")

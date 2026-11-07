@@ -2,6 +2,7 @@ package com.miAula.miAula.dtos.solicitud;
 
 import com.miAula.miAula.entities.enums.DiaSemana;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +10,8 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -53,4 +56,8 @@ public class SolicitudCreateDTO {
 
     @Schema(description = "Día de la semana solicitado", example = "LUNES")
     private DiaSemana diaSemana;
+
+    @Schema(description = "Recursos y cantidades solicitadas")
+    @Builder.Default
+    private List<@Valid RecursoSolicitadoDTO> recursos = new ArrayList<>();
 }

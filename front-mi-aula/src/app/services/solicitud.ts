@@ -29,6 +29,18 @@ export interface SolicitudData {
   solicitante_nombre?: string;
   comision_nombre?: string;
   espacio_nombre?: string;
+  recursos_solicitados?: RecursoSolicitudData[];
+}
+
+export interface RecursoSolicitudData {
+  recurso_id: number;
+  nombre: string;
+  cantidad: number;
+}
+
+export interface RecursoSolicitadoCreate {
+  recursoId: number;
+  cantidad: number;
 }
 
 export interface SolicitudCreateRequest {
@@ -40,6 +52,7 @@ export interface SolicitudCreateRequest {
   comentarioSolicitante: string | null;
   comisionId: number;
   diaSemana: DiaSemanaSolicitud;
+  recursos: RecursoSolicitadoCreate[];
 }
 
 interface SolicitudResponseDTO {
@@ -47,6 +60,11 @@ interface SolicitudResponseDTO {
   nombreSolicitante: string | null;
   nombreNuevoEspacio: string | null;
   nombreComision: string | null;
+  recursos: Array<{
+    recursoId: number;
+    nombre: string;
+    cantidad: number;
+  }>;
   estado: 'PENDIENTE' | 'ACEPTADA' | 'RECHAZADA' | 'CANCELADA';
   fechaInicio: string;
   fechaFin: string;
@@ -103,13 +121,13 @@ export class Solicitud {
 
   aprobarSolicitud(id: number, comentario: string): Observable<SolicitudData> {
     return this.http
-      .put<SolicitudResponseDTO>(`${this.apiUrl}/${id}/aprobar`, comentario)
+      .put<SolicitudResponseDTO>(`${this.apiUrl}/${id}/aprobar`, { comentario })
       .pipe(map((solicitud) => this.toSolicitudData(solicitud)));
   }
 
   rechazarSolicitud(id: number, comentario: string): Observable<SolicitudData> {
     return this.http
-      .put<SolicitudResponseDTO>(`${this.apiUrl}/${id}/rechazar`, comentario)
+      .put<SolicitudResponseDTO>(`${this.apiUrl}/${id}/rechazar`, { comentario })
       .pipe(map((solicitud) => this.toSolicitudData(solicitud)));
   }
 
@@ -140,6 +158,11 @@ export class Solicitud {
       solicitante_nombre: solicitud.nombreSolicitante ?? '',
       comision_nombre: solicitud.nombreComision ?? '',
       espacio_nombre: solicitud.nombreNuevoEspacio ?? '',
+      recursos_solicitados: (solicitud.recursos ?? []).map((recurso) => ({
+        recurso_id: recurso.recursoId,
+        nombre: recurso.nombre,
+        cantidad: recurso.cantidad,
+      })),
     };
   }
 

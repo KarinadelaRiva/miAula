@@ -28,29 +28,35 @@
 				</button>
 			</nav>
 
-			<section class="grid-container">
-	@for (s of solicitudesActivas(); track s.id) {
-		<article class="card">
-			<div class="card-content">
-				<h2>Solicitud #{{ s.id }}</h2>
-				<div class="meta">
-					<span class="day">{{ s.dia_semana }}</span>
-					  <span class="horas"><strong>Horario:</strong> {{ formatHora(s.hora_inicio) }} - {{ formatHora(s.hora_fin) }}</span>
-					<span class="fechas"><strong>Fecha inicio - fin:</strong> {{ formatFecha(s.fecha_inicio) }} - {{ formatFecha(s.fecha_fin) }}</span>
+			<section class="tabla-container" aria-label="Mis solicitudes">
+				<div class="tabla-header" aria-hidden="true">
+					<span>Solicitud</span>
+					<span>Día</span>
+					<span>Fechas</span>
+					<span>Horario</span>
+					<span>Estado</span>
+					<span>Acciones</span>
 				</div>
-			</div>
-			<div class="right">
-				<div class="status-bubble status-{{ s.estado }}">{{ s.estado }}</div>
-				<div class="card-footer">
-					<a class="btn" (click)="openDetails(s)">Ver Detalles</a>
-				</div>
-			</div>
-		</article>
-	}
+				@for (s of solicitudesActivas(); track s.id) {
+					<article
+						class="solicitud-row"
+						role="button"
+						tabindex="0"
+						(click)="openDetails(s)"
+						(keydown.enter)="openDetails(s)"
+						(keydown.space)="$event.preventDefault(); openDetails(s)">
+						<span class="solicitud-id" data-label="Solicitud">Solicitud #{{ s.id }}</span>
+						<span data-label="Día">{{ s.dia_semana }}</span>
+						<span data-label="Fechas">{{ formatFecha(s.fecha_inicio) }} - {{ formatFecha(s.fecha_fin) }}</span>
+						<span data-label="Horario">{{ formatHora(s.hora_inicio) }} - {{ formatHora(s.hora_fin) }}</span>
+						<span class="status status-{{ s.estado }}" data-label="Estado">{{ s.estado }}</span>
+						<span class="accion-detalle" aria-hidden="true">Ver detalles</span>
+					</article>
+				}
 
-	@if (solicitudesActivas().length === 0) {
-		<div class="empty">No hay solicitudes para mostrar.</div>
-	}
+				@if (solicitudesActivas().length === 0) {
+					<div class="empty">No hay solicitudes para mostrar.</div>
+				}
 			</section>
 		</section>
 	</div>
@@ -71,6 +77,14 @@
 				<p><strong>Fechas:</strong> {{ formatFecha(selectedSolicitud()?.fecha_inicio) }} - {{ formatFecha(selectedSolicitud()?.fecha_fin) }}</p>
 				<p><strong>Comentario profesor:</strong> {{ selectedSolicitud()?.comentario_profesor || '-' }}</p>
 				<p><strong>Comentario estado:</strong> {{ selectedSolicitud()?.comentario_estado || '-' }}</p>
+				@if (selectedSolicitud()?.recursos_solicitados?.length) {
+					<p><strong>Recursos solicitados:</strong></p>
+					<ul>
+						@for (recurso of selectedSolicitud()?.recursos_solicitados; track recurso.recurso_id) {
+							<li>{{ recurso.nombre }} — cantidad: {{ recurso.cantidad }}</li>
+						}
+					</ul>
+				}
 			</div>
 
 			<footer class="modal-footer">
@@ -82,4 +96,3 @@
 		</div>
 	</div>
 }
-

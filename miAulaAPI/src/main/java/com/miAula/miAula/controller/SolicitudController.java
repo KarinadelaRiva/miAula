@@ -124,9 +124,9 @@ public class SolicitudController {
     public ResponseEntity<SolicitudResponseDTO> aprobarSolicitud(
             @Parameter(description = "ID de la solicitud a aprobar", example = "1")
             @PathVariable Long id,
-            @RequestBody(required = false) String comentario) {
+            @RequestBody(required = false) Map<String, String> cuerpo) {
         return ResponseEntity.ok(solicitudService.solicitudToSolicitudResponseDTO(
-                solicitudService.aprobar(id, comentario)));
+                solicitudService.aprobar(id, cuerpo == null ? null : cuerpo.get("comentario"))));
     }
 
     @Operation(
@@ -138,9 +138,9 @@ public class SolicitudController {
             @Parameter(description = "ID de la solicitud a rechazar", example = "1")
             @PathVariable Long id,
             @Parameter(description = "Comentario del rechazo", example = "No se cumplen los requisitos")
-            @RequestBody(required = false) String comentario) {
+            @RequestBody(required = false) Map<String, String> cuerpo) {
         return ResponseEntity.ok(solicitudService.solicitudToSolicitudResponseDTO(
-                solicitudService.rechazar(id, comentario)));
+                solicitudService.rechazar(id, cuerpo == null ? null : cuerpo.get("comentario"))));
     }
 
     @PatchMapping("/{id}/comentario")

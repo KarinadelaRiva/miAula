@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { Recurso } from '../../models/recurso';
@@ -11,6 +11,19 @@ interface RecursoApiResponse {
   descripcion: string | null;
   cantidad: number;
   activo: boolean;
+}
+
+export interface RecursoDisponible extends Recurso {
+  available: number;
+}
+
+interface RecursoDisponibilidadApiResponse {
+  id: number;
+  codigo: string;
+  nombre: string;
+  descripcion: string | null;
+  cantidad: number;
+  disponible: number;
 }
 
 @Injectable({
@@ -35,6 +48,35 @@ export class RecursoService {
     return this.http
       .get<RecursoApiResponse[]>(this.baseDatosUrl)
       .pipe(map((recursos) => recursos.map((recurso) => this.mapearRecurso(recurso))));
+  }
+
+  getDisponibles(
+    fechaInicio: string,
+    fechaFin: string,
+    diaSemana: string,
+    horaInicio: string,
+    horaFin: string
+  ): Observable<RecursoDisponible[]> {
+    const params = new HttpParams()
+      .set('fechaInicio', fechaInicio)
+      .set('fechaFin', fechaFin)
+      .set('diaSemana', diaSemana)
+      .set('horaInicio', horaInicio)
+      .set('horaFin', horaFin);
+
+    return this.http
+      .get<RecursoDisponibilidadApiResponse[]>(`${this.baseDatosUrl}/disponibles`, { params })
+      .pipe(
+        map((recursos) =>
+          recursos.map((recurso) => ({
+            ...this.mapearRecurso({
+              ...recurso,
+              activo: true,
+            }),
+            available: recurso.disponible,
+          }))
+        )
+      );
   }
 
   getRecursoById(id: number): Observable<Recurso> {

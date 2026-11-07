@@ -1,11 +1,13 @@
 package com.miAula.miAula.service;
 
 import com.miAula.miAula.dtos.solicitud.SolicitudCreateDTO;
+import com.miAula.miAula.dtos.solicitud.RecursoSolicitudResponseDTO;
 import com.miAula.miAula.dtos.solicitud.SolicitudResponseDTO;
 import com.miAula.miAula.entities.Comision;
 import com.miAula.miAula.entities.Espacio;
 import com.miAula.miAula.entities.Reserva;
 import com.miAula.miAula.entities.Solicitud;
+import com.miAula.miAula.entities.tablas_intermedias.RecursoSolicitud;
 import com.miAula.miAula.entities.Usuario;
 import com.miAula.miAula.entities.enums.DiaSemana;
 import com.miAula.miAula.entities.enums.EstadoSolicitud;
@@ -32,18 +34,21 @@ public class SolicitudService {
     private final UsuarioService usuarioService;
     private final EspacioService espacioService;
     private final ComisionService comisionService;
+    private final RecursoService recursoService;
 
     public SolicitudService(
             SolicitudRepository solicitudRepository,
             ReservaService reservaService,
             UsuarioService usuarioService,
             EspacioService espacioService,
-            ComisionService comisionService) {
+            ComisionService comisionService,
+            RecursoService recursoService) {
         this.solicitudRepository = solicitudRepository;
         this.reservaService = reservaService;
         this.usuarioService = usuarioService;
         this.espacioService = espacioService;
         this.comisionService = comisionService;
+        this.recursoService = recursoService;
     }
 
     public Solicitud solicitudDTOtoSolicitud(SolicitudCreateDTO dto) {
@@ -103,6 +108,17 @@ public class SolicitudService {
                 .nombreMateria(comision == null || comision.getMateria() == null
                         ? null
                         : comision.getMateria().getNombre())
+                .recursos(solicitud.getRecursos().stream()
+                        .map(this::recursoSolicitudToResponseDTO)
+                        .toList())
+                .build();
+    }
+
+    private RecursoSolicitudResponseDTO recursoSolicitudToResponseDTO(RecursoSolicitud recursoSolicitud) {
+        return RecursoSolicitudResponseDTO.builder()
+                .recursoId(recursoSolicitud.getRecurso().getId())
+                .nombre(recursoSolicitud.getRecurso().getNombre())
+                .cantidad(recursoSolicitud.getCantidadSolicitada())
                 .build();
     }
 
@@ -131,6 +147,7 @@ public class SolicitudService {
         dto.setSolicitanteId(idSolicitante);
         Solicitud solicitud = solicitudDTOtoSolicitud(dto);
         validarSolicitanteDeComision(solicitud.getSolicitante(), solicitud.getComision());
+        recursoService.agregarRecursosASolicitud(solicitud, dto.getRecursos());
         return solicitudRepository.save(solicitud);
     }
 
@@ -147,6 +164,7 @@ public class SolicitudService {
             throw new EntityValidationException("No tiene permiso para modificar esta reserva.");
         }
         validarSolicitanteDeComision(solicitud.getSolicitante(), solicitud.getComision());
+        recursoService.agregarRecursosASolicitud(solicitud, dto.getRecursos());
         return solicitudRepository.save(solicitud);
     }
 
@@ -166,6 +184,7 @@ public class SolicitudService {
             throw new EntityValidationException("Solo se pueden aprobar solicitudes pendientes.");
         }
 
+        recursoService.validarDisponibilidadDeSolicitud(solicitud);
         if (solicitud.getReservaOriginal() == null) {
             reservaService.generarDesdeSolicitud(solicitud);
         } else {

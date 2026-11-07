@@ -15,6 +15,12 @@ import { UsuarioService } from '../../../services/usuario-service/usuario-servic
 import { EspacioService } from '../../../services/espacio-service/espacio-service';
 import { Comision, ComisionService } from '../../../services/comision-service/comision-service';
 import { Espacio } from '../../../models/espacio';
+import { RecursoDisponible, RecursoService } from '../../../services/recurso-service/recurso-service';
+
+interface RecursoSeleccionable extends RecursoDisponible {
+  seleccionado: boolean;
+  cantidadSolicitada: number;
+}
 
 @Component({
   selector: 'app-nueva',
@@ -30,10 +36,16 @@ export class Nueva implements OnInit {
   private usuarioService = inject(UsuarioService);
   private espacioService = inject(EspacioService);
   private comisionService = inject(ComisionService);
+  private recursoService = inject(RecursoService);
 
   form!: FormGroup;
   espacios: Espacio[] = [];
   comisiones: Comision[] = [];
+  recursosDisponibles: RecursoSeleccionable[] = [];
+  disponibilidadConsultada = false;
+  cargandoRecursos = false;
+  errorRecursos: string | null = null;
+  private consultaDisponibilidadId = 0;
   fechaMinima = '';
   fechaFinMinima = '';
   loading = false;
@@ -93,6 +105,56 @@ export class Nueva implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
+  cargarRecursosDisponibles(): void {
+    const { fecha_inicio, fecha_fin, dia_semana, hora_inicio, hora_fin } = this.form.getRawValue();
+    if (!fecha_inicio || !fecha_fin || !dia_semana || !hora_inicio || !hora_fin
+      || fecha_inicio > fecha_fin || hora_inicio >= hora_fin) {
+      this.consultaDisponibilidadId++;
+      this.recursosDisponibles = [];
+      this.disponibilidadConsultada = false;
+      this.cargandoRecursos = false;
+      this.errorRecursos = null;
+      return;
+    }
+
+    const consultaId = ++this.consultaDisponibilidadId;
+    this.cargandoRecursos = true;
+    this.disponibilidadConsultada = true;
+    this.errorRecursos = null;
+    this.recursoService.getDisponibles(fecha_inicio, fecha_fin, dia_semana, hora_inicio, hora_fin).subscribe({
+      next: (recursos) => {
+        if (consultaId !== this.consultaDisponibilidadId) return;
+        this.recursosDisponibles = recursos
+          .filter((recurso) => recurso.available > 0)
+          .map((recurso) => {
+            const anterior = this.recursosDisponibles.find((seleccionado) => seleccionado.id === recurso.id);
+            return {
+              ...recurso,
+              seleccionado: anterior?.seleccionado ?? false,
+              cantidadSolicitada: anterior
+                ? Math.min(anterior.cantidadSolicitada, recurso.available)
+                : 1,
+            };
+          });
+        this.cargandoRecursos = false;
+      },
+      error: (err) => {
+        if (consultaId !== this.consultaDisponibilidadId) return;
+        this.recursosDisponibles = [];
+        this.errorRecursos = this.mensajeError(err);
+        this.cargandoRecursos = false;
+      },
+    });
+  }
+
+  seleccionarRecurso(recurso: RecursoSeleccionable, seleccionado: boolean): void {
+    recurso.seleccionado = seleccionado;
+  }
+
+  actualizarCantidadRecurso(recurso: RecursoSeleccionable, cantidad: number): void {
+    recurso.cantidadSolicitada = cantidad;
+  }
+
   private cargarEspacios() {
     this.espacioService.getAll().subscribe({
       next: (espacios) => {
@@ -128,6 +190,16 @@ export class Nueva implements OnInit {
     }
 
     const form = this.form.value;
+    const seleccionInvalida = this.recursosDisponibles.some(
+      (recurso) => recurso.seleccionado
+        && (!Number.isInteger(recurso.cantidadSolicitada)
+          || recurso.cantidadSolicitada < 1
+          || recurso.cantidadSolicitada > recurso.available)
+    );
+    if (seleccionInvalida) {
+      this.error = 'La cantidad solicitada de cada recurso debe estar dentro de su disponibilidad.';
+      return;
+    }
 
     const solicitud = {
       nuevoEspacioId: Number(form.nuevo_espacio_id),
@@ -138,6 +210,12 @@ export class Nueva implements OnInit {
       comentarioSolicitante: form.comentario_profesor?.trim() || null,
       comisionId: Number(form.comision_id),
       diaSemana: form.dia_semana,
+      recursos: this.recursosDisponibles
+        .filter((recurso) => recurso.seleccionado)
+        .map((recurso) => ({
+          recursoId: recurso.id,
+          cantidad: Number(recurso.cantidadSolicitada),
+        })),
     };
     this.loading = true;
     this.solicitudService.createNuevaSolicitud(solicitud).subscribe({
