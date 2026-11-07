@@ -1,10 +1,8 @@
 import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import type { Solicitud as SolicitudModel } from '../../../services/solicitud';
+import type { SolicitudData as SolicitudModel } from '../../../services/solicitud';
 import { Solicitud as SolicitudService } from '../../../services/solicitud';
-import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 import { RouterLink } from "@angular/router";
-import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-mis-solicitudes',
@@ -14,8 +12,6 @@ import { switchMap } from 'rxjs';
 })
 export class MisSolicitudes implements OnInit {
   private solicitudService = inject(SolicitudService);
-  private usuarioService = inject(UsuarioService);
-  private usuarioLogueadoId = signal<number | null>(null);
 
   // Signal que contendrá el array de solicitudes para renderizar en el template
   solicitudes: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
@@ -48,37 +44,12 @@ export class MisSolicitudes implements OnInit {
     this.pestanaActiva.set(pestana);
   }
 
-  // Carga las solicitudes desde el servidor y filtra las del usuario logueado
+  // El backend devuelve únicamente el historial del usuario autenticado.
   loadSolicitudes(): void {
-    this.usuarioService.me().pipe(
-      switchMap((usuario) => {
-        this.usuarioLogueadoId.set(usuario.id);
-        return this.solicitudService.getSolicitudes();
-      })
-    ).subscribe({
+    this.solicitudService.getSolicitudesDelUsuario().subscribe({
       next: (data) => {
-        const userId = this.usuarioLogueadoId();
-        const filtered = data.filter((s) => String(s.usuario_id) === String(userId));
-
-          // Ordenar por fecha_hora_solicitud descendente (más reciente primero)
-        const parseValue = (item: any): number => {
-          //Intentar parsear fecha_hora_solicitud
-          if (item?.fecha_hora_solicitud) {
-            const d = Date.parse(item.fecha_hora_solicitud);
-            if (!isNaN(d)) return d;
-          }
-          
-          return 0;
-        };
-
-        filtered.sort((a, b) => {
-          const va = parseValue(a);
-          const vb = parseValue(b);
-          return vb - va; // descendente: más reciente primero
-        });
-
-        this.solicitudes.set(filtered);
-        this.categorizeSolicitudes(filtered);
+        this.solicitudes.set(data);
+        this.categorizeSolicitudes(data);
       },
       error: (err) => {
         console.error('Error cargando solicitudes', err);
@@ -128,21 +99,17 @@ export class MisSolicitudes implements OnInit {
   const confirmado = window.confirm('¿Estás seguro que deseas cancelar esta solicitud?');
   if (!confirmado) return;
 
-    const usuarioId = this.usuarioLogueadoId();
-    const currentUserIdStr = usuarioId === null ? '' : String(usuarioId);
-
     // Prevención por si ya no está en estado PENDIENTE
     if (solicitud.estado !== 'PENDIENTE') return;
 
-    // Validar que exista id de solicitud y id de usuario como string antes de continuar
-    if (solicitud.id == null || currentUserIdStr === '') {
-      console.warn('Faltan datos para cancelar la solicitud');
+    if (solicitud.id == null) {
+      console.warn('Falta el identificador de la solicitud');
       return;
     }
 
     this.isCancelling.set(true);
 
-    this.solicitudService.cancelarSolicitudIfAllowed(String(solicitud.id), solicitud, currentUserIdStr).subscribe({
+    this.solicitudService.cancelarSolicitudDelUsuario(solicitud.id).subscribe({
       next: (updated) => {
         // actualizar la lista local (refrescar desde servidor para asegurarnos de consistencia)
         this.loadSolicitudes();

@@ -24,6 +24,10 @@
             </button>
         </nav>
 
+        @if (errorMensaje()) {
+            <div class="error-message" role="alert">{{ errorMensaje() }}</div>
+        }
+
         <section class="solicitudes-panel">
             <div class="section-header">
                 <h2 class="list-title">
@@ -38,6 +42,9 @@
             </div>
 
             <div class="grid-list">
+                @if (cargando()) {
+                    <div class="empty">Cargando solicitudes...</div>
+                }
                 @for(s of solicitudesPaginadas(); track s.id) {
                 <article class="card" role="button" tabindex="0" (click)="openDetails(s)" (keydown.enter)="openDetails(s)" (keydown.space)="$event.preventDefault(); openDetails(s)">
                     <div class="card-content">
@@ -51,7 +58,7 @@
                     <span class="status status-{{ s.estado }}">{{ s.estado }}</span>
                 </article>
                 }
-                @if (solicitudesActivas().length === 0) {
+                @if (!cargando() && !errorMensaje() && solicitudesActivas().length === 0) {
                     <div class="empty">No hay solicitudes en esta sección.</div>
                 }
             </div>
@@ -80,15 +87,15 @@
                 <p><strong>Fecha fin:</strong> {{ formatFecha(selectedSolicitud()?.fecha_fin) }}</p>
                 <p><strong>Fecha/Hora solicitud:</strong> {{ formatFecha(selectedSolicitud()?.fecha_hora_solicitud) }}
                     {{ formatHora(selectedSolicitud()?.fecha_hora_solicitud) }}</p>
-                <p><strong>Solicitante:</strong> {{ selectedUsuario()?.nombre ? (selectedUsuario()?.nombre + ' ' + selectedUsuario()?.apellido) : (selectedSolicitud()?.usuario_id ?? '-') }}</p>
-                <p><strong>Comisión:</strong> {{ selectedComision()?.nombre ? selectedComision()?.nombre : (selectedSolicitud()?.comision_id ?? '-') }}</p>
-                <p><strong>Espacio:</strong> {{ selectedEspacio()?.nombre ? selectedEspacio()?.nombre : (selectedSolicitud()?.nuevo_espacio_id ?? '-') }}</p>
+                <p><strong>Solicitante:</strong> {{ selectedSolicitud()?.solicitante_nombre || '-' }}</p>
+                <p><strong>Comisión:</strong> {{ selectedSolicitud()?.comision_nombre || '-' }}</p>
+                <p><strong>Espacio:</strong> {{ selectedSolicitud()?.espacio_nombre || '-' }}</p>
                 <p><strong>Comentario profesor:</strong> {{ selectedSolicitud()?.comentario_profesor || '-' }}</p>
 
                 <div class="comentario-edit">
                     <label for="comentario_estado"><strong>Comentario estado:</strong></label>
                     <hr />
-                    <textarea id="comentario_estado" rows="3" class="form-control" [value]="comentarioEditing()" (input)="setComentarioEditing($any($event.target).value)"></textarea>
+                    <textarea id="comentario_estado" rows="3" maxlength="1000" class="form-control" [value]="comentarioEditing()" (input)="setComentarioEditing($any($event.target).value)"></textarea>
                     <div class="actions">
                         <button class="btn" (click)="saveComentarioEstado()" [disabled]="isSavingComment()">Guardar comentario</button>
                     </div>

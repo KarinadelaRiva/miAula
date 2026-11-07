@@ -10,6 +10,7 @@ export interface Comision {
   carreraNombre: string;
   profesorNombre: string;
   cantidadEstudiantes: number;
+  activo: boolean;
 }
 
 export interface ComisionAdministracion {

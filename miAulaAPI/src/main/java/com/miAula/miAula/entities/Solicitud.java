@@ -8,6 +8,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +27,13 @@ public class Solicitud {
     private Long id;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private DiaSemana fechaHoraSolicitud;
+    private LocalDateTime fechaHoraSolicitud;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LocalDate diaDeLaSemana;
+    private DiaSemana diaDeLaSemana;
 
     @NotNull
     @Column(nullable = false)
@@ -66,6 +67,9 @@ public class Solicitud {
     @JoinColumn(name = "evento_id")
     private Evento evento;
 
+    /** * Relación con la reserva original, por ejemplo, si es una solicitud de cambio de espacio.
+     * Si es una solicitud de reserva nueva, este campo puede ser nulo.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reserva_original_id")
     private Reserva reservaOriginal;
@@ -80,7 +84,7 @@ public class Solicitud {
     private String comentarioAdmin;
 
     @Column(length = 1000)
-    private String comentario;
+    private String comentarioSolicitante;
 
     @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
