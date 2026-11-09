@@ -34,12 +34,6 @@ export class UsuarioService {
     return this.http.get<Usuario>(`${this.api}/${id}`);
   }
 
-  /*
-  getUsuarioByEmail(email: string): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(this.api, );
-  }
-    */
-
   existePorEmail(email: string): Observable<boolean> {
     return this.http.get<boolean>(`${this.api}/buscar-email`, {
       params: { email },
@@ -47,19 +41,34 @@ export class UsuarioService {
   }
 
   actualizarUsuario(usuario: Usuario): Observable<UsuarioResponseDto> {
-    return this.http.put<UsuarioResponseDto>(this.api, usuario);
+    return this.http.patch<UsuarioResponseDto>(`${this.api}/me/usuario`, usuario);
   }
 
-  actualizarPassword(id: string, password: string): Observable<Usuario> {
-    return this.http.patch<Usuario>(`${this.baseDatosUrl}/${id}`, { password });
+  actualizarUsuarioAdmin(
+    id: number,
+    usuario: { nombre: string; apellido: string; email: string; rol: Usuario['roles'][number] }
+  ): Observable<UsuarioResponseDto> {
+    return this.http.patch<UsuarioResponseDto>(`${this.api}/${id}`, usuario);
   }
 
-  eliminarById(id: string): Observable<Usuario> {
-    return this.http.patch<Usuario>(`${this.baseDatosUrl}/${id}`, { activo: false });
+  actualizarPassword(password: string): Observable<void> {
+    return this.http.patch<void>(`${this.api}/me/password`, { password });
   }
 
-  reactivarById(id: string): Observable<Usuario> {
-    return this.http.patch<Usuario>(`${this.baseDatosUrl}/${id}`, { activo: true });
+  validarPassword(password: string): Observable<boolean> {
+    return this.http.post<boolean>(`${this.api}/me/validar-password`, { password });
+  }
+
+  eliminarById(id: string): Observable<void> {
+    return this.http.patch<void>(`${this.api}/${id}/desactivar`, null);
+  }
+
+  reactivarById(id: string): Observable<void> {
+    return this.http.patch<void>(`${this.api}/${id}/reactivar`, null);
+  }
+
+  desactivarMiUsuario(): Observable<void> {
+    return this.http.patch<void>(`${this.api}/me/desactivar`, null);
   }
 
   crear(usuario: UsuarioCreateDto): Observable<UsuarioResponseDto> {

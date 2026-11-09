@@ -113,7 +113,7 @@
               formPassword.get('passwordNuevo')?.dirty){ La contraseña es requerida } @if
               (formPassword.get('passwordNuevo')?.errors?.['minlength'] &&
               formPassword.get('passwordNuevo')?.touched &&
-              formPassword.get('passwordNuevo')?.dirty) { La contraseña debe tener mínimo 3
+              formPassword.get('passwordNuevo')?.dirty) { La contraseña debe tener mínimo 6
               caracteres }
             </div>
           </div>
@@ -130,8 +130,10 @@
             <div class="error-message">
               @if (formPassword.get('passwordConfirmar')?.errors?.['required'] &&
               formPassword.get('passwordConfirmar')?.touched &&
-              formPassword.get('passwordConfirmar')?.dirty){ Es necesario que repitas la nueva
-              contraseña }
+              formPassword.get('passwordConfirmar')?.dirty) { La confirmación es requerida }
+              @if (formPassword.errors?.['passwordMismatch'] &&
+              formPassword.get('passwordConfirmar')?.touched &&
+              formPassword.get('passwordConfirmar')?.dirty) { Las contraseñas no coinciden }
             </div>
           </div>
         </div>

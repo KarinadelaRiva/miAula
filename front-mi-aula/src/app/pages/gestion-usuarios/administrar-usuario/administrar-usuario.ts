@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 import { Usuario } from '../../../models/usuario';
 
@@ -28,6 +29,7 @@ export class AdministrarUsuario implements OnInit {
   mensaje = signal('');
 
   listaUsuarios = signal<Usuario[]>([]);
+  private todosLosUsuarios = signal<Usuario[]>([]);
 
   ngOnInit() {
     this.cargarUsuarios();
@@ -37,52 +39,60 @@ export class AdministrarUsuario implements OnInit {
     });
   }
 
-  /*
-  cargarUsuarios() {
-    const activo = this.filtroActivo() === '' ? undefined : this.filtroActivo() as boolean;
-    
-    this.usuarioService
-      .obtenerUsuariosPaginados(
-        this.paginaActual(),
-        this.limite,
-        this.filtroBusqueda(),
-        this.filtroRol(),
-        activo
-      )
-      .subscribe({
-        next: (data) => {
-          this.listaUsuarios.set(data.usuarios);
-          this.totalPaginas.set(Math.ceil(data.total / this.limite));
-        },
-      });
-  }
-  */
-
   cargarUsuarios() {
     this.usuarioService.getAll().subscribe({
-      next:(data) => {
-        this.listaUsuarios.set(data);
+      next: (usuarios) => {
+        this.todosLosUsuarios.set(usuarios);
+        this.actualizarUsuariosVisibles();
       },
     });
   }
 
   aplicarFiltros() {
     this.paginaActual.set(1);
-    this.cargarUsuarios();
+    this.actualizarUsuariosVisibles();
   }
 
   siguientePagina() {
     if (this.paginaActual() < this.totalPaginas()) {
       this.paginaActual.set(this.paginaActual() + 1);
-      this.cargarUsuarios();
+      this.actualizarUsuariosVisibles();
     }
   }
 
   anteriorPagina() {
     if (this.paginaActual() > 1) {
       this.paginaActual.set(this.paginaActual() - 1);
-      this.cargarUsuarios();
+      this.actualizarUsuariosVisibles();
     }
+  }
+
+  private actualizarUsuariosVisibles() {
+    const texto = this.filtroBusqueda().trim().toLocaleLowerCase();
+    const rol = this.filtroRol();
+    const estado = this.filtroActivo();
+
+    const usuariosFiltrados = this.todosLosUsuarios().filter((usuario) => {
+      const coincideTexto =
+        !texto ||
+        `${usuario.nombre} ${usuario.apellido} ${usuario.email}`
+          .toLocaleLowerCase()
+          .includes(texto);
+      const coincideRol = !rol || usuario.roles.some((usuarioRol) => usuarioRol === rol);
+      const coincideEstado =
+        estado === '' || usuario.activo === (estado === true || estado === 'true');
+
+      return coincideTexto && coincideRol && coincideEstado;
+    });
+
+    this.totalPaginas.set(Math.ceil(usuariosFiltrados.length / this.limite));
+    const ultimaPagina = Math.max(this.totalPaginas(), 1);
+    if (this.paginaActual() > ultimaPagina) {
+      this.paginaActual.set(ultimaPagina);
+    }
+
+    const inicio = (this.paginaActual() - 1) * this.limite;
+    this.listaUsuarios.set(usuariosFiltrados.slice(inicio, inicio + this.limite));
   }
 
   abrirModal(usuario: Usuario) {
@@ -121,19 +131,25 @@ export class AdministrarUsuario implements OnInit {
       return;
     }
 
-    this.usuarioService.actualizarUsuario({
-      ...usuario,
+    const rolActual = usuario.roles?.includes('administrador') ? 'administrador' : 'profesor';
+    if (usuario.id === this.usuarioLogueadoId() && this.rolEditado !== rolActual) {
+      this.mensaje.set('No podés cambiar tu propio rol desde la administración de usuarios.');
+      return;
+    }
+
+    this.usuarioService.actualizarUsuarioAdmin(usuario.id, {
       nombre,
       apellido,
       email,
-      roles: [this.rolEditado],
+      rol: this.rolEditado,
     }).subscribe({
       next: () => {
         this.mensaje.set('Usuario actualizado correctamente.');
         this.cancelarEdicion();
         this.cargarUsuarios();
       },
-      error: () => this.mensaje.set('No se pudo actualizar el usuario.'),
+      error: (error: HttpErrorResponse) =>
+        this.mensaje.set(error.error?.mensaje ?? 'No se pudo actualizar el usuario.'),
     });
   }
 
@@ -146,8 +162,10 @@ export class AdministrarUsuario implements OnInit {
         this.usuarioSeleccionado.set(null);
         this.mensaje.set('Usuario eliminado correctamente.');
         this.cargarUsuarios();
-      }
-    })
+      },
+      error: (error: HttpErrorResponse) =>
+        this.mensaje.set(error.error?.mensaje ?? 'No se pudo eliminar el usuario.'),
+    });
   }
 
   reactivar() {
@@ -159,13 +177,19 @@ export class AdministrarUsuario implements OnInit {
         this.usuarioSeleccionado.set(null);
         this.mensaje.set('Usuario reactivado correctamente.');
         this.cargarUsuarios();
-      }
-    })
+      },
+      error: (error: HttpErrorResponse) =>
+        this.mensaje.set(error.error?.mensaje ?? 'No se pudo reactivar el usuario.'),
+    });
   }
 
   seleccionadoIgualLogueado(): boolean {
     const usuarioId = this.usuarioSeleccionado()?.id;
     const usuarioLogueadoId = this.usuarioLogueadoId();
     return usuarioLogueadoId === null || usuarioId === usuarioLogueadoId;
+  }
+
+  esUsuarioLogueado(usuario: Usuario): boolean {
+    return usuario.id === this.usuarioLogueadoId();
   }
 }

@@ -1,12 +1,19 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { AuthService } from '../../auth/service/auth-service';
 import { Usuario } from '../../models/usuario';
 import { UsuarioResponseDto } from '../../models/usuarioResponseDto';
 import { UsuarioService } from '../../services/usuario-service/usuario-service';
-import { Observable, tap } from 'rxjs';
+import { EMPTY, Observable, switchMap, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -38,11 +45,24 @@ export class PerfilComponent implements OnInit {
     email: [this.usuarioActual()?.email ?? '', [Validators.required, Validators.email]],
   });
 
+  private passwordsMatchValidator: ValidatorFn = (
+    control: AbstractControl
+  ): ValidationErrors | null => {
+    const passwordNuevo = control.get('passwordNuevo')?.value;
+    const passwordConfirmar = control.get('passwordConfirmar')?.value;
+
+    if (!passwordNuevo || !passwordConfirmar) {
+      return null;
+    }
+
+    return passwordNuevo === passwordConfirmar ? null : { passwordMismatch: true };
+  };
+
   formPassword = this.fb.group({
     passwordActual: ['', [Validators.required]],
-    passwordNuevo: ['', [Validators.required, Validators.minLength(3)]],
+    passwordNuevo: ['', [Validators.required, Validators.minLength(6)]],
     passwordConfirmar: ['', [Validators.required]],
-  });
+  }, { validators: this.passwordsMatchValidator });
 
   ngOnInit() {
     this.getUsuarioActual().subscribe({
@@ -106,29 +126,23 @@ export class PerfilComponent implements OnInit {
       return;
     }
 
-    this.loadingPassword = true;
     this.mensajePassword.set('');
     this.errorPassword.set('');
 
-    if (
-      !this.auth.validarPassword(
-        this.usuarioActual()!.password ?? '',
-        this.formPassword.value.passwordActual!
-      )
-    ) {
-      this.errorPassword.set('Contraseña incorrecta');
-      this.loadingPassword = false;
-      return;
-    }
-
-    if (this.formPassword.value.passwordNuevo! !== this.formPassword.value.passwordConfirmar!) {
-      this.errorPassword.set('Repita correctamente la contraseña');
-      this.loadingPassword = false;
-      return;
-    }
-
+    this.loadingPassword = true;
     this.usuarioService
-      .actualizarPassword(String(this.usuarioActual()?.id), this.formPassword.value.passwordNuevo!)
+      .validarPassword(this.formPassword.value.passwordActual!)
+      .pipe(
+        switchMap((boolean) => {
+          if (!boolean) {
+            this.errorPassword.set('Contraseña incorrecta');
+            this.loadingPassword = false;
+            return EMPTY;
+          }
+
+          return this.usuarioService.actualizarPassword(this.formPassword.value.passwordNuevo!);
+        })
+      )
       .subscribe({
         next: () => {
           this.mensajePassword.set('¡Contraseña actualizada correctamente!');
@@ -142,6 +156,7 @@ export class PerfilComponent implements OnInit {
         error: (err: HttpErrorResponse) => {
           const mensajeBackend = typeof err.error === 'string' ? err.error : '';
           this.errorPassword.set(mensajeBackend || 'Error al actualizar la contraseña');
+          this.loadingPassword = false;
         },
       });
   }
@@ -159,7 +174,7 @@ export class PerfilComponent implements OnInit {
   }
 
   confirmarEliminar() {
-    this.usuarioService.eliminarById(String(this.usuarioActual()!.id)).subscribe({
+    this.usuarioService.desactivarMiUsuario().subscribe({
       next: () => {
         this.cerrarAlertaEliminar();
         this.auth.logout();

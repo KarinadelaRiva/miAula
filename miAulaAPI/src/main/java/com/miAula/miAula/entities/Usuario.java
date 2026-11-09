@@ -75,4 +75,9 @@ public class Usuario implements UserDetails{
     public String getUsername() {
         return email;
     }
+
+    @Override
+    public boolean isEnabled() {
+        return Boolean.TRUE.equals(activo);
+    }
 }

@@ -57,7 +57,7 @@
               </td>
               <td><input [(ngModel)]="emailEditado" type="email" aria-label="Editar email" /></td>
               <td>
-                <select [(ngModel)]="rolEditado" aria-label="Editar rol">
+                <select [(ngModel)]="rolEditado" aria-label="Editar rol" [disabled]="esUsuarioLogueado(u)">
                   <option value="administrador">Administrador</option>
                   <option value="profesor">Profesor</option>
                 </select>

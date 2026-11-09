@@ -33,7 +33,9 @@ public class JwtService {
     //  Verifica si un token es válido para un usuario dado
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token); // extrae el usuario desde el token
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        return username.equals(userDetails.getUsername())
+                && userDetails.isEnabled()
+                && !isTokenExpired(token);
     }
 
     // Extrae el nombre de usuario desde el token (campo "sub")

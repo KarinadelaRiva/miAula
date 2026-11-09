@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.miAula.miAula.dtos.usuario.UsuarioAdminUpdateDTO;
 import com.miAula.miAula.dtos.usuario.UsuarioCreateDTO;
 import com.miAula.miAula.dtos.usuario.UsuarioResponseDTO;
 import com.miAula.miAula.dtos.usuario.UsuarioUpdateDTO;
@@ -99,6 +100,86 @@ public class UsuarioService implements UserDetailsService {
     }
 
     @Transactional
+    public UsuarioResponseDTO actualizarUsuarioAdmin(
+            Long id,
+            UsuarioAdminUpdateDTO dto,
+            Long administradorId) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        if (id.equals(administradorId)
+                && (usuario.getUsuarioRoles().size() != 1
+                || !usuario.getUsuarioRoles().get(0).getRol().getNombre().equalsIgnoreCase(dto.getRol()))) {
+            throw new ResourceConflictException("No podés cambiar tu propio rol desde la administración de usuarios");
+        }
+
+        if (!dto.getEmail().equals(usuario.getEmail()) &&
+                usuarioRepository.existsByEmail(dto.getEmail())) {
+            throw new ResourceConflictException("Ya existe un usuario con este email");
+        }
+
+        Rol nuevoRol = entityManager.createQuery(
+                        "select r from Rol r where lower(r.nombre) = :nombre",
+                        Rol.class)
+                .setParameter("nombre", dto.getRol())
+                .getResultStream()
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("No existe el rol: " + dto.getRol()));
+
+        usuario.setNombre(dto.getNombre());
+        usuario.setApellido(dto.getApellido());
+        usuario.setEmail(dto.getEmail());
+
+        UsuarioRol asignacionElegida = usuario.getUsuarioRoles().stream()
+                .filter(usuarioRol -> usuarioRol.getRol().getId().equals(nuevoRol.getId()))
+                .findFirst()
+                .orElse(null);
+
+        for (UsuarioRol usuarioRol : List.copyOf(usuario.getUsuarioRoles())) {
+            if (usuarioRol != asignacionElegida) {
+                usuarioRol.getRol().getUsuarioRoles().remove(usuarioRol);
+                usuario.getUsuarioRoles().remove(usuarioRol);
+                entityManager.remove(usuarioRol);
+            }
+        }
+
+        entityManager.flush();
+
+        if (asignacionElegida == null) {
+            UsuarioRol nuevaAsignacion = UsuarioRol.builder()
+                    .id(new UsuarioRolId(usuario.getId(), nuevoRol.getId()))
+                    .usuario(usuario)
+                    .rol(nuevoRol)
+                    .build();
+            usuario.getUsuarioRoles().add(nuevaAsignacion);
+            nuevoRol.getUsuarioRoles().add(nuevaAsignacion);
+            entityManager.persist(nuevaAsignacion);
+        }
+
+        return usuarioToUsuarioResponseDTO(usuario);
+    }
+
+    public void desactivarUsuario(Long id, Long administradorId) {
+        if (id.equals(administradorId)) {
+            throw new ResourceConflictException("No podés eliminar tu propia cuenta desde la administración de usuarios");
+        }
+        actualizarEstadoUsuario(obtenerPorId(id), false);
+    }
+
+    public void reactivarUsuario(Long id) {
+        actualizarEstadoUsuario(obtenerPorId(id), true);
+    }
+
+    public void desactivarUsuarioActual(String email) {
+        actualizarEstadoUsuario(obtenerPorEmail(email), false);
+    }
+
+    private void actualizarEstadoUsuario(Usuario usuario, boolean activo) {
+        usuario.setActivo(activo);
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional
     public UsuarioResponseDTO crearUsuario(UsuarioCreateDTO dto) {
         if (usuarioRepository.existsByEmail(dto.getEmail())) {
             throw new ResourceConflictException("Ya existe un usuario con este email");
@@ -136,6 +217,20 @@ public class UsuarioService implements UserDetailsService {
         rol.getUsuarioRoles().add(usuarioRol);
 
         return usuarioToUsuarioResponseDTO(guardado);
+    }
+
+    public boolean validarPassword(Usuario usuario, String password) {
+        return usuario != null
+                && password != null
+                && usuario.getPassword() != null
+                && passwordEncoder.matches(password, usuario.getPassword());
+    }
+
+    @Transactional
+    public void actualizarPassword(String email, String nuevaPassword) {
+        Usuario usuario = obtenerPorEmail(email);
+        usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+        usuarioRepository.save(usuario);
     }
     
     @Override
