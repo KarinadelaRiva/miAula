@@ -1,10 +1,8 @@
 
 import { Component, OnInit, computed, inject, signal, WritableSignal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Solicitud as SolicitudService } from '../../../services/solicitud';
-import type { Solicitud as SolicitudModel } from '../../../services/solicitud';
+import type { SolicitudData as SolicitudModel } from '../../../services/solicitud';
 import { UsuarioService } from '../../../services/usuario-service/usuario-service';
-import type { Usuario } from '../../../models/usuario';
 import { RouterLink } from "@angular/router";
 
 
@@ -17,8 +15,9 @@ import { RouterLink } from "@angular/router";
 export class ListSolicitudes implements OnInit {
   private solicitudService = inject(SolicitudService);
   private usuarioService = inject(UsuarioService);
-  private http = inject(HttpClient);
   private esAdministrador = signal(false);
+  errorMensaje = signal<string | null>(null);
+  cargando = signal(false);
 
   // Señales públicas para usar en la plantilla separadas por estado
   solicitudes: WritableSignal<SolicitudModel[]> = signal<SolicitudModel[]>([]);
@@ -39,24 +38,6 @@ export class ListSolicitudes implements OnInit {
   // Señal privada para la solicitud seleccionada (usada por los helpers siguientes)
   private _selected: WritableSignal<SolicitudModel | null> = signal<SolicitudModel | null>(null);
 
-  // Señal privada para el usuario (solicitante) de la solicitud seleccionada
-  private _selectedUsuario: WritableSignal<Usuario | null> = signal<Usuario | null>(null);
-
-  // Señal privada para la comisión de la solicitud seleccionada
-  private _selectedComision: WritableSignal<{ id: number; nombre?: string } | null> = signal<{
-    id: number;
-    nombre?: string;
-  } | null>(null);
-
-  // Señal privada para el espacio (nuevo_espacio) de la solicitud seleccionada
-  private _selectedEspacio: WritableSignal<{ id: number; nombre?: string } | null> = signal<{
-    id: number;
-    nombre?: string;
-  } | null>(null);
-
-  // Flag para operaciones asíncronas (ej. cancelar)
-  private _isCancelling: WritableSignal<boolean> = signal<boolean>(false);
-
   // Señal para editar el comentario de estado en la UI
   private _comentarioEditing: WritableSignal<string> = signal<string>('');
   private _isSavingComment: WritableSignal<boolean> = signal<boolean>(false);
@@ -67,9 +48,9 @@ export class ListSolicitudes implements OnInit {
     this.loadSolicitudes();
     this.usuarioService.me().subscribe({
       next: (usuario) => {
-        this.esAdministrador.set(usuario.roles.some((rol) => rol === 'administrador'));
+        this.esAdministrador.set(usuario.roles.some((rol) => rol.toLowerCase() === 'administrador'));
       },
-      error: (error) => console.error('No se pudo obtener el usuario autenticado:', error),
+      error: () => this.errorMensaje.set('No se pudo verificar el usuario administrador.'),
     });
   }
 
@@ -78,61 +59,9 @@ export class ListSolicitudes implements OnInit {
     return this._selected();
   }
 
-  selectedUsuario(): Usuario | null {
-    return this._selectedUsuario();
-  }
-
-  selectedComision(): { id: number; nombre?: string } | null {
-    return this._selectedComision();
-  }
-
-  selectedEspacio(): { id: number; nombre?: string } | null {
-    return this._selectedEspacio();
-  }
-
   openDetails(s: SolicitudModel): void {
     this._selected.set(s);
-    // Inicializar texto de edición del comentario
     this._comentarioEditing.set(s.comentario_estado || '');
-    // Cargar datos del solicitante para mostrar nombre en la tarjeta de detalle
-    const uid = Number((s as any).usuario_id ?? (s as any).usuario?.id);
-    if (Number.isFinite(uid) && uid > 0) {
-      this.usuarioService.getUsuarioById(uid).subscribe({
-        next: (u) => this._selectedUsuario.set(u),
-        error: (err) => {
-          console.error('Error cargando usuario', err);
-          this._selectedUsuario.set(null);
-        },
-      });
-    } else {
-      this._selectedUsuario.set(null);
-    }
-    // Cargar datos de la comisión para mostrar nombre
-    const cid = (s as any).comision_id ?? null;
-    if (cid !== null && cid !== undefined) {
-      this.http.get<{ id: number; nombre?: string }>(`http://localhost:3000/comisiones/${cid}`).subscribe({
-        next: (c) => this._selectedComision.set(c),
-        error: (err) => {
-          console.error('Error cargando comisión', err);
-          this._selectedComision.set(null);
-        },
-      });
-    } else {
-      this._selectedComision.set(null);
-    }
-    // Cargar datos del nuevo espacio para mostrar nombre
-    const eid = (s as any).nuevo_espacio_id ?? null;
-    if (eid !== null && eid !== undefined) {
-      this.http.get<{ id: number; nombre?: string }>(`http://localhost:3000/espacios/${eid}`).subscribe({
-        next: (e) => this._selectedEspacio.set(e),
-        error: (err) => {
-          console.error('Error cargando espacio', err);
-          this._selectedEspacio.set(null);
-        },
-      });
-    } else {
-      this._selectedEspacio.set(null);
-    }
   }
 
   comentarioEditing(): string {
@@ -161,12 +90,13 @@ export class ListSolicitudes implements OnInit {
       next: (updated) => {
         this._isSavingComment.set(false);
         // actualizar la solicitud seleccionada localmente
-        const newS = { ...(s as any), comentario_estado: updated.comentario_estado } as SolicitudModel;
+        const newS = { ...s, comentario_estado: updated.comentario_estado };
         this._selected.set(newS);
         this.updateLocalSolicitud(newS);
+        this.errorMensaje.set(null);
       },
       error: (err) => {
-        console.error('Error guardando comentario', err);
+        this.errorMensaje.set(this.obtenerMensajeError(err));
         this._isSavingComment.set(false);
       },
     });
@@ -186,32 +116,36 @@ export class ListSolicitudes implements OnInit {
   confirmApprove(): void {
     const s = this._selected();
     if (!s) return;
-    const ok = window.confirm('Esta acción aceptará la solicitud y no tiene vuelta atrás. ¿Desea continuar?');
+    const ok = window.confirm('Esta acción aceptará la solicitud y no tiene vuelta atrás. ¿Deseás continuar?');
     if (ok) this.approveSolicitud();
   }
 
   confirmReject(): void {
     const s = this._selected();
     if (!s) return;
-    const ok = window.confirm('Esta acción rechazará la solicitud y no tiene vuelta atrás. ¿Desea continuar?');
+    const ok = window.confirm('Esta acción rechazará la solicitud y no tiene vuelta atrás. ¿Deseás continuar?');
     if (ok) this.rejectSolicitud();
   }
 
   private changeEstadoConComentario(estado: string): void {
     const s = this._selected();
     if (!s || s.id == null) return;
-    const idStr = String(s.id);
     const comentario = this._comentarioEditing();
     this._isSavingComment.set(true);
-    this.solicitudService.patchEstadoComentario(idStr, estado, comentario).subscribe({
+    const accion = estado === 'APROBADA'
+      ? this.solicitudService.aprobarSolicitud(s.id, comentario)
+      : this.solicitudService.rechazarSolicitud(s.id, comentario);
+    accion.subscribe({
       next: (updated) => {
         this._isSavingComment.set(false);
-        const newS = { ...(s as any), estado: updated.estado, comentario_estado: updated.comentario_estado } as SolicitudModel;
+        const newS = { ...updated, estado: updated.estado };
         this._selected.set(newS);
         this.updateLocalSolicitud(newS);
+        this._comentarioEditing.set(newS.comentario_estado || '');
+        this.errorMensaje.set(null);
       },
       error: (err) => {
-        console.error(`Error cambiando estado a ${estado}`, err);
+        this.errorMensaje.set(this.obtenerMensajeError(err));
         this._isSavingComment.set(false);
       },
     });
@@ -226,9 +160,6 @@ export class ListSolicitudes implements OnInit {
 
   closeDetails(): void {
     this._selected.set(null);
-    this._selectedUsuario.set(null);
-    this._selectedComision.set(null);
-    this._selectedEspacio.set(null);
   }
 
   seleccionarPestana(pestana: 'pendientes' | 'aprobadas' | 'rechazadas' | 'otras'): void {
@@ -248,18 +179,18 @@ export class ListSolicitudes implements OnInit {
     }
   }
 
-  isCancelling(): boolean {
-    return this._isCancelling();
-  }
-
   loadSolicitudes(): void {
-    this.solicitudService.getSolicitudes().subscribe({
+    this.cargando.set(true);
+    this.errorMensaje.set(null);
+    this.solicitudService.getSolicitudesAdministracion().subscribe({
       next: (data) => {
         this.solicitudes.set(data);
         this.categorizeSolicitudes(data);
+        this.cargando.set(false);
       },
       error: (err) => {
-        console.error('Error cargando solicitudes', err);
+        this.errorMensaje.set(this.obtenerMensajeError(err));
+        this.cargando.set(false);
       },
     });
   }
@@ -271,8 +202,7 @@ export class ListSolicitudes implements OnInit {
     const otras: SolicitudModel[] = [];
 
     for (const s of data) {
-      const estado = (s as any).estado ?? '';
-      const norm = String(estado).toLowerCase();
+      const norm = s.estado === 'APROBADA' ? 'aprobada' : s.estado.toLowerCase();
 
       if (norm.includes('pend')) {
         pendientes.push(s);
@@ -299,6 +229,17 @@ export class ListSolicitudes implements OnInit {
       rechazadas: this.rechazadas(),
       otras: this.otras(),
     }[pestana];
+  }
+
+  private obtenerMensajeError(error: { error?: unknown; message?: string }): string {
+    const body = error?.error;
+    if (typeof body === 'string' && body.trim()) return body;
+    if (body && typeof body === 'object') {
+      const values = Object.values(body as Record<string, unknown>)
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0);
+      if (values.length > 0) return values.join(' ');
+    }
+    return error?.message || 'No se pudo completar la operación. Intentá nuevamente.';
   }
 
    // Ejemplo de helper para formatear la fecha 

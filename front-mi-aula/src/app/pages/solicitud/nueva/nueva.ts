@@ -1,10 +1,26 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { Solicitud as SolicitudService, Solicitud } from '../../../services/solicitud';
+import { Solicitud as SolicitudService } from '../../../services/solicitud';
 import { UsuarioService } from '../../../services/usuario-service/usuario-service';
+import { EspacioService } from '../../../services/espacio-service/espacio-service';
+import { Comision, ComisionService } from '../../../services/comision-service/comision-service';
+import { Espacio } from '../../../models/espacio';
+import { RecursoDisponible, RecursoService } from '../../../services/recurso-service/recurso-service';
+
+interface RecursoSeleccionable extends RecursoDisponible {
+  seleccionado: boolean;
+  cantidadSolicitada: number;
+}
 
 @Component({
   selector: 'app-nueva',
@@ -16,95 +32,152 @@ import { UsuarioService } from '../../../services/usuario-service/usuario-servic
 export class Nueva implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
-  private http = inject(HttpClient);
   private solicitudService = inject(SolicitudService);
   private usuarioService = inject(UsuarioService);
+  private espacioService = inject(EspacioService);
+  private comisionService = inject(ComisionService);
+  private recursoService = inject(RecursoService);
 
   form!: FormGroup;
-  private usuarioLogueadoId: number | null = null;
-  espacios: Array<any> = [];
-  comisiones: Array<any> = [];
+  espacios: Espacio[] = [];
+  comisiones: Comision[] = [];
+  recursosDisponibles: RecursoSeleccionable[] = [];
+  disponibilidadConsultada = false;
+  cargandoRecursos = false;
+  errorRecursos: string | null = null;
+  private consultaDisponibilidadId = 0;
+  fechaMinima = '';
+  fechaFinMinima = '';
   loading = false;
   mensaje: string | null = null;
   error: string | null = null;
 
   ngOnInit() {
+    const hoy = new Date();
+    this.fechaMinima = this.toDateInputValue(hoy);
+    hoy.setDate(hoy.getDate() + 1);
+    this.fechaFinMinima = this.toDateInputValue(hoy);
+
     this.form = this.fb.group({
       comentario_profesor: [''],
       dia_semana: ['LUNES', [Validators.required]],
-      fecha_inicio: ['', [Validators.required]],
-      fecha_fin: ['', [Validators.required]],
+      fecha_inicio: ['', [Validators.required, this.fechaNoAnteriorAHoy]],
+      fecha_fin: ['', [Validators.required, this.fechaPosteriorAHoy]],
       hora_inicio: ['', [Validators.required]],
       hora_fin: ['', [Validators.required]],
       nuevo_espacio_id: [null, [Validators.required]],
       comision_id: [null, [Validators.required]]
+    }, {
+      validators: [this.rangoFechasValido, this.rangoHorasValido],
     });
 
     this.usuarioService.me().subscribe({
-      next: (usuario) => {
-        this.usuarioLogueadoId = usuario.id;
+      next: () => {
         this.cargarEspacios();
-        this.cargarComisionesDelProfesor(usuario.id);
+        this.cargarComisionesDelProfesor();
       },
       error: () => this.router.navigate(['/login']),
     });
   }
 
-  private cargarEspacios() {
-    this.http.get<any[]>('http://localhost:3000/espacios').subscribe({
-      next: (r) => this.espacios = r || [],
-      error: () => this.espacios = []
+  private readonly fechaNoAnteriorAHoy: ValidatorFn = (control: AbstractControl): ValidationErrors | null =>
+    control.value && control.value < this.fechaMinima ? { fechaAnteriorAHoy: true } : null;
+
+  private readonly fechaPosteriorAHoy: ValidatorFn = (control: AbstractControl): ValidationErrors | null =>
+    control.value && control.value <= this.fechaMinima ? { fechaNoPosteriorAHoy: true } : null;
+
+  private readonly rangoFechasValido: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+    const fechaInicio = control.get('fecha_inicio')?.value;
+    const fechaFin = control.get('fecha_fin')?.value;
+    return fechaInicio && fechaFin && fechaInicio > fechaFin ? { rangoFechasInvalido: true } : null;
+  };
+
+  private readonly rangoHorasValido: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+    const horaInicio = control.get('hora_inicio')?.value;
+    const horaFin = control.get('hora_fin')?.value;
+    return horaInicio && horaFin && horaInicio >= horaFin ? { rangoHorasInvalido: true } : null;
+  };
+
+  private toDateInputValue(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  cargarRecursosDisponibles(): void {
+    const { fecha_inicio, fecha_fin, dia_semana, hora_inicio, hora_fin } = this.form.getRawValue();
+    if (!fecha_inicio || !fecha_fin || !dia_semana || !hora_inicio || !hora_fin
+      || fecha_inicio > fecha_fin || hora_inicio >= hora_fin) {
+      this.consultaDisponibilidadId++;
+      this.recursosDisponibles = [];
+      this.disponibilidadConsultada = false;
+      this.cargandoRecursos = false;
+      this.errorRecursos = null;
+      return;
+    }
+
+    const consultaId = ++this.consultaDisponibilidadId;
+    this.cargandoRecursos = true;
+    this.disponibilidadConsultada = true;
+    this.errorRecursos = null;
+    this.recursoService.getDisponibles(fecha_inicio, fecha_fin, dia_semana, hora_inicio, hora_fin).subscribe({
+      next: (recursos) => {
+        if (consultaId !== this.consultaDisponibilidadId) return;
+        this.recursosDisponibles = recursos
+          .filter((recurso) => recurso.available > 0)
+          .map((recurso) => {
+            const anterior = this.recursosDisponibles.find((seleccionado) => seleccionado.id === recurso.id);
+            return {
+              ...recurso,
+              seleccionado: anterior?.seleccionado ?? false,
+              cantidadSolicitada: anterior
+                ? Math.min(anterior.cantidadSolicitada, recurso.available)
+                : 1,
+            };
+          });
+        this.cargandoRecursos = false;
+      },
+      error: (err) => {
+        if (consultaId !== this.consultaDisponibilidadId) return;
+        this.recursosDisponibles = [];
+        this.errorRecursos = this.mensajeError(err);
+        this.cargandoRecursos = false;
+      },
     });
   }
 
-  private cargarComisionesDelProfesor(profesorId: number) {
-    this.http.get<any[]>(`http://localhost:3000/comisiones?usuario_profesor_id=${profesorId}`).subscribe({
-      next: (r) => {
-        this.comisiones = r || [];
+  seleccionarRecurso(recurso: RecursoSeleccionable, seleccionado: boolean): void {
+    recurso.seleccionado = seleccionado;
+  }
+
+  actualizarCantidadRecurso(recurso: RecursoSeleccionable, cantidad: number): void {
+    recurso.cantidadSolicitada = cantidad;
+  }
+
+  private cargarEspacios() {
+    this.espacioService.getAll().subscribe({
+      next: (espacios) => {
+        this.espacios = espacios.filter((espacio) => espacio.activo);
+      },
+      error: () => {
+        this.error = 'No se pudieron cargar los espacios. Intentá nuevamente más tarde.';
+      },
+    });
+  }
+
+  private cargarComisionesDelProfesor() {
+    this.comisionService.getAll().subscribe({
+      next: (comisiones) => {
+        this.comisiones = comisiones.filter((comision) => comision.activo);
         if (this.comisiones.length > 0 && !this.form.value.comision_id) {
           this.form.patchValue({ comision_id: this.comisiones[0].id });
         }
       },
-      error: () => this.comisiones = []
+      error: () => {
+        this.error = 'No se pudieron cargar tus comisiones. Intentá nuevamente más tarde.';
+      },
     });
-  }
-
-  private formatDate(dateStr: string) {
-    // Expecting yyyy-mm-dd from input (type=date)
-    return dateStr;
-  }
-
-  private formatTime(timeStr: string) {
-    // input type=time gives HH:MM, convert to HH:MM:SS.000000
-    if (!timeStr) return '';
-    return `${timeStr}:00.000000`;
-  }
-
-  private fechaHoraSolicitudNow(): string {
-    // Usar ISO 8601, backend suele aceptar este formato. Ej: 2025-06-13T09:00:00.000Z
-    return new Date().toISOString();
-  }
-
-  private parseTimeToMinutes(timeStr: string): number {
-    if (!timeStr) return 0;
-    // Aceptar formatos: HH:MM, HH:MM:SS.000000
-    const parts = timeStr.split(':');
-    const hh = Number(parts[0] || 0);
-    const mm = Number(parts[1] || 0);
-    return hh * 60 + mm;
-  }
-
-  private datesOverlap(startA: string, endA: string, startB: string, endB: string): boolean {
-    // comparar fechas YYYY-MM-DD
-    return !(endA < startB || endB < startA);
-  }
-
-  private timesOverlap(startA: string, endA: string, startB: string, endB: string): boolean {
-    const a1 = this.parseTimeToMinutes(startA);
-    const a2 = this.parseTimeToMinutes(endA);
-    const b1 = this.parseTimeToMinutes(startB);
-    const b2 = this.parseTimeToMinutes(endB);
-    return a1 < b2 && b1 < a2;
   }
 
   onSubmit() {
@@ -116,81 +189,72 @@ export class Nueva implements OnInit {
       return;
     }
 
-    const usuarioId = this.usuarioLogueadoId;
-    if (usuarioId === null) {
-      this.router.navigate(['/login']);
-      return;
-    }
     const form = this.form.value;
-
-    // Validaciones simples
-    if (form.fecha_inicio > form.fecha_fin) {
-      this.error = 'La fecha de inicio no puede ser posterior a la fecha de fin.';
+    const seleccionInvalida = this.recursosDisponibles.some(
+      (recurso) => recurso.seleccionado
+        && (!Number.isInteger(recurso.cantidadSolicitada)
+          || recurso.cantidadSolicitada < 1
+          || recurso.cantidadSolicitada > recurso.available)
+    );
+    if (seleccionInvalida) {
+      this.error = 'La cantidad solicitada de cada recurso debe estar dentro de su disponibilidad.';
       return;
     }
 
-    this.loading = true;
-
-    const payload: Partial<Solicitud> = {
-      comentario_estado: null as any,
-      comentario_profesor: form.comentario_profesor || null,
-      dia_semana: form.dia_semana,
-      estado: 'PENDIENTE',
-      fecha_fin: this.formatDate(form.fecha_fin),
-      fecha_inicio: this.formatDate(form.fecha_inicio),
-      fecha_hora_solicitud: this.fechaHoraSolicitudNow(),
-      hora_inicio: this.formatTime(form.hora_inicio),
-      hora_fin: this.formatTime(form.hora_fin),
-      comision_id: Number(form.comision_id),
-      nuevo_espacio_id: Number(form.nuevo_espacio_id),
-      reserva_original_id: null as any,
-      usuario_id: usuarioId
+    const solicitud = {
+      nuevoEspacioId: Number(form.nuevo_espacio_id),
+      fechaInicio: form.fecha_inicio,
+      fechaFin: form.fecha_fin,
+      horaInicio: form.hora_inicio,
+      horaFin: form.hora_fin,
+      comentarioSolicitante: form.comentario_profesor?.trim() || null,
+      comisionId: Number(form.comision_id),
+      diaSemana: form.dia_semana,
+      recursos: this.recursosDisponibles
+        .filter((recurso) => recurso.seleccionado)
+        .map((recurso) => ({
+          recursoId: recurso.id,
+          cantidad: Number(recurso.cantidadSolicitada),
+        })),
     };
-    // Comprobar solapamientos con solicitudes existentes para el mismo espacio
-    this.http.get<Solicitud[]>(`http://localhost:3000/solicitudes?nuevo_espacio_id=${payload.nuevo_espacio_id}`).subscribe({
-      next: (existing) => {
-        const conflictos = (existing || []).filter(s => s && s.estado !== 'RECHAZADA' && s.estado !== 'CANCELADA').some(s => {
-          const exFi = s.fecha_inicio;
-          const exFf = s.fecha_fin;
-          // si los rangos de fechas se solapan y también las horas
-          const fechasSeSolapan = this.datesOverlap(payload.fecha_inicio as string, payload.fecha_fin as string, exFi, exFf);
-          const horasSeSolapan = this.timesOverlap(payload.hora_inicio as string, payload.hora_fin as string, s.hora_inicio || '', s.hora_fin || '');
-          return fechasSeSolapan && horasSeSolapan;
-        });
-
-        if (conflictos) {
-          this.loading = false;
-          this.error = 'Existe una reserva solapada en el espacio y horario seleccionado.';
-          return;
-        }
-
-        // Si no hay conflictos, crear la solicitud
-        this.solicitudService.createSolicitud(payload as Solicitud).subscribe({
-          next: () => {
-            this.loading = false;
-            // Redirigir al listado de mis solicitudes
-            this.router.navigate(['/solicitud/mis-solicitudes']);
-          },
-          error: (err) => {
-            this.loading = false;
-            this.error = err?.message || 'Error al crear la solicitud';
-          }
-        });
+    this.loading = true;
+    this.solicitudService.createNuevaSolicitud(solicitud).subscribe({
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/solicitud/mis-solicitudes']);
       },
-      error: () => {
-        // si falla la comprobación, permitir crear para no bloquear el flujo, pero avisar
-        this.solicitudService.createSolicitud(payload as Solicitud).subscribe({
-          next: () => {
-            this.loading = false;
-            this.router.navigate(['/solicitud/mis-solicitudes']);
-          },
-          error: (err) => {
-            this.loading = false;
-            this.error = err?.message || 'Error al crear la solicitud';
-          }
-        });
-      }
+      error: (err) => {
+        this.loading = false;
+        this.error = this.mensajeError(err);
+      },
     });
+  }
+
+  private mensajeError(error: {
+    error?: unknown;
+    message?: string;
+  }): string {
+    const respuesta = error?.error;
+    if (typeof respuesta === 'string' && respuesta.trim()) {
+      return respuesta;
+    }
+
+    if (respuesta && typeof respuesta === 'object') {
+      const datos = respuesta as Record<string, unknown>;
+      const mensaje = datos['mensaje'] ?? datos['message'];
+      if (typeof mensaje === 'string' && mensaje.trim()) {
+        return mensaje;
+      }
+
+      const errores = Object.values(datos).filter(
+        (valor): valor is string => typeof valor === 'string' && valor.trim().length > 0
+      );
+      if (errores.length > 0) {
+        return errores.join(' ');
+      }
+    }
+
+    return error?.message || 'No se pudo enviar la solicitud. Intentá nuevamente.';
   }
 
   cancelar() {
