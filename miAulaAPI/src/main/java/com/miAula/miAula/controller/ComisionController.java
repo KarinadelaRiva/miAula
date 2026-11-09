@@ -53,7 +53,7 @@ public class ComisionController {
     }
 
     @GetMapping("/{id}")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Obtener comision por id.",
             description = "Permite a administradores obtener una comisión a través de su id.")
@@ -64,7 +64,7 @@ public class ComisionController {
     }
 
     @PostMapping
-//    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESOR')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESOR')")
     @Operation(
             summary = "Crear nueva comisión.",
             description = "Permite a administradores y profesores crear una nueva comisión.")
@@ -77,7 +77,7 @@ public class ComisionController {
     }
 
     @PutMapping
-//    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESOR')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESOR')")
     @Operation(
             summary = "Actualizar comision.",
             description = "Permite a administradores y profesores actualizar una comisión.")
@@ -90,7 +90,7 @@ public class ComisionController {
     }
 
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Eliminar comision.",
             description = "Permite a administradores eliminar una comisión a través de su id.")
@@ -113,7 +113,7 @@ public class ComisionController {
     }
 
     @GetMapping("/por-materia/{materiaId}")
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(
             summary = "Obtener comisiones asociadas a materia.",
             description = "Permite a administradores obtener un listado de las comisiones de una materia.")
