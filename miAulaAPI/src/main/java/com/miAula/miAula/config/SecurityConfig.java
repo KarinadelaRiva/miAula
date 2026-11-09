@@ -34,14 +34,6 @@ public class SecurityConfig {
         "/auth/login",
         "/reservas/cronograma-por-dia",
         "/reservas/cronograma",
-        "/usuarios", // sin restriccion de manera provisional para tests
-        "/espacios", // sin restriccion de manera provisional para tests
-        "/recursos", // sin restriccion de manera provisional para tests
-        "/comisiones" // sin restriccion de manera provisional para tests
-    };
-    
-    private final String[] rutasSinRestriccionPOST = {
-        "/usuarios"
     };
 
     // Bean para codificar y verificar contraseñas con BCrypt
@@ -89,7 +81,6 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(rutasSinRestriccion).permitAll()
-                        .requestMatchers(HttpMethod.POST, rutasSinRestriccionPOST).permitAll()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

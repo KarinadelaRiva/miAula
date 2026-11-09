@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
+import { publicOnlyGuard } from './guards/publicOnly.guard';
 
 import { Login } from './pages/login/login';
 import { Home } from './pages/home/home';
@@ -32,12 +33,14 @@ export const routes: Routes = [
 
   {
     path: 'login',
-    component: Login
+    component: Login,
+    canActivate: [publicOnlyGuard]
   },
 
   {
     path: 'home',
-    component: Home
+    component: Home,
+    canActivate: [publicOnlyGuard]
   },
 
   {
