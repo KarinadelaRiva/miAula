@@ -3,6 +3,9 @@ package com.miAula.miAula.service;
 import com.miAula.miAula.entities.Reserva;
 import com.miAula.miAula.entities.Solicitud;
 import com.miAula.miAula.entities.enums.DiaSemana;
+import com.miAula.miAula.entities.tablas_intermedias.RecursoReserva;
+import com.miAula.miAula.entities.tablas_intermedias.RecursoReservaId;
+import com.miAula.miAula.entities.tablas_intermedias.RecursoSolicitud;
 import com.miAula.miAula.exceptions.ReservaSolapadaException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
 import com.miAula.miAula.repository.ReservaRepository;
@@ -44,6 +47,7 @@ public class ReservaService {
                 .evento(solicitud.getEvento())
                 .build();
 
+        agregarRecursos(reserva, solicitud);
         return reservaRepository.save(reserva);
     }
 
@@ -66,8 +70,21 @@ public class ReservaService {
         reservaOriginal.setEspacio(solicitud.getEspacio());
         reservaOriginal.setComision(solicitud.getComision());
         reservaOriginal.setEvento(solicitud.getEvento());
+        reservaOriginal.getRecursos().clear();
+        agregarRecursos(reservaOriginal, solicitud);
 
         return reservaRepository.save(reservaOriginal);
+    }
+
+    private void agregarRecursos(Reserva reserva, Solicitud solicitud) {
+        for (RecursoSolicitud recursoSolicitud : solicitud.getRecursos()) {
+            reserva.getRecursos().add(RecursoReserva.builder()
+                    .id(new RecursoReservaId(recursoSolicitud.getRecurso().getId(), null))
+                    .recurso(recursoSolicitud.getRecurso())
+                    .reserva(reserva)
+                    .cantidadReservada(recursoSolicitud.getCantidadSolicitada())
+                    .build());
+        }
     }
 
     private void validarDisponibilidad(Solicitud solicitud, Long reservaExcluidaId) {
