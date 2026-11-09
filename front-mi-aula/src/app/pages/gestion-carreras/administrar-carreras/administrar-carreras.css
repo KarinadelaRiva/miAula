@@ -18,6 +18,7 @@
   box-sizing: border-box;
 }
 
+
 /* =========================
    HEADER
    ========================= */
@@ -225,6 +226,64 @@ td input {
 
 
 /* =========================
+   MODAL CONFIRMACIÓN
+   ========================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 1rem;
+
+  background: rgba(15, 30, 45, 0.48);
+}
+
+.modal-confirmacion {
+  width: min(100%, 420px);
+
+  padding: 1.5rem;
+
+  border: 1px solid #c8d7e8;
+  border-radius: 8px;
+
+  background: #fff;
+
+  box-shadow:
+    0 18px 45px
+    rgba(15, 30, 45, 0.28);
+
+  text-align: center;
+}
+
+.modal-confirmacion h2 {
+  margin: 0 0 0.75rem;
+
+  color: #213547;
+
+  font-size: 1.3rem;
+}
+
+.modal-confirmacion p {
+  margin: 0 0 1.25rem;
+
+  color: #52677d;
+
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+
+/* =========================
    TABLET
    ========================= */
 
@@ -323,10 +382,15 @@ td input {
   tbody tr {
     margin-bottom: 1rem;
     overflow: hidden;
+
     border: 1px solid #c8d7e8;
     border-radius: 8px;
+
     background: #fff;
-    box-shadow: 0 2px 6px rgba(15, 50, 90, 0.08);
+
+    box-shadow:
+      0 2px 6px
+      rgba(15, 50, 90, 0.08);
   }
 
   tbody tr:nth-child(even),
@@ -339,18 +403,29 @@ td input {
 
   td {
     display: grid;
-    grid-template-columns: 90px minmax(0, 1fr);
+
+    grid-template-columns:
+      90px minmax(0, 1fr);
+
     align-items: center;
+
     gap: 0.75rem;
+
     min-height: 46px;
+
     padding: 0.7rem;
-    border-bottom: 1px solid #d8e3ef;
+
+    border-bottom:
+      1px solid #d8e3ef;
   }
 
   td::before {
     content: attr(data-label);
+
     color: #52677d;
+
     font-size: 0.78rem;
+
     font-weight: 700;
   }
 
@@ -367,9 +442,7 @@ td input {
   }
 
 
-  /* =========================
-     ACCIONES RESPONSIVE
-     ========================= */
+  /* ACCIONES RESPONSIVE */
 
   td.acciones {
     display: flex;
@@ -393,6 +466,13 @@ td input {
 
   .mensaje {
     margin: 0.75rem;
+  }
+
+
+  /* MODAL */
+
+  .modal-confirmacion {
+    width: min(100%, 380px);
   }
 
 }
@@ -421,8 +501,11 @@ td input {
   }
 
   td {
-    grid-template-columns: 75px minmax(0, 1fr);
+    grid-template-columns:
+      75px minmax(0, 1fr);
+
     gap: 0.5rem;
+
     padding: 0.65rem;
   }
 
@@ -431,7 +514,7 @@ td input {
   }
 
 
-  /* BOTONES */
+  /* ACCIONES */
 
   td.acciones {
     display: flex;
@@ -446,6 +529,17 @@ td input {
     flex: 1;
     padding: 0.55rem 0.35rem;
     font-size: 0.82rem;
+  }
+
+
+  /* MODAL */
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
   }
 
 }

@@ -4,7 +4,9 @@
 
     <div class="registrar-header">
 
-      <h1>Registrar Nueva Comisión</h1>
+      <h1>
+        Registrar Nueva Comisión
+      </h1>
 
       <button
         type="button"
@@ -15,11 +17,29 @@
 
     </div>
 
+
     <form
       (ngSubmit)="guardarComision()"
       class="registrar-form">
 
+
       <div class="form-row">
+
+        <div class="campo">
+
+          <label for="codigoComision">
+            Código de la comisión (6 caracteres)
+          </label>
+
+          <input
+            id="codigoComision"
+            type="text"
+            name="codigo"
+            [(ngModel)]="comision.codigo"
+            maxlength="6"
+            required>
+
+        </div>
 
         <div class="campo">
 
@@ -32,10 +52,12 @@
             type="text"
             name="nombre"
             [(ngModel)]="comision.nombre"
+            maxlength="50"
             placeholder="Ej: Prog1-C1-TM"
             required>
 
         </div>
+
 
         <div class="campo">
 
@@ -49,11 +71,13 @@
             name="cantidad_alumnos"
             [(ngModel)]="comision.cantidad_alumnos"
             min="1"
+            max="100"
             required>
 
         </div>
 
       </div>
+
 
       <div class="campo">
 
@@ -76,13 +100,20 @@
             *ngFor="let asignatura of asignaturas"
             [ngValue]="+asignatura.id">
 
-            {{ asignatura.nombre_asignatura }}
+            {{ asignatura.nombre }}
 
           </option>
 
         </select>
 
+        <div
+          *ngIf="errorCargaMaterias"
+          class="mensaje-resultado error">
+          {{ errorCargaMaterias }}
+        </div>
+
       </div>
+
 
       <div class="campo">
 
@@ -111,7 +142,14 @@
 
         </select>
 
+        <div
+          *ngIf="errorCargaCarreras"
+          class="mensaje-resultado error">
+          {{ errorCargaCarreras }}
+        </div>
+
       </div>
+
 
       <div class="campo">
 
@@ -134,13 +172,15 @@
             *ngFor="let profesor of profesores"
             [ngValue]="+profesor.id">
 
-            {{ profesor.apellido }}, {{ profesor.nombre }}
+            {{ profesor.apellido }},
+            {{ profesor.nombre }}
 
           </option>
 
         </select>
 
       </div>
+
 
       <div
         *ngIf="mensajeError"
@@ -149,6 +189,16 @@
         {{ mensajeError }}
 
       </div>
+
+
+      <div
+        *ngIf="mensajeExito"
+        class="mensaje-resultado exito">
+
+        {{ mensajeExito }}
+
+      </div>
+
 
       <div class="form-actions">
 
@@ -164,43 +214,17 @@
           class="btn-registrar"
           [disabled]="guardando">
 
-          {{ guardando ? 'Guardando...' : 'Registrar Comisión' }}
+          {{
+            guardando
+              ? 'Guardando...'
+              : 'Registrar Comisión'
+          }}
 
         </button>
 
       </div>
 
     </form>
-
-  </div>
-
-</div>
-
-
-<!-- MODAL DE ÉXITO -->
-
-<div
-  *ngIf="mostrarExito"
-  class="modal-overlay">
-
-  <div class="modal-exito">
-
-    <div class="icono-exito">
-      ✓
-    </div>
-
-    <h2>¡Comisión registrada!</h2>
-
-    <p>
-      La comisión fue registrada correctamente.
-    </p>
-
-    <button
-      type="button"
-      class="btn-aceptar"
-      (click)="cerrarExito()">
-      Aceptar
-    </button>
 
   </div>
 

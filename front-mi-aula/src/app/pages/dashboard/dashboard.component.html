@@ -2,18 +2,25 @@
 
   <div class="welcome-section">
 
-    <h1>¡Bienvenido/a, {{ usuario()?.nombre }}!</h1>
+    <h1>
+      ¡Bienvenido/a, {{ usuario()?.nombre }}!
+    </h1>
 
-    <p>Sistema de Gestión de Aulas - UTN Regional MdP</p>
+    <p>
+      Sistema de Gestión de Aulas - UTN Regional MdP
+    </p>
 
     @if (usuario()) {
+
       <div class="user-info">
         <p><strong>Rol:</strong> {{ usuario()!.roles.join(', ') }}</p>
         <p><strong>Email:</strong> {{ usuario()!.email }}</p>
       </div>
+
     }
 
   </div>
+
 
   <div class="actions-section">
 
@@ -23,7 +30,8 @@
 
       @if (tieneRol('administrador')) {
 
-        <!-- GESTOR DE SOLICITUDES -->
+
+        <!-- SOLICITUDES -->
 
         <div
           class="action-card solicitudes"
@@ -34,14 +42,20 @@
             src="Solicitudes.png"
             alt="Icono de solicitudes"/>
 
-          <h3>Gestor Solicitudes</h3>
+          <h3>
+            Gestor Solicitudes
+          </h3>
 
-          <p>Administrar solicitudes de cambio de aula</p>
+          <p>
+            Administrar solicitudes de cambio de aula
+          </p>
 
           @if (pendingSolicitudes > 0) {
+
             <div class="notification-badge">
               {{ pendingSolicitudes }}
             </div>
+
           }
 
         </div>
@@ -58,9 +72,13 @@
             src="Reservas.png"
             alt="Icono de reservas"/>
 
-          <h3>Ver Todas las Reservas</h3>
+          <h3>
+            Ver Todas las Reservas
+          </h3>
 
-          <p>Administrar todas las reservas del sistema</p>
+          <p>
+            Administrar todas las reservas del sistema
+          </p>
 
         </div>
 
@@ -76,9 +94,13 @@
             src="Usuarios.png"
             alt="Icono de usuarios"/>
 
-          <h3>Gestión de Usuarios</h3>
+          <h3>
+            Gestión de Usuarios
+          </h3>
 
-          <p>Administrar profesores y permisos</p>
+          <p>
+            Administrar profesores y permisos
+          </p>
 
         </div>
 
@@ -94,9 +116,13 @@
             src="Espacios.png"
             alt="Icono de espacios"/>
 
-          <h3>Gestión de Espacios</h3>
+          <h3>
+            Gestión de Espacios
+          </h3>
 
-          <p>Administrar aulas y laboratorios</p>
+          <p>
+            Administrar aulas y laboratorios
+          </p>
 
         </div>
 
@@ -112,7 +138,9 @@
             src="Recursos.png"
             alt="Icono de recursos"/>
 
-          <h3>Gestión de Recursos</h3>
+          <h3>
+            Gestión de Recursos
+          </h3>
 
           <p>
             Gestionar los recursos disponibles para los espacios educativos
@@ -132,9 +160,13 @@
             src="Comisiones.png"
             alt="Icono de comisiones"/>
 
-          <h3>Gestión de Comisiones</h3>
+          <h3>
+            Gestión de Comisiones
+          </h3>
 
-          <p>Administrar comisiones y asignaturas</p>
+          <p>
+            Administrar comisiones y asignaturas
+          </p>
 
         </div>
 
@@ -150,9 +182,13 @@
             src="Carreras.png"
             alt="Icono de carreras"/>
 
-          <h3>Gestión de Carreras</h3>
+          <h3>
+            Gestión de Carreras
+          </h3>
 
-          <p>Administrar planes de estudio</p>
+          <p>
+            Administrar planes de estudio
+          </p>
 
         </div>
 
@@ -162,6 +198,7 @@
       <!-- Opciones para profesores -->
 
       @if (tieneRol('profesor')) {
+
 
         <!-- MIS SOLICITUDES -->
 
@@ -174,9 +211,13 @@
             src="Solicitudes.png"
             alt="Icono de solicitudes"/>
 
-          <h3>Mis Solicitudes</h3>
+          <h3>
+            Mis Solicitudes
+          </h3>
 
-          <p>Ver historial de solicitudes realizadas</p>
+          <p>
+            Ver historial de solicitudes realizadas
+          </p>
 
         </div>
 
@@ -192,9 +233,13 @@
             src="Reservas.png"
             alt="Icono de reservas"/>
 
-          <h3>Ver Mis Reservas</h3>
+          <h3>
+            Ver Mis Reservas
+          </h3>
 
-          <p>Ver mis clases programadas ordenadas por estado</p>
+          <p>
+            Ver mis clases programadas ordenadas por estado
+          </p>
 
         </div>
 
@@ -203,16 +248,20 @@
 
         <div
           class="action-card"
-          (click)="navigateTo('/gestion-comisiones')">
+          (click)="navigateTo('/gestion-comisiones/administrar-comisiones')">
 
           <img
             class="card-icon"
             src="Comisiones.png"
             alt="Icono de comisiones"/>
 
-          <h3>Mis Comisiones</h3>
+          <h3>
+            Mis Comisiones
+          </h3>
 
-          <p>Ver comisiones asignadas</p>
+          <p>
+            Ver comisiones asignadas
+          </p>
 
         </div>
 
@@ -224,5 +273,6 @@
 
 </div>
 
-<!-- Router outlet to render nested dashboard routes -->
+
+<!-- Router outlet para rutas internas -->
 <router-outlet></router-outlet>

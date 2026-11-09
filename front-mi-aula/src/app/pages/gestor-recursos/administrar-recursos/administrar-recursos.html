@@ -73,7 +73,7 @@
                 <td class="acciones">
                   <button type="button" class="btn-editar" (click)="editarRecurso(recurso)">Editar</button>
                   @if (estaHabilitado(recurso)) {
-                    <button type="button" class="btn-eliminar" (click)="abrirModal(recurso)">Eliminar</button>
+                    <button type="button" class="btn-eliminar" (click)="abrirModal(recurso)">Deshabilitar</button>
                   } @else {
                     <button type="button" class="btn-reactivar" (click)="abrirModal(recurso)">Reactivar</button>
                   }
@@ -142,7 +142,7 @@
         </div>
 
         @if (estaHabilitado(recursoSeleccionado()!)) {
-          <button (click)="eliminar()" class="btn-eliminar-usuario">Eliminar Recurso</button>
+          <button (click)="deshabilitar()" class="btn-eliminar-usuario">Deshabilitar Recurso</button>
         } @else {
           <button (click)="reactivar()" class="btn-reactivar-usuario">Reactivar Recurso</button>
         }

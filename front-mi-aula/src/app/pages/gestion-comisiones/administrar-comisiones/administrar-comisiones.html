@@ -37,7 +37,6 @@
         class="input-buscar"
         placeholder="Buscar por comisión, asignatura, carrera o profesor..."
         [(ngModel)]="busqueda"
-        (click)="mostrarTodas()"
         (input)="buscar()"
         aria-label="Buscar comisiones">
 
@@ -58,6 +57,7 @@
             <th>Asignatura</th>
             <th>Carrera</th>
             <th>Profesor</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -73,19 +73,23 @@
               </td>
 
               <td data-label="Alumnos">
-                {{ comision.cantidad_alumnos }}
+                {{ comision.cantidadEstudiantes }}
               </td>
 
               <td data-label="Asignatura">
-                {{ obtenerAsignatura(comision.asignatura_id) }}
+                {{ comision.materiaNombre }}
               </td>
 
               <td data-label="Carrera">
-                {{ obtenerCarrera(comision.carrera_id) }}
+                {{ comision.carreraNombre }}
               </td>
 
               <td data-label="Profesor">
-                {{ obtenerProfesor(comision.usuario_profesor_id) }}
+                {{ comision.profesorNombre }}
+              </td>
+
+              <td data-label="Estado">
+                {{ comision.activo ? 'Activa' : 'Deshabilitada' }}
               </td>
 
               <td data-label="Acciones" class="acciones">
@@ -93,15 +97,25 @@
                 <button
                   type="button"
                   class="btn-editar"
+                  [disabled]="!comision.activo"
                   (click)="editarComision(comision)">
                   Editar
                 </button>
 
                 <button
+                  *ngIf="comision.activo"
                   type="button"
                   class="btn-eliminar"
                   (click)="eliminarComision(comision)">
-                  Eliminar
+                  Deshabilitar
+                </button>
+
+                <button
+                  *ngIf="!comision.activo"
+                  type="button"
+                  class="btn-editar"
+                  (click)="activarComision(comision)">
+                  Reactivar
                 </button>
 
               </td>
@@ -115,6 +129,12 @@
 
                 <input
                   type="text"
+                  [(ngModel)]="editando.codigo"
+                  maxlength="6"
+                  aria-label="Código de la comisión">
+
+                <input
+                  type="text"
                   [(ngModel)]="editando.nombre"
                   aria-label="Nombre de la comisión">
 
@@ -125,7 +145,8 @@
                 <input
                   type="number"
                   min="1"
-                  [(ngModel)]="editando.cantidad_alumnos"
+                  max="100"
+                  [(ngModel)]="editando.cantidadEstudiantes"
                   aria-label="Cantidad de alumnos">
 
               </td>
@@ -133,13 +154,14 @@
               <td data-label="Asignatura">
 
                 <select
-                  [(ngModel)]="editando.asignatura_id"
+                  [ngModel]="editando.materiaNombre"
+                  disabled
                   aria-label="Asignatura">
 
                   <option
                     *ngFor="let asignatura of asignaturas"
-                    [ngValue]="+asignatura.id">
-                    {{ asignatura.nombre_asignatura }}
+                    [ngValue]="asignatura.nombre">
+                    {{ asignatura.nombre }}
                   </option>
 
                 </select>
@@ -149,12 +171,12 @@
               <td data-label="Carrera">
 
                 <select
-                  [(ngModel)]="editando.carrera_id"
+                  [(ngModel)]="editando.carreraId"
                   aria-label="Carrera">
 
                   <option
                     *ngFor="let carrera of carreras"
-                    [ngValue]="+carrera.id">
+                    [ngValue]="carrera.id">
                     {{ carrera.nombre }}
                   </option>
 
@@ -165,17 +187,21 @@
               <td data-label="Profesor">
 
                 <select
-                  [(ngModel)]="editando.usuario_profesor_id"
+                  [(ngModel)]="editando.profesorId"
                   aria-label="Profesor">
 
                   <option
                     *ngFor="let profesor of profesores"
-                    [ngValue]="+profesor.id">
+                    [ngValue]="profesor.id">
                     {{ profesor.apellido }}, {{ profesor.nombre }}
                   </option>
 
                 </select>
 
+              </td>
+
+              <td data-label="Estado">
+                Activa
               </td>
 
               <td data-label="Acciones" class="acciones">

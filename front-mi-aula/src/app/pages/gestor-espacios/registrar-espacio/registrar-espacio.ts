@@ -18,11 +18,10 @@ export class RegistrarEspacio {
   exito = signal('');
 
   form = this.fb.group({
-    code: ['', [Validators.required, Validators.maxLength(6)]],
-    name: ['', [Validators.required, Validators.maxLength(25)]],
-    capacity: [null as number | null, [Validators.required, Validators.min(1)]],
-    floor_number: [null as number | null, [Validators.required, Validators.min(0)]],
-    enabled: [true, [Validators.required]],
+    codigo: ['', [Validators.required, Validators.maxLength(6)]],
+    nombre: ['', [Validators.required, Validators.maxLength(50)]],
+    capacidad: [null as number | null, [Validators.required, Validators.min(1)]],
+    nroPiso: [null as number | null, [Validators.required]],
   });
 
   registrarEspacio() {
@@ -36,19 +35,19 @@ export class RegistrarEspacio {
 
     const value = this.form.getRawValue();
     const payload: EspacioCreateDto = {
-      codigo: (value.code || '').trim().toUpperCase(),
-      nombre: (value.name || '').trim(),
-      capacidad: Number(value.capacity),
-      nroPiso: Number(value.floor_number),
+      codigo: (value.codigo || '').trim().toUpperCase(),
+      nombre: (value.nombre || '').trim(),
+      capacidad: Number(value.capacidad),
+      nroPiso: Number(value.nroPiso),
     };
 
     this.espacioService.crear(payload).subscribe({
       next: () => {
         this.form.reset({
-          code: '',
-          name: '',
-          capacity: null,
-          floor_number: null,
+          codigo: '',
+          nombre: '',
+          capacidad: null,
+          nroPiso: null,
         });
         this.exito.set('Espacio registrado correctamente.');
       },

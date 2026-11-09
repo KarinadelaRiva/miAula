@@ -21,6 +21,23 @@
 
       <div class="campo">
 
+        <label for="codigoCarrera">
+          Código de la carrera
+        </label>
+
+        <input
+          id="codigoCarrera"
+          type="text"
+          name="codigo"
+          [(ngModel)]="codigo"
+          placeholder="Ej: TUP"
+          maxlength="6"
+          required>
+
+      </div>
+
+      <div class="campo">
+
         <label for="nombreCarrera">
           Nombre de la carrera
         </label>
@@ -31,6 +48,7 @@
           name="nombre"
           [(ngModel)]="nombre"
           placeholder="Ej: Tecnicatura Universitaria en Programación"
+          maxlength="50"
           required>
 
       </div>
@@ -40,6 +58,14 @@
         class="mensaje-resultado error">
 
         {{ mensajeError }}
+
+      </div>
+
+      <div
+        *ngIf="mensajeExito"
+        class="mensaje-resultado exito">
+
+        {{ mensajeExito }}
 
       </div>
 
@@ -57,43 +83,17 @@
           class="btn-registrar"
           [disabled]="guardando">
 
-          {{ guardando ? 'Guardando...' : 'Registrar Carrera' }}
+          {{
+            guardando
+              ? 'Guardando...'
+              : 'Registrar Carrera'
+          }}
 
         </button>
 
       </div>
 
     </form>
-
-  </div>
-
-</div>
-
-
-<!-- MODAL DE ÉXITO -->
-
-<div
-  *ngIf="mostrarExito"
-  class="modal-overlay">
-
-  <div class="modal-exito">
-
-    <div class="icono-exito">
-      ✓
-    </div>
-
-    <h2>¡Carrera registrada!</h2>
-
-    <p>
-      La carrera fue registrada correctamente.
-    </p>
-
-    <button
-      type="button"
-      class="btn-aceptar"
-      (click)="cerrarExito()">
-      Aceptar
-    </button>
 
   </div>
 

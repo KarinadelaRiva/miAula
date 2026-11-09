@@ -34,7 +34,10 @@ public class SecurityConfig {
         "/auth/login",
         "/reservas/cronograma-por-dia",
         "/reservas/cronograma",
-        "/espacios" // sin restriccion de manera provisional para tests
+        "/usuarios", // sin restriccion de manera provisional para tests
+        "/espacios", // sin restriccion de manera provisional para tests
+        "/recursos", // sin restriccion de manera provisional para tests
+        "/comisiones" // sin restriccion de manera provisional para tests
     };
     
     private final String[] rutasSinRestriccionPOST = {
@@ -59,8 +62,6 @@ public class SecurityConfig {
         return source;
     }
 
-
-
     // Proveedor de autenticación que conecta al servicio de usuarios y al codificador
     @Bean
     public AuthenticationProvider authenticationProvider(UsuarioService userDetailsService) {
@@ -77,25 +78,20 @@ public class SecurityConfig {
 
     // Configuración del filtro de seguridad para proteger rutas y validar JWT
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                    JwtAuthFilter jwtAuthFilter,
-                                                    AuthenticationProvider authenticationProvider
-                                                    ) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthFilter jwtAuthFilter,
+            AuthenticationProvider authenticationProvider) throws Exception {
         return http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(rutasSinRestriccion).permitAll()
                         .requestMatchers(HttpMethod.POST, rutasSinRestriccionPOST).permitAll()
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
-                .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

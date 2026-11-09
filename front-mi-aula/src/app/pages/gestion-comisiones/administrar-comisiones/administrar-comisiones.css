@@ -18,6 +18,7 @@
   box-sizing: border-box;
 }
 
+
 /* =========================
    HEADER
    ========================= */
@@ -27,32 +28,47 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #133e87, #608bc1);
+
+  background: linear-gradient(
+    135deg,
+    #133e87,
+    #608bc1
+  );
+
   color: #fff;
 }
 
 .eyebrow {
   display: block;
+
   margin-bottom: 0.25rem;
+
   font-size: 0.75rem;
+
   opacity: 0.8;
+
   text-transform: uppercase;
+
   letter-spacing: 0.06em;
 }
 
 .administrar-header h1 {
   margin: 0;
+
   font-size: 1.5rem;
 }
 
 .administrar-header p {
   margin: 0.35rem 0 0;
+
   opacity: 0.86;
 }
 
 .header-actions {
   display: flex;
+
   gap: 0.5rem;
 }
 
@@ -67,32 +83,44 @@
 .btn-eliminar,
 .btn-guardar,
 .btn-cancelar {
+
   border: 1px solid transparent;
+
   border-radius: 4px;
+
   padding: 0.55rem 0.8rem;
+
   color: #fff;
+
   font: inherit;
+
   font-weight: 600;
+
   cursor: pointer;
 }
+
 
 .btn-nuevo,
 .btn-editar {
   background: #2563a6;
 }
 
+
 .btn-volver,
 .btn-cancelar {
   background: #52677d;
 }
 
+
 .btn-eliminar {
   background: #c0392b;
 }
 
+
 .btn-guardar {
   background: #287d59;
 }
+
 
 .btn-nuevo:hover,
 .btn-volver:hover,
@@ -100,6 +128,7 @@
 .btn-eliminar:hover,
 .btn-guardar:hover,
 .btn-cancelar:hover {
+
   filter: brightness(0.92);
 }
 
@@ -109,36 +138,62 @@
    ========================= */
 
 .filtros-section {
+
   display: flex;
+
   align-items: center;
+
   gap: 0.5rem;
+
   padding: 1rem 1.25rem;
+
   background: #f8fbff;
+
   border-bottom: 1px solid #d8e3ef;
 }
+
 
 .input-buscar,
 td input,
 td select {
+
   box-sizing: border-box;
+
   min-height: 2.35rem;
+
   padding: 0.5rem 0.65rem;
+
   border: 1px solid #b8c8d9;
+
   border-radius: 4px;
+
   color: #213547;
+
   background: #fff;
+
   font: inherit;
 }
 
+
 .input-buscar {
+
   flex: 1;
+
   min-width: 0;
 }
+
 
 .input-buscar:focus,
 td input:focus,
 td select:focus {
-  outline: 2px solid rgba(37, 99, 166, 0.2);
+
+  outline: 2px solid rgba(
+    37,
+    99,
+    166,
+    0.2
+  );
+
   border-color: #2563a6;
 }
 
@@ -148,10 +203,15 @@ td select:focus {
    ========================= */
 
 .mensaje {
+
   margin: 1rem 1.25rem 0;
+
   padding: 0.7rem 0.9rem;
+
   border-left: 3px solid #2563a6;
+
   color: #213547;
+
   background: #edf4fb;
 }
 
@@ -161,47 +221,73 @@ td select:focus {
    ========================= */
 
 .tabla-container {
+
   width: 100%;
+
   overflow-x: auto;
+
   padding: 0 1.25rem 1rem;
+
   box-sizing: border-box;
 }
 
+
 table {
+
   width: 100%;
+
   min-width: 900px;
+
   border-collapse: collapse;
 }
 
+
 th,
 td {
+
   padding: 0.8rem 0.65rem;
+
   text-align: left;
+
   border-bottom: 1px solid #d8e3ef;
+
   vertical-align: middle;
 }
 
+
 th {
+
   color: #fff;
+
   background: #133e87;
+
   font-size: 0.85rem;
 }
 
+
 td {
+
   color: #334e68;
 }
 
+
 tbody tr:nth-child(even) {
+
   background: #f8fbff;
 }
 
+
 tbody tr:hover {
+
   background: #edf4fb;
 }
 
+
 td input,
 td select {
+
   width: 100%;
+
   min-width: 110px;
 }
 
@@ -211,8 +297,11 @@ td select {
    ========================= */
 
 .acciones {
+
   display: flex;
+
   align-items: center;
+
   gap: 0.5rem;
 }
 
@@ -222,9 +311,91 @@ td select {
    ========================= */
 
 .sin-resultados {
+
   padding: 2rem;
+
   text-align: center;
+
   color: #52677d;
+}
+
+
+/* =========================
+   MODAL CONFIRMACIÓN
+   ========================= */
+
+.modal-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 1rem;
+
+  background: rgba(
+    15,
+    30,
+    45,
+    0.48
+  );
+}
+
+
+.modal-confirmacion {
+
+  width: min(100%, 420px);
+
+  padding: 1.5rem;
+
+  border: 1px solid #c8d7e8;
+
+  border-radius: 8px;
+
+  background: #fff;
+
+  box-shadow:
+    0 18px 45px
+    rgba(15, 30, 45, 0.28);
+
+  text-align: center;
+}
+
+
+.modal-confirmacion h2 {
+
+  margin: 0 0 0.75rem;
+
+  color: #213547;
+
+  font-size: 1.3rem;
+}
+
+
+.modal-confirmacion p {
+
+  margin: 0 0 1.25rem;
+
+  color: #52677d;
+
+  line-height: 1.5;
+}
+
+
+.modal-actions {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 0.5rem;
 }
 
 
@@ -235,12 +406,15 @@ td select {
 @media (max-width: 1000px) {
 
   .tabla-container {
+
     overflow-x: auto;
   }
 
   table {
+
     min-width: 850px;
   }
+
 }
 
 
@@ -251,10 +425,13 @@ td select {
 @media (max-width: 700px) {
 
   .administrar-container {
+
     padding: 0.5rem;
   }
 
+
   .administrar-card {
+
     width: 100%;
   }
 
@@ -262,25 +439,37 @@ td select {
   /* HEADER */
 
   .administrar-header {
+
     align-items: stretch;
+
     flex-direction: column;
+
     padding: 1rem;
   }
 
+
   .administrar-header h1 {
+
     font-size: 1.25rem;
   }
 
+
   .administrar-header p {
+
     font-size: 0.9rem;
   }
 
+
   .header-actions {
+
     flex-direction: column;
+
     width: 100%;
   }
 
+
   .header-actions button {
+
     width: 100%;
   }
 
@@ -288,172 +477,262 @@ td select {
   /* BUSCADOR */
 
   .filtros-section {
+
     padding: 0.75rem;
   }
+
 
   .input-buscar {
+
     width: 100%;
   }
 
 
-  /* CONTENEDOR DE LA TABLA */
+  /* TABLA */
 
   .tabla-container {
+
     width: 100%;
+
     overflow: visible;
+
     padding: 0.75rem;
   }
 
-
-  /* LA TABLA PASA A TARJETAS */
 
   table,
   tbody,
   tr,
   td {
+
     display: block;
+
     width: 100%;
+
     box-sizing: border-box;
   }
 
+
   table {
+
     min-width: 0;
   }
 
+
   thead {
+
     display: none;
   }
 
 
-  /* CADA COMISIÓN ES UNA TARJETA */
+  /* TARJETAS */
 
   tbody tr {
+
     margin-bottom: 1rem;
+
     overflow: hidden;
+
     border: 1px solid #c8d7e8;
+
     border-radius: 8px;
+
     background: #fff;
-    box-shadow: 0 2px 6px rgba(15, 50, 90, 0.08);
+
+    box-shadow:
+      0 2px 6px
+      rgba(15, 50, 90, 0.08);
   }
+
 
   tbody tr:nth-child(even),
   tbody tr:hover {
+
     background: #fff;
   }
 
 
-  /* FILAS INTERNAS DE LA TARJETA */
-
   td {
+
     display: grid;
-    grid-template-columns: 90px minmax(0, 1fr);
+
+    grid-template-columns:
+      90px minmax(0, 1fr);
+
     align-items: center;
+
     gap: 0.75rem;
+
     min-height: 46px;
+
     padding: 0.7rem;
-    border-bottom: 1px solid #d8e3ef;
+
+    border-bottom:
+      1px solid #d8e3ef;
   }
 
+
   td::before {
+
     content: attr(data-label);
+
     color: #52677d;
+
     font-size: 0.78rem;
+
     font-weight: 700;
   }
 
+
   td:last-child {
+
     border-bottom: 0;
   }
 
 
-  /* INPUTS Y SELECTS AL EDITAR */
+  /* INPUTS */
 
   td input,
   td select {
+
     width: 100%;
+
     min-width: 0;
   }
 
 
-  /* =========================
-     BOTONES DE ACCIONES
-     ========================= */
+  /* ACCIONES */
 
   td.acciones {
+
     display: flex;
+
     align-items: center;
+
     gap: 0.5rem;
   }
 
+
   td.acciones::before {
+
     content: attr(data-label);
+
     flex: 0 0 90px;
   }
 
+
   td.acciones button {
+
     flex: 1;
+
     width: auto;
+
     min-width: 0;
   }
 
 
-  /* MENSAJES */
+  /* MENSAJE */
 
   .mensaje {
+
     margin: 0.75rem;
+  }
+
+
+  /* MODAL */
+
+  .modal-confirmacion {
+
+    width: min(100%, 380px);
   }
 
 }
 
 
 /* =========================
-   CELULARES MUY CHICOS
+   CELULAR MUY CHICO
    ========================= */
 
 @media (max-width: 430px) {
 
   .administrar-container {
+
     padding: 0.25rem;
   }
 
+
   .administrar-card {
+
     border-radius: 8px;
   }
 
+
   .administrar-header {
+
     border-radius: 0;
   }
 
+
   .tabla-container {
+
     padding: 0.5rem;
   }
 
+
   td {
-    grid-template-columns: 75px minmax(0, 1fr);
+
+    grid-template-columns:
+      75px minmax(0, 1fr);
+
     gap: 0.5rem;
+
     padding: 0.65rem;
   }
 
+
   td::before {
+
     font-size: 0.72rem;
   }
 
 
-  /* Acciones siguen una al lado de la otra */
+  /* ACCIONES */
 
   td.acciones {
+
     display: flex;
+
     gap: 0.4rem;
   }
 
+
   td.acciones::before {
+
     flex: 0 0 75px;
   }
 
+
   td.acciones button {
+
     flex: 1;
+
     padding: 0.55rem 0.35rem;
+
     font-size: 0.82rem;
+  }
+
+
+  /* MODAL */
+
+  .modal-actions {
+
+    flex-direction: column-reverse;
+  }
+
+
+  .modal-actions button {
+
+    width: 100%;
   }
 
 }

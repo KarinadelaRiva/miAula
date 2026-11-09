@@ -1,4 +1,5 @@
 import { Component, inject, model, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Espacio } from '../../../models/espacio';
@@ -31,7 +32,6 @@ export class AdministrarEspacios {
     this.cargarEspacios();
   }
 
-  /*
   cargarEspacios() {
     this.espacioService
       .obtenerEspaciosPaginados(this.paginaActual(), this.limite, this.filtroBusqueda(), this.filtroEstado())
@@ -40,20 +40,14 @@ export class AdministrarEspacios {
           this.listaEspacios.set(espacios);
           this.totalPaginas.set(Math.ceil(total / this.limite));
         },
-        error: () => {
+        error: (error: HttpErrorResponse) => {
           this.listaEspacios.set([]);
           this.totalPaginas.set(0);
+          this.mensaje.set(
+            this.obtenerMensajeError(error, 'No se pudo cargar la lista de espacios.')
+          );
         },
       });
-  }
-  */
-
-  cargarEspacios() {
-    this.espacioService.getAll().subscribe({
-      next:(data) => {
-        this.listaEspacios.set(data);
-      }
-    });
   }
 
   aplicarFiltros() {
@@ -92,6 +86,9 @@ export class AdministrarEspacios {
         this.espacioSeleccionado.set(null);
         this.cargarEspacios();
       },
+      error: (error: HttpErrorResponse) => {
+        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo deshabilitar el espacio.'));
+      },
     });
   }
 
@@ -104,6 +101,9 @@ export class AdministrarEspacios {
         this.espacioSeleccionado.set(null);
         this.cargarEspacios();
       },
+      error: (error: HttpErrorResponse) => {
+        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo reactivar el espacio.'));
+      },
     });
   }
 
@@ -111,17 +111,23 @@ export class AdministrarEspacios {
     if (this.estaHabilitado(espacio)) {
       this.espacioService.eliminarById(espacio.id).subscribe({
         next: () => this.cargarEspacios(),
+        error: (error: HttpErrorResponse) => {
+          this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo deshabilitar el espacio.'));
+        },
       });
       return;
     }
 
     this.espacioService.reactivarById(espacio.id).subscribe({
       next: () => this.cargarEspacios(),
+      error: (error: HttpErrorResponse) => {
+        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo reactivar el espacio.'));
+      },
     });
   }
 
   estaHabilitado(espacio: Espacio): boolean {
-    return Number(espacio.activo) === 1;
+    return espacio.activo;
   }
 
   editarEspacio(espacio: Espacio) {
@@ -140,8 +146,21 @@ export class AdministrarEspacios {
     const capacidad = this.capacidadEditado;
     const nroPiso = this.pisoEditado;
 
-    if (!espacio || !codigo || !nombre || !capacidad || !nroPiso) {
-      this.mensaje.set('Completá todos los campos para poder guardar.');
+    if (
+      !espacio ||
+      !codigo ||
+      !nombre ||
+      capacidad === null ||
+      capacidad === undefined ||
+      nroPiso === null ||
+      nroPiso === undefined ||
+      capacidad < 1
+    ) {
+      this.mensaje.set(
+        capacidad !== null && capacidad !== undefined && capacidad < 1
+          ? 'La capacidad debe ser como mínimo 1.'
+          : 'Completá todos los campos para poder guardar.'
+      );
       return;
     }
 
@@ -153,12 +172,36 @@ export class AdministrarEspacios {
       nroPiso,
     }).subscribe({
       next: () => {
-        this.mensaje.set('Usuario actualizado correctamente.');
+        this.mensaje.set('Espacio actualizado correctamente.');
         this.cancelarEdicion();
         this.cargarEspacios();
       },
-      error: () => this.mensaje.set('No se pudo actualizar el usuario.'),
+      error: (error: HttpErrorResponse) => {
+        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo actualizar el espacio.'));
+      },
     });
+  }
+
+  private obtenerMensajeError(error: HttpErrorResponse, mensajePredeterminado: string): string {
+    if (typeof error.error === 'string' && error.error.trim()) {
+      return error.error;
+    }
+
+    if (error.error && typeof error.error === 'object') {
+      const cuerpo = error.error as { message?: unknown; error?: unknown };
+      if (typeof cuerpo.message === 'string' && cuerpo.message.trim()) {
+        return cuerpo.message;
+      }
+      if (typeof cuerpo.error === 'string' && cuerpo.error.trim()) {
+        return cuerpo.error;
+      }
+    }
+
+    if (error.message?.trim()) {
+      return error.message;
+    }
+
+    return mensajePredeterminado;
   }
 
   cancelarEdicion() {

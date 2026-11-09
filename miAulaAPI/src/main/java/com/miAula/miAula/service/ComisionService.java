@@ -1,17 +1,17 @@
-/*package com.miAula.miAula.service;
+package com.miAula.miAula.service;
 
 import com.miAula.miAula.dtos.comision.ComisionCreateDTO;
 import com.miAula.miAula.dtos.comision.ComisionResponseDTO;
 import com.miAula.miAula.dtos.comision.ComisionUpdateDTO;
 import com.miAula.miAula.dtos.cronograma.CronogramaComisionDTO;
-import com.miAula.miAula.entities.Carrera;
 import com.miAula.miAula.entities.Comision;
 import com.miAula.miAula.entities.Usuario;
 import com.miAula.miAula.exceptions.EntityValidationException;
+import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
+import com.miAula.miAula.repository.CarreraMateriaRepository;
 import com.miAula.miAula.repository.ComisionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,22 +23,26 @@ public class ComisionService {
     private final UsuarioService usuarioService;
     private final CarreraService carreraService;
     private final MateriaService materiaService;
-    private final ReservaService reservaService;
+    private final CarreraMateriaRepository carreraMateriaRepository;
+//    private final ReservaService reservaService;
 
     @Autowired
     public ComisionService(ComisionRepository comisionRepository, UsuarioService usuarioService,
                            CarreraService carreraService, MateriaService materiaService,
-                           @Lazy ReservaService reservaService) {
+                           CarreraMateriaRepository carreraMateriaRepository
+                           /*, @Lazy ReservaService reservaService*/) {
         this.comisionRepository = comisionRepository;
         this.usuarioService = usuarioService;
         this.carreraService = carreraService;
         this.materiaService = materiaService;
-        this.reservaService = reservaService;
+        this.carreraMateriaRepository = carreraMateriaRepository;
+//        this.reservaService = reservaService;
     }
 
     public Comision comisionCreateDTOtoComision(ComisionCreateDTO dto) {
         return Comision.builder()
-                .nombre(dto.getNombre())
+                .codigo(dto.getCodigo().trim().toUpperCase())
+                .nombre(dto.getNombre().trim())
                 .cantidadEstudiantes(dto.getCantidadEstudiantes())
                 .materia(materiaService.obtenerPorId(dto.getMateriaId()))
                 .carrera(carreraService.obtenerPorId(dto.getCarreraId()))
@@ -49,11 +53,16 @@ public class ComisionService {
     public ComisionResponseDTO comisionToComisionResponseDTO(Comision comision) {
         return ComisionResponseDTO.builder()
                 .id(comision.getId())
+                .codigo(comision.getCodigo())
                 .nombre(comision.getNombre())
                 .materiaNombre(comision.getMateria().getNombre())
+                .materiaId(comision.getMateria().getId())
                 .carreraNombre(comision.getCarrera().getNombre())
+                .carreraId(comision.getCarrera().getId())
                 .profesorNombre(comision.getProfesor().getNombre())
+                .profesorId(comision.getProfesor().getId())
                 .cantidadEstudiantes(comision.getCantidadEstudiantes())
+                .activo(comision.getActivo())
                 .build();
     }
 
@@ -64,8 +73,8 @@ public class ComisionService {
                 .materiaNombre(comision.getMateria().getNombre())
                 .carreraNombre(comision.getCarrera().getNombre())
                 .profesorNombre(comision.getProfesor().getNombre())
-                .cantidadAlumnos(comision.getCantidadAlumnos())
-                .reservasVigentes(reservaService.obtenerReservasVigentesPorComision(comision.getId()))
+                .cantidadEstudiantes(comision.getCantidadEstudiantes())
+//                .reservasVigentes(reservaService.obtenerReservasVigentesPorComision(comision.getId()))
                 .build();
     }
 
@@ -90,45 +99,69 @@ public class ComisionService {
         validarProfesor(comision.getProfesor().getId());
         validarCarrera(comision.getCarrera().getId());
         validarMateria(comision.getCarrera().getId(), comision.getMateria().getId());
-        validarNombreComision(comision);
+        validarCodigoComision(comision.getCodigo(), null);
+        validarNombreComision(comision.getNombre(), comision.getMateria().getId(), null);
         return comisionRepository.save(comision);
     }
 
     public Comision actualizarComision(ComisionUpdateDTO dto) {
         Comision existente = obtenerComisionPorId(dto.getId());
         existente.setCantidadEstudiantes(dto.getCantidadEstudiantes());
-        existente.setNombre(dto.getNombre());
+        existente.setCodigo(dto.getCodigo().trim().toUpperCase());
+        existente.setNombre(dto.getNombre().trim());
         existente.setProfesor(usuarioService.obtenerPorId(dto.getProfesorId()));
         existente.setCarrera(carreraService.obtenerPorId(dto.getCarreraId()));
 
         validarProfesor(dto.getProfesorId());
         validarCarrera(dto.getCarreraId());
-        validarNombreComision(existente);
+        validarMateria(existente.getCarrera().getId(), existente.getMateria().getId());
+        validarCodigoComision(existente.getCodigo(), existente.getId());
+        validarNombreComision(existente.getNombre(), existente.getMateria().getId(), existente.getId());
 
         return comisionRepository.save(existente);
     }
 
     public void eliminarComision(Long id) {
-        if (!comisionRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Comisión no encontrada");
-        }
-        comisionRepository.deleteById(id);
+        Comision comision = obtenerComisionPorId(id);
+        comision.setActivo(false);
+        comisionRepository.save(comision);
+    }
+
+    public void activarComision(Long id) {
+        Comision comision = obtenerComisionPorId(id);
+        comision.setActivo(true);
+        comisionRepository.save(comision);
     }
 
     private void validarProfesor(Long idUsuarioProfesor) {
         Usuario usuario = usuarioService.obtenerPorId(idUsuarioProfesor);
+        boolean esProfesor = usuario.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_PROFESOR".equalsIgnoreCase(authority.getAuthority()));
 
-        boolean esProfesor = usuario.getUsuarioRoles().stream()
-                .anyMatch(usuarioRol -> "profesor".equals(usuarioRol.getRol().getNombre()));
         if (!esProfesor) {
             throw new EntityValidationException("El usuario con ID " + idUsuarioProfesor + " no tiene el rol de profesor");
         }
     }
 
-    private void validarNombreComision(Comision comision){
-        if (comisionRepository.existsByNombreAndMateriaId(
-                comision.getNombre(), comision.getMateria().getId())) {
-            throw new IllegalArgumentException("Ya existe una comisión con ese nombre para la materia indicada.");
+    private void validarCodigoComision(String codigo, Long idComision) {
+        boolean existe = idComision == null
+                ? comisionRepository.existsByCodigoIgnoreCase(codigo)
+                : comisionRepository.existsByCodigoIgnoreCaseAndIdNot(codigo, idComision);
+
+        if (existe) {
+            throw new ResourceConflictException("Ya existe una comisión con el código " + codigo);
+        }
+    }
+
+    private void validarNombreComision(String nombre, Long idMateria, Long idComision) {
+        boolean existe = idComision == null
+                ? comisionRepository.existsByNombreIgnoreCaseAndMateriaId(nombre, idMateria)
+                : comisionRepository.existsByNombreIgnoreCaseAndMateriaIdAndIdNot(
+                        nombre, idMateria, idComision);
+
+        if (existe) {
+            throw new ResourceConflictException(
+                    "Ya existe una comisión con ese nombre para la materia indicada.");
         }
     }
 
@@ -137,9 +170,9 @@ public class ComisionService {
     }
 
     private void validarMateria(Long idCarrera, Long idMateria) {
-        Carrera carrera = carreraService.obtenerPorId(idCarrera);
-        boolean materiaPertenece = carrera.getMaterias().stream()
-                .anyMatch(mat -> mat.getId().equals(idMateria));
+        carreraService.obtenerPorId(idCarrera);
+        boolean materiaPertenece = carreraMateriaRepository
+                .existsByCarrera_IdAndMateria_Id(idCarrera, idMateria);
 
         if (!materiaPertenece) {
             throw new EntityValidationException("La materia con ID " + idMateria + " no pertenece a la carrera con ID " + idCarrera);
@@ -153,10 +186,9 @@ public class ComisionService {
     }
 
     public List<ComisionResponseDTO> obtenerComisionesPorProfesor(Long profesorId) {
-        return comisionRepository.findByProfesorId(profesorId).stream()
+        return comisionRepository.findByProfesorIdAndActivoTrue(profesorId).stream()
                 .map(this::comisionToComisionResponseDTO)
                 .toList();
     }
 
 }
-*/

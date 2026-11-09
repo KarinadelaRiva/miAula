@@ -9,7 +9,6 @@ import { EspacioCreateDto } from '../../models/espacioCreateDto';
 })
 export class EspacioService {
   private http = inject(HttpClient);
-  private baseDatosUrl = 'http://localhost:3000/espacios';
   private baseDatosUrlBack = 'http://localhost:8080/espacios';
 
   getAll(): Observable<Espacio[]> {
@@ -17,31 +16,26 @@ export class EspacioService {
   }
 
   getEspacioById(id: number): Observable<Espacio> {
-    return this.http.get<Espacio>(`${this.baseDatosUrl}/${id}`);
+    return this.http.get<Espacio>(`${this.baseDatosUrlBack}/${id}`);
   }
 
   actualizarEspacio(espacio: Espacio): Observable<Espacio> {
-    return this.http.put<Espacio>(`${this.baseDatosUrl}/${espacio.id}`, espacio);
+    return this.http.put<Espacio>(this.baseDatosUrlBack, espacio);
   }
 
-  actualizarEstado(id: number, enabled: number): Observable<Espacio> {
-    return this.http.patch<Espacio>(`${this.baseDatosUrl}/${id}`, { enabled });
+  actualizarEstado(id: number, activo: boolean): Observable<Espacio> {
+    return this.http.patch<Espacio>(`${this.baseDatosUrlBack}/${id}`, { activo });
   }
 
-  eliminarById(id: number): Observable<Espacio> {
-    return this.http.patch<Espacio>(`${this.baseDatosUrl}/${id}`, { enabled: false });
+  eliminarById(id: number): Observable<void> {
+    return this.http.put<void>(`${this.baseDatosUrlBack}/${id}`, null);
   }
 
   reactivarById(id: number): Observable<Espacio> {
-    return this.http.patch<Espacio>(`${this.baseDatosUrl}/${id}`, { enabled: true });
+    return this.http.patch<Espacio>(`${this.baseDatosUrlBack}/${id}`, { activo: true });
   }
 
   crear(espacioNuevo: EspacioCreateDto): Observable<Espacio> {
-    /*
-    const espacio = {
-      ...espacioNuevo,
-      //activo: true,
-    };*/
     return this.http.post<Espacio>(this.baseDatosUrlBack, espacioNuevo);
   }
 
@@ -51,7 +45,7 @@ export class EspacioService {
     filtroTexto?: string,
     filtroEstado?: string | boolean
   ): Observable<{ espacios: Espacio[]; total: number }> {
-    return this.http.get<Espacio[]>(this.baseDatosUrl, { observe: 'response' }).pipe(
+    return this.http.get<Espacio[]>(this.baseDatosUrlBack, { observe: 'response' }).pipe(
       map((response) => {
         let espacios = response.body || [];
 
@@ -68,7 +62,7 @@ export class EspacioService {
         if (filtroEstado !== undefined && filtroEstado !== '') {
           const valorEstado = String(filtroEstado).toLowerCase();
           const activo = valorEstado === 'true' || valorEstado === '1';
-          espacios = espacios.filter((espacio) => Number(espacio.activo) === Number(activo));
+          espacios = espacios.filter((espacio) => espacio.activo === activo);
         }
 
         const inicio = (pagina - 1) * limite;

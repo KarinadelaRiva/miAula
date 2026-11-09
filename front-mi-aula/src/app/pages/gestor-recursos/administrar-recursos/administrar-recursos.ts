@@ -73,7 +73,7 @@ export class AdministrarRecursos {
     this.recursoSeleccionado.set(null);
   }
 
-  eliminar() {
+  deshabilitar() {
     const recurso = this.recursoSeleccionado();
     if (!recurso) return;
 
