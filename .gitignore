@@ -105,5 +105,5 @@ build/
 .vscode/
 
 # Backend local config
+miAulaAPI/pom.xml
 miAulaAPI/src/main/resources/application.properties
-
