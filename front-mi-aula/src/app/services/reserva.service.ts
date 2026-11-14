@@ -13,6 +13,23 @@ export interface Reserva {
   aula_id: number;
 }
 
+export interface ReservaModificable {
+  id: number;
+  diaSemana: string;
+  fechaInicio: string;
+  fechaFin: string;
+  horaInicio: string;
+  horaFin: string;
+  espacioId: number;
+  nombreEspacio: string;
+  comisionId: number;
+  nombreComision: string;
+  recursos: Array<{
+    recursoId: number;
+    cantidad: number;
+  }>;
+}
+
 export interface ReservaCalendario {
   id: string | number;
   title: string;
@@ -73,8 +90,13 @@ export interface Usuario {
 export class ReservaService {
   private http = inject(HttpClient);
   private baseUrl = 'http://localhost:3000';
+  private apiUrl = 'http://localhost:8080/reservas';
 
   constructor() { }
+
+  getMisReservasModificables(): Observable<ReservaModificable[]> {
+    return this.http.get<ReservaModificable[]>(`${this.apiUrl}/mias/modificables`);
+  }
 
   getReservas(): Observable<Reserva[]> {
     return this.http.get<Reserva[]>(`${this.baseUrl}/reservas`);

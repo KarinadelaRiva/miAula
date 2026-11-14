@@ -16,6 +16,7 @@ import { EspacioService } from '../../../services/espacio-service/espacio-servic
 import { Comision, ComisionService } from '../../../services/comision-service/comision-service';
 import { Espacio } from '../../../models/espacio';
 import { RecursoDisponible, RecursoService } from '../../../services/recurso-service/recurso-service';
+import { ReservaModificable, ReservaService as ReservaApiService } from '../../../services/reserva.service';
 
 interface RecursoSeleccionable extends RecursoDisponible {
   seleccionado: boolean;
@@ -37,17 +38,22 @@ export class Nueva implements OnInit {
   private espacioService = inject(EspacioService);
   private comisionService = inject(ComisionService);
   private recursoService = inject(RecursoService);
+  private reservaApiService = inject(ReservaApiService);
 
   form!: FormGroup;
   espacios: Espacio[] = [];
   comisiones: Comision[] = [];
+  reservasModificables: ReservaModificable[] = [];
   recursosDisponibles: RecursoSeleccionable[] = [];
   disponibilidadConsultada = false;
   cargandoRecursos = false;
+  cargandoReservas = false;
   errorRecursos: string | null = null;
   private consultaDisponibilidadId = 0;
   fechaMinima = '';
   fechaFinMinima = '';
+  private fechaMinimaNueva = '';
+  private fechaFinMinimaNueva = '';
   loading = false;
   mensaje: string | null = null;
   error: string | null = null;
@@ -55,10 +61,13 @@ export class Nueva implements OnInit {
   ngOnInit() {
     const hoy = new Date();
     this.fechaMinima = this.toDateInputValue(hoy);
+    this.fechaMinimaNueva = this.fechaMinima;
     hoy.setDate(hoy.getDate() + 1);
     this.fechaFinMinima = this.toDateInputValue(hoy);
+    this.fechaFinMinimaNueva = this.fechaFinMinima;
 
     this.form = this.fb.group({
+      reserva_original_id: [null],
       comentario_profesor: [''],
       dia_semana: ['LUNES', [Validators.required]],
       fecha_inicio: ['', [Validators.required, this.fechaNoAnteriorAHoy]],
@@ -75,6 +84,7 @@ export class Nueva implements OnInit {
       next: () => {
         this.cargarEspacios();
         this.cargarComisionesDelProfesor();
+        this.cargarReservasModificables();
       },
       error: () => this.router.navigate(['/login']),
     });
@@ -105,6 +115,78 @@ export class Nueva implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
+  private sumarDias(fecha: string, dias: number): string {
+    const [year, month, day] = fecha.split('-').map(Number);
+    return this.toDateInputValue(new Date(year, month - 1, day + dias));
+  }
+
+  private maxFecha(...fechas: string[]): string {
+    return fechas.reduce((mayor, fecha) => fecha > mayor ? fecha : mayor);
+  }
+
+  actualizarFechaFinMinima(): void {
+    const fechaInicio = this.form.get('fecha_inicio')?.value;
+    this.fechaFinMinima = fechaInicio
+      ? this.maxFecha(this.fechaFinMinimaNueva, this.sumarDias(fechaInicio, 1))
+      : this.fechaFinMinimaNueva;
+  }
+
+  onReservaOriginalChange(): void {
+    const reserva = this.reservaOriginalSeleccionada();
+    this.recursosDisponibles = [];
+    this.disponibilidadConsultada = false;
+    this.errorRecursos = null;
+
+    if (!reserva) {
+      this.fechaMinima = this.fechaMinimaNueva;
+      this.fechaFinMinima = this.fechaFinMinimaNueva;
+      this.form.patchValue({
+        nuevo_espacio_id: null,
+        comision_id: this.comisiones[0]?.id ?? null,
+        dia_semana: 'LUNES',
+        fecha_inicio: '',
+        fecha_fin: '',
+        hora_inicio: '',
+        hora_fin: '',
+      });
+      this.cargarRecursosDisponibles();
+      return;
+    }
+
+    this.fechaMinima = this.maxFecha(
+      this.fechaMinimaNueva,
+      this.sumarDias(reserva.fechaInicio, 1)
+    );
+    const fechaInicio = this.fechaMinima;
+    this.fechaFinMinima = this.maxFecha(
+      this.fechaFinMinimaNueva,
+      this.sumarDias(fechaInicio, 1)
+    );
+    const fechaFin = this.maxFecha(reserva.fechaFin, this.fechaFinMinima);
+
+    this.form.patchValue({
+      nuevo_espacio_id: reserva.espacioId,
+      comision_id: reserva.comisionId,
+      dia_semana: reserva.diaSemana,
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin,
+      hora_inicio: reserva.horaInicio,
+      hora_fin: reserva.horaFin,
+    });
+    this.cargarRecursosDisponibles();
+  }
+
+  private reservaOriginalSeleccionada(): ReservaModificable | null {
+    const id = this.form.get('reserva_original_id')?.value;
+    if (id == null || String(id).trim() === '') return null;
+    return this.reservasModificables.find((reserva) => reserva.id === Number(id)) ?? null;
+  }
+
+  etiquetaReserva(reserva: ReservaModificable): string {
+    return `${reserva.nombreComision} — ${reserva.nombreEspacio}, ${reserva.diaSemana} `
+      + `${reserva.horaInicio}-${reserva.horaFin} (${reserva.fechaInicio} - ${reserva.fechaFin})`;
+  }
+
   cargarRecursosDisponibles(): void {
     const { fecha_inicio, fecha_fin, dia_semana, hora_inicio, hora_fin } = this.form.getRawValue();
     if (!fecha_inicio || !fecha_fin || !dia_semana || !hora_inicio || !hora_fin
@@ -121,19 +203,33 @@ export class Nueva implements OnInit {
     this.cargandoRecursos = true;
     this.disponibilidadConsultada = true;
     this.errorRecursos = null;
-    this.recursoService.getDisponibles(fecha_inicio, fecha_fin, dia_semana, hora_inicio, hora_fin).subscribe({
+    const reservaOriginalId = this.form.get('reserva_original_id')?.value;
+    const reservaOriginal = this.reservaOriginalSeleccionada();
+    this.recursoService.getDisponibles(
+      fecha_inicio,
+      fecha_fin,
+      dia_semana,
+      hora_inicio,
+      hora_fin,
+      reservaOriginalId == null ? undefined : Number(reservaOriginalId)
+    ).subscribe({
       next: (recursos) => {
         if (consultaId !== this.consultaDisponibilidadId) return;
+        const recursosOriginales = reservaOriginal?.recursos ?? [];
         this.recursosDisponibles = recursos
-          .filter((recurso) => recurso.available > 0)
+          .filter((recurso) => recurso.available > 0
+            || recursosOriginales.some((original) => original.recursoId === recurso.id))
           .map((recurso) => {
             const anterior = this.recursosDisponibles.find((seleccionado) => seleccionado.id === recurso.id);
+            const recursoOriginal = recursosOriginales.find(
+              (seleccionado) => seleccionado.recursoId === recurso.id
+            );
             return {
               ...recurso,
-              seleccionado: anterior?.seleccionado ?? false,
+              seleccionado: anterior?.seleccionado ?? Boolean(recursoOriginal),
               cantidadSolicitada: anterior
                 ? Math.min(anterior.cantidadSolicitada, recurso.available)
-                : 1,
+                : recursoOriginal?.cantidad ?? 1,
             };
           });
         this.cargandoRecursos = false;
@@ -180,6 +276,20 @@ export class Nueva implements OnInit {
     });
   }
 
+  private cargarReservasModificables(): void {
+    this.cargandoReservas = true;
+    this.reservaApiService.getMisReservasModificables().subscribe({
+      next: (reservas) => {
+        this.reservasModificables = reservas;
+        this.cargandoReservas = false;
+      },
+      error: () => {
+        this.error = 'No se pudieron cargar tus reservas actuales o futuras.';
+        this.cargandoReservas = false;
+      },
+    });
+  }
+
   onSubmit() {
     this.mensaje = null;
     this.error = null;
@@ -189,7 +299,7 @@ export class Nueva implements OnInit {
       return;
     }
 
-    const form = this.form.value;
+    const form = this.form.getRawValue();
     const seleccionInvalida = this.recursosDisponibles.some(
       (recurso) => recurso.seleccionado
         && (!Number.isInteger(recurso.cantidadSolicitada)
@@ -202,6 +312,9 @@ export class Nueva implements OnInit {
     }
 
     const solicitud = {
+      reservaOriginalId: form.reserva_original_id == null || String(form.reserva_original_id).trim() === ''
+        ? null
+        : Number(form.reserva_original_id),
       nuevoEspacioId: Number(form.nuevo_espacio_id),
       fechaInicio: form.fecha_inicio,
       fechaFin: form.fecha_fin,
@@ -218,7 +331,10 @@ export class Nueva implements OnInit {
         })),
     };
     this.loading = true;
-    this.solicitudService.createNuevaSolicitud(solicitud).subscribe({
+    const enviarSolicitud = solicitud.reservaOriginalId == null
+      ? this.solicitudService.createNuevaSolicitud(solicitud)
+      : this.solicitudService.createModificacionSolicitud(solicitud);
+    enviarSolicitud.subscribe({
       next: () => {
         this.loading = false;
         this.router.navigate(['/solicitud/mis-solicitudes']);

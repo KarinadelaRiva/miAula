@@ -44,6 +44,7 @@ export interface RecursoSolicitadoCreate {
 }
 
 export interface SolicitudCreateRequest {
+  reservaOriginalId?: number | null;
   nuevoEspacioId: number;
   fechaInicio: string;
   fechaFin: string;
@@ -100,6 +101,10 @@ export class Solicitud {
 
   createNuevaSolicitud(solicitud: SolicitudCreateRequest): Observable<SolicitudResponseDTO> {
     return this.http.post<SolicitudResponseDTO>(`${this.apiUrl}/nueva`, solicitud);
+  }
+
+  createModificacionSolicitud(solicitud: SolicitudCreateRequest): Observable<SolicitudResponseDTO> {
+    return this.http.post<SolicitudResponseDTO>(`${this.apiUrl}/modificar`, solicitud);
   }
 
   getSolicitudesDelUsuario(): Observable<SolicitudData[]> {

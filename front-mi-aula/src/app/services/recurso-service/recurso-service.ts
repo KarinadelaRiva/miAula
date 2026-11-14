@@ -55,14 +55,18 @@ export class RecursoService {
     fechaFin: string,
     diaSemana: string,
     horaInicio: string,
-    horaFin: string
+    horaFin: string,
+    reservaOriginalId?: number
   ): Observable<RecursoDisponible[]> {
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('fechaInicio', fechaInicio)
       .set('fechaFin', fechaFin)
       .set('diaSemana', diaSemana)
       .set('horaInicio', horaInicio)
       .set('horaFin', horaFin);
+    if (reservaOriginalId != null) {
+      params = params.set('reservaOriginalId', reservaOriginalId);
+    }
 
     return this.http
       .get<RecursoDisponibilidadApiResponse[]>(`${this.baseDatosUrl}/disponibles`, { params })

@@ -27,4 +27,6 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
 
     List<Solicitud> findByEstadoAndDiaDeLaSemanaAndDiaDeInicioLessThanEqualAndDiaDeFinGreaterThanEqual(
             EstadoSolicitud estado, DiaSemana dia, LocalDate fechaFin, LocalDate fechaInicio);
+
+    boolean existsByReservaOriginal_IdAndEstadoAndActivoTrue(Long reservaOriginalId, EstadoSolicitud estado);
 }

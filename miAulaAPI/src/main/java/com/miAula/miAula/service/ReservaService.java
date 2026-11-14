@@ -1,11 +1,13 @@
 package com.miAula.miAula.service;
 
+import com.miAula.miAula.dtos.reserva.ReservaModificableDTO;
 import com.miAula.miAula.entities.Reserva;
 import com.miAula.miAula.entities.Solicitud;
 import com.miAula.miAula.entities.enums.DiaSemana;
 import com.miAula.miAula.entities.tablas_intermedias.RecursoReserva;
 import com.miAula.miAula.entities.tablas_intermedias.RecursoReservaId;
 import com.miAula.miAula.entities.tablas_intermedias.RecursoSolicitud;
+import com.miAula.miAula.exceptions.EntityValidationException;
 import com.miAula.miAula.exceptions.ReservaSolapadaException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
 import com.miAula.miAula.repository.ReservaRepository;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -30,10 +33,39 @@ public class ReservaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada con ID: " + id));
     }
 
+    public List<ReservaModificableDTO> obtenerModificables(Long solicitanteId) {
+        return reservaRepository
+                .findBySolicitante_IdAndActivoTrueAndDiaDeFinGreaterThanEqualOrderByDiaDeInicioAsc(
+                        solicitanteId, LocalDate.now())
+                .stream()
+                .map(reserva -> ReservaModificableDTO.builder()
+                        .id(reserva.getId())
+                        .diaSemana(reserva.getDiaDeLaSemana())
+                        .fechaInicio(reserva.getDiaDeInicio())
+                        .fechaFin(reserva.getDiaDeFin())
+                        .horaInicio(reserva.getHoraDeInicio())
+                        .horaFin(reserva.getHoraDeFin())
+                        .espacioId(reserva.getEspacio().getId())
+                        .nombreEspacio(reserva.getEspacio().getNombre())
+                        .comisionId(reserva.getComision().getId())
+                        .nombreComision(reserva.getComision().getNombre())
+                        .recursos(reserva.getRecursos().stream()
+                                .map(recurso -> ReservaModificableDTO.RecursoDTO.builder()
+                                        .recursoId(recurso.getRecurso().getId())
+                                        .cantidad(recurso.getCantidadReservada())
+                                        .build())
+                                .toList())
+                        .build())
+                .toList();
+    }
+
     @Transactional
     public Reserva generarDesdeSolicitud(Solicitud solicitud) {
         validarDisponibilidad(solicitud, null);
+        return crearDesdeSolicitud(solicitud);
+    }
 
+    private Reserva crearDesdeSolicitud(Solicitud solicitud) {
         Reserva reserva = Reserva.builder()
                 .diaDeLaSemana(solicitud.getDiaDeLaSemana())
                 .diaDeInicio(solicitud.getDiaDeInicio())
@@ -55,25 +87,30 @@ public class ReservaService {
     public Reserva modificarDesdeSolicitud(Solicitud solicitud) {
         Reserva reservaOriginal = solicitud.getReservaOriginal();
         if (reservaOriginal == null) {
-            throw new IllegalArgumentException("La solicitud no tiene una reserva original.");
+            throw new EntityValidationException("La solicitud no tiene una reserva original.");
         }
-        if (Boolean.FALSE.equals(reservaOriginal.getActivo())) {
+        if (!Boolean.TRUE.equals(reservaOriginal.getActivo())) {
             throw new ResourceNotFoundException("La reserva original está inactiva.");
+        }
+        if (!Objects.equals(reservaOriginal.getSolicitante().getId(), solicitud.getSolicitante().getId())) {
+            throw new EntityValidationException("La reserva original no pertenece al solicitante.");
+        }
+        if (reservaOriginal.getDiaDeFin().isBefore(LocalDate.now())) {
+            throw new EntityValidationException("No se pueden modificar reservas pasadas.");
+        }
+        if (!solicitud.getDiaDeInicio().isAfter(reservaOriginal.getDiaDeInicio())) {
+            throw new EntityValidationException(
+                    "La nueva fecha de inicio debe ser posterior al inicio de la reserva original.");
         }
 
         validarDisponibilidad(solicitud, reservaOriginal.getId());
-        reservaOriginal.setDiaDeLaSemana(solicitud.getDiaDeLaSemana());
-        reservaOriginal.setDiaDeInicio(solicitud.getDiaDeInicio());
-        reservaOriginal.setDiaDeFin(solicitud.getDiaDeFin());
-        reservaOriginal.setHoraDeInicio(solicitud.getHoraDeInicio());
-        reservaOriginal.setHoraDeFin(solicitud.getHoraDeFin());
-        reservaOriginal.setEspacio(solicitud.getEspacio());
-        reservaOriginal.setComision(solicitud.getComision());
-        reservaOriginal.setEvento(solicitud.getEvento());
-        reservaOriginal.getRecursos().clear();
-        agregarRecursos(reservaOriginal, solicitud);
+        LocalDate finAnteriorAlCambio = solicitud.getDiaDeInicio().minusDays(1);
+        if (finAnteriorAlCambio.isBefore(reservaOriginal.getDiaDeFin())) {
+            reservaOriginal.setDiaDeFin(finAnteriorAlCambio);
+            reservaRepository.save(reservaOriginal);
+        }
 
-        return reservaRepository.save(reservaOriginal);
+        return crearDesdeSolicitud(solicitud);
     }
 
     private void agregarRecursos(Reserva reserva, Solicitud solicitud) {

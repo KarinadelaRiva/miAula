@@ -163,6 +163,19 @@ public class SolicitudService {
         if (!Objects.equals(reservaOriginal.getSolicitante().getId(), idSolicitante)) {
             throw new EntityValidationException("No tiene permiso para modificar esta reserva.");
         }
+        if (!Boolean.TRUE.equals(reservaOriginal.getActivo())
+                || reservaOriginal.getDiaDeFin().isBefore(LocalDate.now())) {
+            throw new EntityValidationException("Solo se pueden modificar reservas actuales o futuras.");
+        }
+        if (solicitudRepository.existsByReservaOriginal_IdAndEstadoAndActivoTrue(
+                reservaOriginal.getId(), EstadoSolicitud.PENDIENTE)) {
+            throw new EntityValidationException(
+                    "Ya existe una solicitud pendiente para modificar esta reserva.");
+        }
+        if (!solicitud.getDiaDeInicio().isAfter(reservaOriginal.getDiaDeInicio())) {
+            throw new EntityValidationException(
+                    "La fecha de inicio de la modificación debe ser posterior al inicio de la reserva original.");
+        }
         validarSolicitanteDeComision(solicitud.getSolicitante(), solicitud.getComision());
         recursoService.agregarRecursosASolicitud(solicitud, dto.getRecursos());
         return solicitudRepository.save(solicitud);

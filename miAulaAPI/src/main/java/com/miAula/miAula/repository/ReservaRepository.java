@@ -13,6 +13,9 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     List<Reserva> findByEspacio_IdAndDiaDeLaSemanaAndActivoTrue(Long espacioId, DiaSemana diaDeLaSemana);
 
+    List<Reserva> findBySolicitante_IdAndActivoTrueAndDiaDeFinGreaterThanEqualOrderByDiaDeInicioAsc(
+            Long solicitanteId, LocalDate fecha);
+
     List<Reserva> findByDiaDeLaSemanaAndActivoTrueAndDiaDeInicioLessThanEqualAndDiaDeFinGreaterThanEqual(
             DiaSemana dia, LocalDate fechaFin, LocalDate fechaInicio);
 }
