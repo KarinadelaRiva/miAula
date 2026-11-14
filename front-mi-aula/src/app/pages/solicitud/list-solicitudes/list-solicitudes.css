@@ -35,7 +35,7 @@
 .card { min-height: 4rem; padding: 0.65rem; border-bottom: 1px solid #d8e3ef; color: #334e68; cursor: pointer; transition: background 0.12s ease; }
 .card:hover { background: #f2f7fc; }
 .card:focus { outline: 3px solid rgba(37, 99, 166, 0.2); outline-offset: -3px; }
-.solicitud-id { color: #213547; font-weight: 700; }
+.solicitud-tipo { color: #213547; font-weight: 700; }
 .accion-detalle { justify-self: start; padding: 0.5rem 0.75rem; border-radius: 4px; color: #fff; background: #2563a6; font-weight: 600; white-space: nowrap; }
 .card:hover .accion-detalle { background: #133e87; }
 .status { padding: 0.4rem 0.65rem; border-radius: 4px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; }

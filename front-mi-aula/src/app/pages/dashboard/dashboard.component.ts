@@ -19,7 +19,6 @@ export class DashboardComponent {
 
   usuario = signal<UsuarioResponseDto | null>(null);
 
-  // Simulamos solicitudes pendientes - después se conectará con el servicio real
   private pendingCount = signal<number>(0);
 
   get pendingSolicitudes(): number {
@@ -28,17 +27,22 @@ export class DashboardComponent {
 
   constructor() {
     this.usuarioService.me().subscribe({
-      next: (usuario) => this.usuario.set(usuario),
+      next: (usuario) => {
+        this.usuario.set(usuario);
+        if (this.tieneRol('administrador')) {
+          this.cargarSolicitudesPendientes();
+        }
+      },
       error: (error) => console.error('No se pudo obtener el usuario:', error),
     });
+  }
 
-    this.solicitudService.getSolicitudes().subscribe((sols) => {
-      if (!sols) {
-        this.pendingCount.set(0);
-        return;
-      }
-      const pending = sols.filter((s) => s.estado === 'PENDIENTE').length;
-      this.pendingCount.set(pending);
+  private cargarSolicitudesPendientes(): void {
+    this.solicitudService.getSolicitudesAdministracion().subscribe({
+      next: (solicitudes) => {
+        this.pendingCount.set(solicitudes.filter((solicitud) => solicitud.estado === 'PENDIENTE').length);
+      },
+      error: (error) => console.error('No se pudieron cargar las solicitudes pendientes:', error),
     });
   }
 
