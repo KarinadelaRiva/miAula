@@ -35,7 +35,8 @@ public class Evento {
     private String descripcion;
 
     @NotNull
-    @Column(nullable = false)
+    @Positive
+    @Column(name = "participantes_maximos", nullable = false)
     private Integer participantesMaximos;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,11 +47,11 @@ public class Evento {
     @Builder.Default
     private Boolean activo = true;
 
-    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "evento")
     @Builder.Default
     private List<Reserva> reservas = new ArrayList<>();
 
-    @OneToMany(mappedBy = "evento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "evento")
     @Builder.Default
     private List<Solicitud> solicitudes = new ArrayList<>();
 }

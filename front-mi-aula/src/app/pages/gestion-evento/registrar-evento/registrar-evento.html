@@ -1,0 +1,296 @@
+<div class="pagina-evento">
+
+  <div class="contenedor-formulario">
+
+    <!-- ======================================================
+         ENCABEZADO
+         ====================================================== -->
+
+    <div class="encabezado">
+      <h2>Registrar Evento</h2>
+      <p>
+        Completá los datos del evento y seleccioná un usuario
+        del sistema como organizador.
+      </p>
+    </div>
+
+
+    <!-- ======================================================
+         MENSAJES
+         ====================================================== -->
+
+    <div
+      *ngIf="cargandoUsuarios"
+      class="mensaje-info">
+
+      Cargando usuarios del sistema...
+
+    </div>
+
+
+    <div
+      *ngIf="mensajeError"
+      class="mensaje-error">
+
+      {{ mensajeError }}
+
+    </div>
+
+
+    <div
+      *ngIf="mensajeExito"
+      class="mensaje-exito">
+
+      {{ mensajeExito }}
+
+    </div>
+
+
+    <!-- ======================================================
+         FORMULARIO
+         ====================================================== -->
+
+    <form
+      *ngIf="!cargandoUsuarios"
+      (ngSubmit)="registrarEvento()">
+
+
+      <!-- ====================================================
+           CÓDIGO
+           ==================================================== -->
+
+      <div class="form-group">
+
+        <label for="codigo">
+          Código *
+        </label>
+
+        <input
+          id="codigo"
+          name="codigo"
+          type="text"
+          [(ngModel)]="codigo"
+          maxlength="6"
+          required
+          placeholder="Ej: EV001">
+
+        <small>
+          Máximo 6 caracteres.
+        </small>
+
+      </div>
+
+
+      <!-- ====================================================
+           NOMBRE
+           ==================================================== -->
+
+      <div class="form-group">
+
+        <label for="nombre">
+          Nombre *
+        </label>
+
+        <input
+          id="nombre"
+          name="nombre"
+          type="text"
+          [(ngModel)]="nombre"
+          maxlength="50"
+          required
+          placeholder="Nombre del evento">
+
+      </div>
+
+
+      <!-- ====================================================
+           ORGANIZADOR
+           ==================================================== -->
+
+      <div class="form-group buscador-organizador">
+
+        <label for="organizador">
+          Organizador *
+        </label>
+
+        <input
+          id="organizador"
+          name="organizador"
+          type="text"
+          [(ngModel)]="textoOrganizador"
+          (input)="buscarOrganizadores()"
+          (focus)="buscarOrganizadores()"
+          autocomplete="off"
+          placeholder="Buscar por nombre, apellido o email">
+
+
+        <!-- LISTA DE RESULTADOS -->
+
+        <div
+          *ngIf="mostrarOpciones"
+          class="lista-usuarios">
+
+          <button
+            *ngFor="let usuario of usuariosFiltrados"
+            type="button"
+            class="opcion-usuario"
+            (click)="seleccionarOrganizador(usuario)">
+
+            <span class="usuario-nombre">
+              {{ usuario.nombre }}
+              {{ usuario.apellido }}
+            </span>
+
+            <span class="usuario-email">
+              {{ usuario.email }}
+            </span>
+
+          </button>
+
+        </div>
+
+
+        <!-- SIN RESULTADOS -->
+
+        <div
+          *ngIf="
+            textoOrganizador.trim().length > 0 &&
+            !mostrarOpciones &&
+            !organizadorSeleccionado
+          "
+          class="sin-resultados">
+
+          No se encontraron usuarios.
+
+        </div>
+
+
+        <!-- USUARIO SELECCIONADO -->
+
+        <div
+          *ngIf="organizadorSeleccionado"
+          class="organizador-seleccionado">
+
+          <div>
+
+            <span class="organizador-etiqueta">
+              Organizador seleccionado
+            </span>
+
+            <strong>
+              {{ organizadorSeleccionado.nombre }}
+              {{ organizadorSeleccionado.apellido }}
+            </strong>
+
+            <span>
+              {{ organizadorSeleccionado.email }}
+            </span>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="btn-quitar-organizador"
+            (click)="quitarOrganizador()">
+
+            Cambiar
+
+          </button>
+
+        </div>
+
+
+        <small>
+          El organizador debe ser un usuario activo registrado
+          en el sistema.
+        </small>
+
+      </div>
+
+
+      <!-- ====================================================
+           DESCRIPCIÓN
+           ==================================================== -->
+
+      <div class="form-group">
+
+        <label for="descripcion">
+          Descripción
+        </label>
+
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          [(ngModel)]="descripcion"
+          maxlength="500"
+          rows="5"
+          placeholder="Descripción del evento">
+        </textarea>
+
+        <small>
+          {{ descripcion.length }}/500
+        </small>
+
+      </div>
+
+
+      <!-- ====================================================
+           PARTICIPANTES MÁXIMOS
+           ==================================================== -->
+
+      <div class="form-group">
+
+        <label for="participantesMaximos">
+          Participantes máximos *
+        </label>
+
+        <input
+          id="participantesMaximos"
+          name="participantesMaximos"
+          type="number"
+          [(ngModel)]="participantesMaximos"
+          min="1"
+          required
+          placeholder="Cantidad máxima">
+
+      </div>
+
+
+      <!-- ====================================================
+           BOTONES
+           ==================================================== -->
+
+      <div class="acciones">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cancelar()"
+          [disabled]="guardando">
+
+          Cancelar
+
+        </button>
+
+
+        <button
+          type="submit"
+          class="btn-guardar"
+          [disabled]="guardando">
+
+          {{
+            guardando
+              ? 'Guardando...'
+              : 'Registrar evento'
+          }}
+
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
