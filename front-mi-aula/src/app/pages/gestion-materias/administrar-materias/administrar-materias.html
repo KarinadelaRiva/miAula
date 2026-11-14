@@ -1,0 +1,368 @@
+<div class="gestion-container">
+
+  <div class="gestion-card">
+
+    <!-- HEADER -->
+
+    <div class="gestion-header">
+
+      <div class="header-texto">
+
+        <span class="eyebrow">
+          Panel administrativo
+        </span>
+
+        <h1>
+          Gestión de Materias
+        </h1>
+
+        <p>
+          Consultá, modificá y administrá las materias del sistema.
+        </p>
+
+      </div>
+
+
+      <div class="header-acciones">
+
+        <a
+          routerLink="/gestion-materia/registrar-materia"
+          class="btn-nuevo">
+
+          + Nueva materia
+
+        </a>
+
+
+        <a
+          routerLink="/dashboard"
+          class="btn-volver">
+
+          ← Volver
+
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <!-- MENSAJES -->
+
+    <div
+      *ngIf="mensajeExito"
+      class="mensaje-exito">
+
+      {{ mensajeExito }}
+
+    </div>
+
+
+    <div
+      *ngIf="mensajeError"
+      class="mensaje-error">
+
+      {{ mensajeError }}
+
+    </div>
+
+
+    <!-- BUSCADOR -->
+
+    <div class="panel-filtros">
+
+      <div class="campo-filtro">
+
+        <label for="buscarMateria">
+          Buscar
+        </label>
+
+        <input
+          id="buscarMateria"
+          type="text"
+          [(ngModel)]="textoBusqueda"
+          (input)="aplicarFiltro()"
+          placeholder="Buscar por código o nombre...">
+
+      </div>
+
+    </div>
+
+
+    <!-- CARGANDO -->
+
+    <div
+      *ngIf="cargando"
+      class="estado-mensaje">
+
+      Cargando materias...
+
+    </div>
+
+
+    <!-- VACÍO -->
+
+    <div
+      *ngIf="
+        !cargando &&
+        materiasFiltradas.length === 0 &&
+        !mensajeError
+      "
+      class="estado-mensaje">
+
+      No se encontraron materias.
+
+    </div>
+
+
+    <!-- TABLA -->
+
+    <div
+      *ngIf="
+        !cargando &&
+        materiasFiltradas.length > 0
+      "
+      class="tabla-contenedor">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Código
+            </th>
+
+            <th>
+              Materia
+            </th>
+
+            <th>
+              Acciones
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr
+            *ngFor="let materia of materiasFiltradas">
+
+            <td data-label="Código">
+
+              {{ materia.codigo }}
+
+            </td>
+
+
+            <td data-label="Materia">
+
+              <strong>
+                {{ materia.nombre }}
+              </strong>
+
+            </td>
+
+
+            <td data-label="Acciones">
+
+              <div class="acciones">
+
+                <button
+                  type="button"
+                  class="btn-editar"
+                  (click)="editarMateria(materia)">
+
+                  Editar
+
+                </button>
+
+
+                <button
+                  type="button"
+                  class="btn-eliminar"
+                  (click)="abrirModalEliminar(materia)">
+
+                  Eliminar
+
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+    <!-- EDICIÓN -->
+
+    <div
+      *ngIf="materiaEditando"
+      class="panel-edicion">
+
+      <div class="edicion-header">
+
+        <h2>
+          Editar materia
+        </h2>
+
+        <p>
+          Modificá los datos de la materia seleccionada.
+        </p>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="campo">
+
+          <label for="editCodigo">
+            Código
+          </label>
+
+          <input
+            id="editCodigo"
+            type="text"
+            maxlength="6"
+            [(ngModel)]="editCodigo">
+
+        </div>
+
+
+        <div class="campo">
+
+          <label for="editNombre">
+            Nombre
+          </label>
+
+          <input
+            id="editNombre"
+            type="text"
+            maxlength="50"
+            [(ngModel)]="editNombre">
+
+        </div>
+
+      </div>
+
+
+      <div class="acciones-edicion">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cancelarEdicion()"
+          [disabled]="guardando">
+
+          Cancelar
+
+        </button>
+
+
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarCambios()"
+          [disabled]="guardando">
+
+          {{
+            guardando
+              ? 'Guardando...'
+              : 'Guardar cambios'
+          }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- MODAL ELIMINAR -->
+
+<div
+  *ngIf="modalVisible"
+  class="modal-overlay">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <span class="modal-eyebrow">
+        Gestión de materias
+      </span>
+
+      <h2>
+        Eliminar materia
+      </h2>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <p>
+
+        ¿Querés eliminar la materia
+
+        <strong>
+          "{{ materiaSeleccionada?.nombre }}"
+        </strong>?
+
+      </p>
+
+
+      <p class="modal-ayuda">
+        Esta acción eliminará la materia del sistema.
+      </p>
+
+    </div>
+
+
+    <div class="modal-acciones">
+
+      <button
+        type="button"
+        class="modal-btn-cancelar"
+        (click)="cerrarModal()"
+        [disabled]="eliminando">
+
+        Cancelar
+
+      </button>
+
+
+      <button
+        type="button"
+        class="modal-btn-eliminar"
+        (click)="confirmarEliminar()"
+        [disabled]="eliminando">
+
+        {{
+          eliminando
+            ? 'Eliminando...'
+            : 'Eliminar'
+        }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

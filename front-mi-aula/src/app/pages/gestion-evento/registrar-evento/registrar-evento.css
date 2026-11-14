@@ -1,0 +1,435 @@
+/* ============================================================
+   CONTENEDOR GENERAL
+   ============================================================ */
+
+.pagina-evento {
+  min-height: 100vh;
+  padding: 1rem;
+  background: #edf4fb;
+  font-family: var(--font-sans, Arial, sans-serif);
+}
+
+.contenedor-formulario {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+
+/* ============================================================
+   ENCABEZADO
+   MISMO ESTILO QUE GESTIÓN DE USUARIOS
+   ============================================================ */
+
+.encabezado {
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+
+  border-radius: 12px;
+
+  color: #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #133e87,
+      #608bc1
+    );
+
+  box-shadow:
+    0 4px 12px
+    rgba(15, 50, 90, 0.14);
+}
+
+.encabezado h2 {
+  margin: 0;
+
+  font-size: 1.5rem;
+
+  color: #fff;
+}
+
+.encabezado p {
+  margin: 0.35rem 0 0;
+
+  color: #fff;
+
+  opacity: 0.86;
+}
+
+
+/* ============================================================
+   FORMULARIO
+   ============================================================ */
+
+form {
+  padding: 1.5rem;
+
+  background: #fff;
+
+  border: 1px solid #c8d7e8;
+  border-radius: 8px;
+
+  box-shadow:
+    0 4px 12px
+    rgba(15, 50, 90, 0.1);
+}
+
+.form-group {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  margin-bottom: 0.4rem;
+
+  color: #213547;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 0.7rem 0.8rem;
+
+  border: 1px solid #c8d7e8;
+  border-radius: 4px;
+
+  background: #fff;
+
+  color: #213547;
+
+  font: inherit;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #608bc1;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(96, 139, 193, 0.15);
+}
+
+.form-group textarea {
+  min-height: 110px;
+
+  resize: vertical;
+}
+
+.form-group small {
+  margin-top: 0.35rem;
+
+  color: #52677d;
+
+  font-size: 0.78rem;
+}
+
+
+/* ============================================================
+   BUSCADOR DE ORGANIZADOR
+   ============================================================ */
+
+.buscador-organizador {
+  position: relative;
+}
+
+.lista-usuarios {
+  position: absolute;
+
+  top: 68px;
+  left: 0;
+  right: 0;
+
+  z-index: 20;
+
+  max-height: 260px;
+
+  overflow-y: auto;
+
+  background: #fff;
+
+  border: 1px solid #c8d7e8;
+  border-radius: 4px;
+
+  box-shadow:
+    0 6px 16px
+    rgba(15, 50, 90, 0.15);
+}
+
+.opcion-usuario {
+  width: 100%;
+
+  padding: 0.75rem 0.85rem;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  border: 0;
+  border-bottom: 1px solid #e3ebf3;
+
+  background: #fff;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  font: inherit;
+}
+
+.opcion-usuario:last-child {
+  border-bottom: 0;
+}
+
+.opcion-usuario:hover {
+  background: #edf4fb;
+}
+
+.usuario-nombre {
+  color: #213547;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.usuario-email {
+  margin-top: 0.2rem;
+
+  color: #52677d;
+
+  font-size: 0.8rem;
+}
+
+
+/* ============================================================
+   SIN RESULTADOS
+   ============================================================ */
+
+.sin-resultados {
+  margin-top: 0.4rem;
+
+  padding: 0.65rem 0.8rem;
+
+  border: 1px solid #c8d7e8;
+  border-radius: 4px;
+
+  background: #f8fbff;
+
+  color: #52677d;
+
+  font-size: 0.85rem;
+}
+
+
+/* ============================================================
+   ORGANIZADOR SELECCIONADO
+   ============================================================ */
+
+.organizador-seleccionado {
+  margin-top: 0.6rem;
+
+  padding: 0.8rem 1rem;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 1rem;
+
+  border: 1px solid #c8d7e8;
+  border-left: 4px solid #2563a6;
+
+  border-radius: 4px;
+
+  background: #edf4fb;
+}
+
+.organizador-seleccionado > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0.15rem;
+}
+
+.organizador-etiqueta {
+  color: #2563a6;
+
+  font-size: 0.72rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.04em;
+}
+
+.organizador-seleccionado strong {
+  color: #213547;
+
+  font-size: 0.95rem;
+}
+
+.organizador-seleccionado span:not(.organizador-etiqueta) {
+  color: #52677d;
+
+  font-size: 0.8rem;
+}
+
+.btn-quitar-organizador {
+  padding: 0.5rem 0.7rem;
+
+  border: 1px solid #608bc1;
+  border-radius: 4px;
+
+  background: #fff;
+
+  color: #2563a6;
+
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.btn-quitar-organizador:hover {
+  background: #edf4fb;
+}
+
+
+/* ============================================================
+   MENSAJES
+   ============================================================ */
+
+.mensaje-info,
+.mensaje-error,
+.mensaje-exito {
+  margin-bottom: 1rem;
+
+  padding: 0.8rem 1rem;
+
+  border-radius: 4px;
+
+  font-size: 0.9rem;
+}
+
+.mensaje-info {
+  border: 1px solid #c8d7e8;
+
+  background: #edf4fb;
+
+  color: #133e87;
+}
+
+.mensaje-error {
+  border: 1px solid #f2b8b8;
+
+  background: #fff1f1;
+
+  color: #a12626;
+}
+
+.mensaje-exito {
+  border: 1px solid #a9d5b4;
+
+  background: #edf8f0;
+
+  color: #24753a;
+}
+
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 0.75rem;
+
+  margin-top: 1.5rem;
+}
+
+.acciones button {
+  padding: 0.7rem 1rem;
+
+  border: 0;
+  border-radius: 4px;
+
+  font: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.btn-cancelar {
+  border: 1px solid #c8d7e8 !important;
+
+  background: #fff;
+
+  color: #52677d;
+}
+
+.btn-cancelar:hover {
+  background: #edf4fb;
+}
+
+.btn-guardar {
+  background: #2563a6;
+
+  color: #fff;
+}
+
+.btn-guardar:hover {
+  filter: brightness(0.92);
+}
+
+.acciones button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+  .pagina-evento {
+    padding: 0.75rem;
+  }
+
+  form {
+    padding: 1rem;
+  }
+
+  .organizador-seleccionado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .acciones {
+    flex-direction: column;
+  }
+
+  .acciones button {
+    width: 100%;
+  }
+}

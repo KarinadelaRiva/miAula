@@ -1,0 +1,616 @@
+<div class="gestion-container">
+
+  <div class="gestion-card">
+
+    <!-- ======================================================
+         HEADER
+         ====================================================== -->
+
+    <div class="gestion-header">
+
+      <div class="header-texto">
+
+        <span class="eyebrow">
+          {{ esAdmin ? 'Panel administrativo' : 'Profesor' }}
+        </span>
+
+        <h1>
+          {{ esAdmin ? 'Gestión de Eventos' : 'Mis Eventos' }}
+        </h1>
+
+        <p *ngIf="esAdmin">
+          Consultá, modificá y administrá los eventos del sistema.
+        </p>
+
+        <p *ngIf="esProfesor">
+          Consultá los eventos en los que figurás como organizador.
+        </p>
+
+      </div>
+
+
+      <div class="header-acciones">
+
+        <a
+          *ngIf="esAdmin"
+          routerLink="/gestion-evento/registrar-evento"
+          class="btn-nuevo">
+
+          + Nuevo evento
+
+        </a>
+
+
+        <a
+          routerLink="/dashboard"
+          class="btn-volver">
+
+          ← Volver
+
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         MENSAJES
+         ====================================================== -->
+
+    <div
+      *ngIf="mensajeExito"
+      class="mensaje-exito">
+
+      {{ mensajeExito }}
+
+    </div>
+
+
+    <div
+      *ngIf="mensajeError"
+      class="mensaje-error">
+
+      {{ mensajeError }}
+
+    </div>
+
+
+    <!-- ======================================================
+         FILTROS
+         ====================================================== -->
+
+    <div
+      *ngIf="!cargandoRol"
+      class="panel-filtros">
+
+
+      <div class="campo-filtro">
+
+        <label for="buscarEvento">
+          Buscar
+        </label>
+
+        <input
+          id="buscarEvento"
+          type="text"
+          [(ngModel)]="textoBusqueda"
+          (input)="aplicarFiltros()"
+          placeholder="Código, evento, organizador o correo electrónico...">
+
+      </div>
+
+
+      <div
+        *ngIf="esAdmin"
+        class="campo-filtro estado">
+
+        <label for="filtroEstado">
+          Estado
+        </label>
+
+        <select
+          id="filtroEstado"
+          [(ngModel)]="filtroEstado"
+          (change)="aplicarFiltros()">
+
+          <option value="todos">
+            Todos
+          </option>
+
+          <option value="activos">
+            Activos
+          </option>
+
+          <option value="inactivos">
+            Inactivos
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         CARGANDO
+         ====================================================== -->
+
+    <div
+      *ngIf="cargando || cargandoRol"
+      class="estado-mensaje">
+
+      Cargando eventos...
+
+    </div>
+
+
+    <!-- ======================================================
+         SIN RESULTADOS
+         ====================================================== -->
+
+    <div
+      *ngIf="
+        !cargando &&
+        !cargandoRol &&
+        eventosFiltrados.length === 0 &&
+        !mensajeError
+      "
+      class="estado-mensaje">
+
+      {{
+        esAdmin
+          ? 'No se encontraron eventos.'
+          : 'No tenés eventos asignados actualmente.'
+      }}
+
+    </div>
+
+
+    <!-- ======================================================
+         TABLA
+         ====================================================== -->
+
+    <div
+      *ngIf="
+        !cargando &&
+        !cargandoRol &&
+        eventosFiltrados.length > 0
+      "
+      class="tabla-contenedor">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Código
+            </th>
+
+            <th>
+              Evento
+            </th>
+
+            <th *ngIf="esAdmin">
+              Organizador
+            </th>
+
+            <th>
+              Participantes
+            </th>
+
+            <th>
+              Estado
+            </th>
+
+            <th *ngIf="esAdmin">
+              Acciones
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <tr
+            *ngFor="let evento of eventosFiltrados">
+
+
+            <td data-label="Código">
+
+              {{ evento.codigo }}
+
+            </td>
+
+
+            <td data-label="Evento">
+
+              <strong>
+                {{ evento.nombre }}
+              </strong>
+
+              <div
+                *ngIf="evento.descripcion"
+                class="descripcion-evento">
+
+                {{ evento.descripcion }}
+
+              </div>
+
+            </td>
+
+
+            <td
+              *ngIf="esAdmin"
+              data-label="Organizador">
+
+              <strong>
+
+                {{ evento.organizadorNombre }}
+                {{ evento.organizadorApellido }}
+
+              </strong>
+
+              <div class="email-organizador">
+
+                {{ evento.organizadorEmail }}
+
+              </div>
+
+            </td>
+
+
+            <td data-label="Participantes">
+
+              {{ evento.participantesMaximos }}
+
+            </td>
+
+
+            <td data-label="Estado">
+
+              <span
+                class="badge"
+                [class.activo]="evento.activo"
+                [class.inactivo]="!evento.activo">
+
+                {{
+                  evento.activo
+                    ? 'Activo'
+                    : 'Inactivo'
+                }}
+
+              </span>
+
+            </td>
+
+
+            <td
+              *ngIf="esAdmin"
+              data-label="Acciones">
+
+              <div class="acciones">
+
+                <button
+                  type="button"
+                  class="btn-editar"
+                  (click)="editarEvento(evento)">
+
+                  Editar
+
+                </button>
+
+
+                <button
+                  *ngIf="evento.activo"
+                  type="button"
+                  class="btn-deshabilitar"
+                  (click)="abrirModalDeshabilitar(evento)">
+
+                  Deshabilitar
+
+                </button>
+
+
+                <button
+                  *ngIf="!evento.activo"
+                  type="button"
+                  class="btn-activar"
+                  (click)="abrirModalActivar(evento)">
+
+                  Activar
+
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+    <!-- ======================================================
+         EDICIÓN
+         ====================================================== -->
+
+    <div
+      *ngIf="esAdmin && eventoEditando"
+      class="panel-edicion">
+
+      <div class="edicion-header">
+
+        <h2>
+          Editar evento
+        </h2>
+
+        <p>
+          Modificá los datos del evento seleccionado.
+        </p>
+
+      </div>
+
+
+      <div class="form-grid">
+
+
+        <div class="campo">
+
+          <label for="editCodigo">
+            Código
+          </label>
+
+          <input
+            id="editCodigo"
+            type="text"
+            maxlength="6"
+            [(ngModel)]="editCodigo">
+
+        </div>
+
+
+        <div class="campo">
+
+          <label for="editNombre">
+            Nombre
+          </label>
+
+          <input
+            id="editNombre"
+            type="text"
+            maxlength="50"
+            [(ngModel)]="editNombre">
+
+        </div>
+
+
+        <div class="campo campo-completo">
+
+          <label for="editOrganizador">
+            Organizador
+          </label>
+
+          <div class="organizador-autocomplete">
+
+            <input
+              id="editOrganizador"
+              type="text"
+              [(ngModel)]="textoOrganizador"
+              (input)="buscarOrganizadores()"
+              (focus)="buscarOrganizadores()"
+              placeholder="Nombre, apellido o correo electrónico...">
+
+
+            <div
+              *ngIf="
+                mostrarOpcionesOrganizador &&
+                usuariosFiltrados.length > 0
+              "
+              class="organizador-opciones">
+
+              <button
+                *ngFor="let usuario of usuariosFiltrados"
+                type="button"
+                class="organizador-opcion"
+                (click)="seleccionarOrganizador(usuario)">
+
+                <strong>
+                  {{ usuario.nombre }}
+                  {{ usuario.apellido }}
+                </strong>
+
+                <span>
+                  {{ usuario.email }}
+                </span>
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="campo campo-completo">
+
+          <label for="editDescripcion">
+            Descripción
+          </label>
+
+          <textarea
+            id="editDescripcion"
+            rows="4"
+            maxlength="500"
+            [(ngModel)]="editDescripcion">
+          </textarea>
+
+        </div>
+
+
+        <div class="campo">
+
+          <label for="editParticipantesMaximos">
+            Participantes máximos
+          </label>
+
+          <input
+            id="editParticipantesMaximos"
+            type="number"
+            min="1"
+            [(ngModel)]="editParticipantesMaximos">
+
+        </div>
+
+      </div>
+
+
+      <div class="acciones-edicion">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cancelarEdicion()"
+          [disabled]="guardando">
+
+          Cancelar
+
+        </button>
+
+
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarCambios()"
+          [disabled]="guardando">
+
+          {{
+            guardando
+              ? 'Guardando...'
+              : 'Guardar cambios'
+          }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ==========================================================
+     MODAL
+     ========================================================== -->
+
+<div
+  *ngIf="esAdmin && modalVisible"
+  class="modal-overlay">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <span class="modal-eyebrow">
+        Gestión de eventos
+      </span>
+
+      <h2>
+
+        {{
+          accionModal === 'deshabilitar'
+            ? 'Deshabilitar evento'
+            : 'Activar evento'
+        }}
+
+      </h2>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <p *ngIf="accionModal === 'deshabilitar'">
+
+        ¿Querés deshabilitar el evento
+
+        <strong>
+          "{{ eventoSeleccionado?.nombre }}"
+        </strong>?
+
+      </p>
+
+
+      <p *ngIf="accionModal === 'activar'">
+
+        ¿Querés volver a activar el evento
+
+        <strong>
+          "{{ eventoSeleccionado?.nombre }}"
+        </strong>?
+
+      </p>
+
+
+      <p class="modal-ayuda">
+
+        {{
+          accionModal === 'deshabilitar'
+            ? 'El evento quedará inactivo, pero seguirá registrado en el sistema.'
+            : 'El evento volverá a estar disponible como evento activo.'
+        }}
+
+      </p>
+
+    </div>
+
+
+    <div class="modal-acciones">
+
+      <button
+        type="button"
+        class="modal-btn-cancelar"
+        (click)="cerrarModal()"
+        [disabled]="procesandoEstado">
+
+        Cancelar
+
+      </button>
+
+
+      <button
+        type="button"
+        [class.modal-btn-deshabilitar]="accionModal === 'deshabilitar'"
+        [class.modal-btn-activar]="accionModal === 'activar'"
+        (click)="confirmarCambioEstado()"
+        [disabled]="procesandoEstado">
+
+        {{
+          procesandoEstado
+            ? 'Procesando...'
+            : (
+                accionModal === 'deshabilitar'
+                  ? 'Deshabilitar'
+                  : 'Activar'
+              )
+        }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

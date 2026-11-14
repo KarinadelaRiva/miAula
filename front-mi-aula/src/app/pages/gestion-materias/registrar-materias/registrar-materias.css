@@ -1,0 +1,268 @@
+.gestion-container {
+  min-height: 100vh;
+  padding: 0.5rem 0;
+
+  background: #edf4fb;
+
+  font-family:
+    var(--font-sans, Arial, sans-serif);
+}
+
+
+.gestion-card {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #c8d7e8;
+  border-radius: 8px;
+
+  box-shadow:
+    0 5px 16px
+    rgba(15, 50, 90, 0.12);
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.gestion-header {
+  padding: 1rem 0.75rem;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #133e87,
+      #608bc1
+    );
+}
+
+
+.eyebrow {
+  display: block;
+
+  margin-bottom: 0.25rem;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+
+  opacity: 0.85;
+}
+
+
+.gestion-header h1 {
+  margin: 0;
+
+  font-size: 1.35rem;
+}
+
+
+.gestion-header p {
+  margin: 0.4rem 0 0;
+
+  font-size: 0.9rem;
+
+  opacity: 0.92;
+}
+
+
+/* ============================================================
+   MENSAJES
+   ============================================================ */
+
+.mensaje-exito,
+.mensaje-error {
+  margin: 1rem;
+
+  padding: 0.8rem 1rem;
+
+  border-radius: 4px;
+}
+
+
+.mensaje-exito {
+  color: #347348;
+
+  background: #e8f5ec;
+
+  border: 1px solid #bcdcc6;
+}
+
+
+.mensaje-error {
+  color: #9d3e3e;
+
+  background: #fbeaea;
+
+  border: 1px solid #efcaca;
+}
+
+
+/* ============================================================
+   FORMULARIO
+   ============================================================ */
+
+.formulario {
+  padding: 1.5rem;
+}
+
+
+.form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 1rem;
+}
+
+
+.campo {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 0.35rem;
+}
+
+
+.campo label {
+  color: #213547;
+
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+
+.campo input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 0.7rem;
+
+  border: 1px solid #c8d7e8;
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  color: #213547;
+
+  font: inherit;
+}
+
+
+.campo input:focus {
+  outline: none;
+
+  border-color: #2563a6;
+}
+
+
+.campo small {
+  color: #52677d;
+
+  font-size: 0.75rem;
+}
+
+
+/* ============================================================
+   ACCIONES
+   ============================================================ */
+
+.acciones {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 0.7rem;
+
+  margin-top: 1.5rem;
+}
+
+
+.acciones button {
+  padding: 0.7rem 1rem;
+
+  border-radius: 4px;
+
+  font: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+.btn-cancelar {
+  border: 1px solid #c8d7e8;
+
+  background: #ffffff;
+
+  color: #52677d;
+}
+
+
+.btn-cancelar:hover {
+  background: #edf4fb;
+}
+
+
+.btn-guardar {
+  border: 0;
+
+  background: #2563a6;
+
+  color: #ffffff;
+}
+
+
+.btn-guardar:hover {
+  background: #1d5795;
+}
+
+
+.acciones button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 700px) {
+
+  .gestion-container {
+    padding: 0.5rem;
+  }
+
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .acciones {
+    flex-direction: column-reverse;
+  }
+
+
+  .acciones button {
+    width: 100%;
+  }
+
+}
