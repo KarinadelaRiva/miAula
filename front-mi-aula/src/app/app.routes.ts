@@ -24,6 +24,10 @@ import { AdministrarRecursos } from './pages/gestor-recursos/administrar-recurso
 
 export const routes: Routes = [
 
+  // ============================================================
+  // INICIO
+  // ============================================================
+
   {
     path: '',
     redirectTo: '/home',
@@ -59,9 +63,9 @@ export const routes: Routes = [
   },
 
 
-  /* =========================
-     SOLICITUDES
-     ========================= */
+  // ============================================================
+  // SOLICITUDES
+  // ============================================================
 
   {
     path: 'solicitud/nueva',
@@ -82,9 +86,9 @@ export const routes: Routes = [
   },
 
 
-  /* =========================
-     AGENDA Y RESERVAS
-     ========================= */
+  // ============================================================
+  // AGENDA Y RESERVAS
+  // ============================================================
 
   {
     path: 'agenda',
@@ -118,9 +122,9 @@ export const routes: Routes = [
   },
 
 
-  /* =========================
-     USUARIOS
-     ========================= */
+  // ============================================================
+  // USUARIOS
+  // ============================================================
 
   {
     path: 'gestionUsuarios',
@@ -143,9 +147,9 @@ export const routes: Routes = [
   },
 
 
-  /* =========================
-     CARRERAS
-     ========================= */
+  // ============================================================
+  // CARRERAS
+  // ============================================================
 
   {
     path: 'gestion-carreras/registrar-carrera',
@@ -164,9 +168,9 @@ export const routes: Routes = [
   },
 
 
-  /* =========================
-     COMISIONES
-     ========================= */
+  // ============================================================
+  // COMISIONES
+  // ============================================================
 
   {
     path: 'gestion-comisiones',
@@ -179,8 +183,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/gestion-comisiones/administrar-comisiones/administrar-comisiones')
         .then(m => m.AdministrarComisiones),
-
-    // ADMIN y PROFESOR pueden consultar esta pantalla
     canActivate: [authGuard]
   },
 
@@ -189,15 +191,69 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/gestion-comisiones/registrar-comision/registrar-comision')
         .then(m => m.RegistrarComision),
-
-    // Registrar sigue siendo exclusivo de ADMIN
     canActivate: [adminGuard]
   },
 
 
-  /* =========================
-     ESPACIOS
-     ========================= */
+  // ============================================================
+  // EVENTOS
+  // ============================================================
+
+  {
+    path: 'gestion-evento',
+    redirectTo: 'gestion-evento/administrar-eventos',
+    pathMatch: 'full'
+  },
+
+  {
+    path: 'gestion-evento/administrar-eventos',
+    loadComponent: () =>
+      import('./pages/gestion-evento/administrar-eventos/administrar-eventos')
+        .then(m => m.AdministrarEventos),
+    canActivate: [authGuard]
+  },
+
+  {
+    path: 'gestion-evento/registrar-evento',
+    loadComponent: () =>
+      import('./pages/gestion-evento/registrar-evento/registrar-evento')
+        .then(m => m.RegistrarEvento),
+    canActivate: [adminGuard]
+  },
+
+// ============================================================
+// MATERIAS
+// ============================================================
+
+{
+  path: 'gestion-materia',
+  redirectTo: 'gestion-materia/administrar-materias',
+  pathMatch: 'full'
+},
+
+{
+  path: 'gestion-materia/administrar-materias',
+  loadComponent: () =>
+    import(
+      './pages/gestion-materias/administrar-materias/administrar-materias'
+    )
+      .then(m => m.AdministrarMaterias),
+  canActivate: [adminGuard]
+},
+
+{
+  path: 'gestion-materia/registrar-materia',
+  loadComponent: () =>
+    import(
+      './pages/gestion-materias/registrar-materias/registrar-materias'
+    )
+      .then(m => m.RegistrarMateria),
+  canActivate: [adminGuard]
+},
+
+  // ============================================================
+  // ESPACIOS
+  // ============================================================
 
   {
     path: 'espacios',
@@ -218,9 +274,9 @@ export const routes: Routes = [
   },
 
 
-  /* =========================
-     RECURSOS
-     ========================= */
+  // ============================================================
+  // RECURSOS
+  // ============================================================
 
   {
     path: 'recursos',
@@ -241,9 +297,9 @@ export const routes: Routes = [
   },
 
 
-  /* =========================
-     OTRAS PÁGINAS
-     ========================= */
+  // ============================================================
+  // OTRAS PÁGINAS
+  // ============================================================
 
   {
     path: 'leer-mas',
@@ -260,9 +316,9 @@ export const routes: Routes = [
   },
 
 
-  /* =========================
-     RUTA DESCONOCIDA
-     ========================= */
+  // ============================================================
+  // RUTA DESCONOCIDA
+  // ============================================================
 
   {
     path: '**',

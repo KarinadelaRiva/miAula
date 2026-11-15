@@ -43,7 +43,7 @@
 
             <div class="tabla-container">
                 <div class="tabla-header" aria-hidden="true">
-                    <span>Solicitud</span>
+                    <span>Tipo</span>
                     <span>Solicitante</span>
                     <span>Comisión</span>
                     <span>Espacio</span>
@@ -58,7 +58,7 @@
                 }
                 @for(s of solicitudesPaginadas(); track s.id) {
                 <article class="card" role="button" tabindex="0" (click)="openDetails(s)" (keydown.enter)="openDetails(s)" (keydown.space)="$event.preventDefault(); openDetails(s)">
-                    <span class="solicitud-id" data-label="Solicitud">Solicitud #{{ s.id }}</span>
+                    <span class="solicitud-tipo" data-label="Tipo">{{ tipoSolicitud(s) }}</span>
                     <span data-label="Solicitante">{{ s.solicitante_nombre || '-' }}</span>
                     <span data-label="Comisión">{{ s.comision_nombre || '-' }}</span>
                     <span data-label="Espacio">{{ s.espacio_nombre || '-' }}</span>

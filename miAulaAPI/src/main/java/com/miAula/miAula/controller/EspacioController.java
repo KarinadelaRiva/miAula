@@ -125,7 +125,7 @@ public class EspacioController {
     @Operation(
             summary = "Actualizar estado de un espacio.",
             description = "Permite habilitar o deshabilitar un espacio.")
-    public ResponseEntity<Espacio> actualizarEstado(
+    public ResponseEntity<EspacioResponseDTO> actualizarEstado(
             @Parameter(description = "ID del espacio", example = "1")
             @PathVariable Long id,
             @Valid @RequestBody EspacioEstadoDTO estado) {

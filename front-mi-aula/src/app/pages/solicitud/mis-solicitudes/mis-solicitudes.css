@@ -99,7 +99,7 @@
 .solicitud-row { min-height: 4rem; padding: 0.65rem; border-bottom: 1px solid #d8e3ef; color: #334e68; cursor: pointer; transition: background 0.12s ease; }
 .solicitud-row:hover { background: #f2f7fc; }
 .solicitud-row:focus { outline: 3px solid rgba(37, 99, 166, 0.2); outline-offset: -3px; }
-.solicitud-id { color: #213547; font-weight: 700; }
+.solicitud-tipo { color: #213547; font-weight: 700; }
 
 .status { justify-self: start; padding: 0.4rem 0.65rem; border: 1px solid transparent; border-radius: 4px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; }
 .status-APROBADA { color: #24613a; background: #e4f3e8; border-color: #b9dfc4; }

@@ -138,10 +138,10 @@ public class EspacioService {
         espacioRepository.save(espacio);
     }
 
-    public Espacio actualizarEstado(Long id, Boolean activo) {
+    public EspacioResponseDTO actualizarEstado(Long id, Boolean activo) {
         Espacio espacio = obtenerPorId(id);
         espacio.setActivo(activo);
-        return espacioRepository.save(espacio);
+        return espacioToEspacioResponseDto(espacioRepository.save(espacio));
     }
 
 }

@@ -126,13 +126,25 @@ export class MisSolicitudes implements OnInit {
   }
 
   
+  tipoSolicitud(solicitud: SolicitudModel): 'Nueva' | 'Modificación' {
+    return String(solicitud.reserva_original_id ?? '').trim() === ''
+      ? 'Nueva'
+      : 'Modificación';
+  }
 
   // Ejemplo de helper para formatear la fecha (puedes personalizarlo)
   formatFecha(fechaIso?: string): string {
     if (!fechaIso) return '';
     try {
-      const d = new Date(fechaIso);
-      // Devolver solo la parte de fecha (sin hora)
+      // Las fechas sin hora son calendarios y no deben interpretarse como UTC.
+      const fechaCalendario = /^(\d{4})-(\d{2})-(\d{2})$/.exec(fechaIso);
+      const d = fechaCalendario
+        ? new Date(
+            Number(fechaCalendario[1]),
+            Number(fechaCalendario[2]) - 1,
+            Number(fechaCalendario[3])
+          )
+        : new Date(fechaIso);
       return d.toLocaleDateString();
     } catch {
       return fechaIso;

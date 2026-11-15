@@ -57,6 +57,7 @@ export interface SolicitudCreateRequest {
 
 interface SolicitudResponseDTO {
   id: number;
+  reservaOriginalId: number | null;
   nombreSolicitante: string | null;
   nombreNuevoEspacio: string | null;
   nombreComision: string | null;
@@ -146,6 +147,7 @@ export class Solicitud {
   private toSolicitudData(solicitud: SolicitudResponseDTO): SolicitudData {
     return {
       id: solicitud.id,
+      reserva_original_id: solicitud.reservaOriginalId,
       comentario_estado: solicitud.comentarioEstado ?? '',
       comentario_profesor: solicitud.comentarioSolicitante ?? '',
       dia_semana: solicitud.diaSemana,

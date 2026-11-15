@@ -30,7 +30,7 @@
 
 			<section class="tabla-container" aria-label="Mis solicitudes">
 				<div class="tabla-header" aria-hidden="true">
-					<span>Solicitud</span>
+					<span>Tipo</span>
 					<span>Día</span>
 					<span>Fecha/Período</span>
 					<span>Horario</span>
@@ -45,7 +45,7 @@
 						(click)="openDetails(s)"
 						(keydown.enter)="openDetails(s)"
 						(keydown.space)="$event.preventDefault(); openDetails(s)">
-						<span class="solicitud-id" data-label="Solicitud">Solicitud #{{ s.id }}</span>
+						<span class="solicitud-tipo" data-label="Tipo">{{ tipoSolicitud(s) }}</span>
 						<span data-label="Día">{{ s.dia_semana }}</span>
 						<span data-label="Fechas">{{ formatFecha(s.fecha_inicio) }} - {{ formatFecha(s.fecha_fin) }}</span>
 						<span data-label="Horario">{{ formatHora(s.hora_inicio) }} - {{ formatHora(s.hora_fin) }}</span>
