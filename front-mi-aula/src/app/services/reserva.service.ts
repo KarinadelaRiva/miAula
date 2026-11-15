@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import type { Espacio } from '../models/espacio';
 import type { Reserva } from '../models/reserva';
+import type { ReservaCalendario } from '../models/reserva-calendario';
 import { ComisionService } from './comision-service/comision-service';
 import { EspacioService } from './espacio-service/espacio-service';
 import type { Carrera } from './comision-service/comision-service';
@@ -43,27 +44,6 @@ interface ReservaEstadoApiResponse {
     id?: number;
     nombre?: string;
     capacidad?: number;
-  };
-}
-
-export interface ReservaCalendario {
-  id: string | number;
-  title: string;
-  start: string;
-  end: string;
-  color?: string;
-  resourceId?: string;
-  extendedProps?: {
-    asignatura?: string;
-    aula?: string;
-    comision?: string;
-    profesor?: string;
-    dia?: string;
-    capacidad?: number;
-    tipoEspacio?: string;
-    profesorId?: number | null;
-    comisionId?: number;
-    estado?: string;
   };
 }
 
