@@ -20,7 +20,6 @@ import { AdministrarEspacios } from './pages/gestor-espacios/administrar-espacio
 import { RegistrarRecurso } from './pages/gestor-recursos/registrar-recurso/registrar-recurso';
 import { AdministrarRecursos } from './pages/gestor-recursos/administrar-recursos/administrar-recursos';
 
-import { GestionCarreras } from './pages/gestion-carreras/gestion-carreras';
 
 
 export const routes: Routes = [
@@ -147,12 +146,6 @@ export const routes: Routes = [
   /* =========================
      CARRERAS
      ========================= */
-
-  {
-    path: 'gestion-carreras',
-    component: GestionCarreras,
-    canActivate: [adminGuard]
-  },
 
   {
     path: 'gestion-carreras/registrar-carrera',

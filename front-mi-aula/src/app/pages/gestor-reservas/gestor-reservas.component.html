@@ -1,99 +1,168 @@
-<main class="gestion-container">
-    <div class="gestion-card">
-        <section class="gestion-header">
-            <div>
-                <span class="eyebrow">Panel administrativo</span>
-                <h1>Gestión de Reservas</h1>
-                <p>Consultá el estado y los detalles de las reservas de Mi Aula.</p>
-            </div>
-            <div class="header-actions">
-                <button type="button" routerLink="/reservas-anteriores" class="btn-anteriores">
-                    Ver reservas anteriores
-                </button>
-                <button type="button" routerLink="/dashboard" class="btn-volver">
-                    ← Volver
-                </button>
-            </div>
-        </section>
+<div class="administrar-container">
+  <div class="administrar-card">
+    <header class="administrar-header">
+      <div>
+        <span class="eyebrow">Panel administrativo</span>
+        <h1>Gestión de Reservas</h1>
+        <p>Consultá el estado y los detalles de las reservas de Mi Aula.</p>
+      </div>
+      <div class="header-actions">
+        <button type="button" routerLink="/reservas-anteriores" class="btn-nuevo">
+          Ver reservas anteriores
+        </button>
+        <button type="button" routerLink="/dashboard" class="btn-volver">← Volver</button>
+      </div>
+    </header>
 
-    <section class="grid-container sector activas" aria-labelledby="reservas-activas-title">
-        <div class="section-header">
-            <h2 id="reservas-activas-title" class="list-title">Reservas Activas</h2>
-            <span class="section-count activas-count">{{ activas().length }}</span>
-        </div>
-        <div class="grid-list">
-            @for(r of activasPaginadas(); track r.id) {
-            <article class="card" role="button" tabindex="0" (click)="openDetails(r)" (keydown.enter)="openDetails(r)" (keydown.space)="$event.preventDefault(); openDetails(r)">
-                <div class="card-content">
-                    <h2>{{ r.asignatura }}</h2>
-                    <div class="meta">
-                        <span class="day">{{ r.dia }}</span>
-                        <span class="horas"><strong>Horario:</strong> {{ formatHora(r.fecha_inicio) }} - {{ formatHora(r.fecha_fin) }}</span>
-                        <span class="fechas"><strong>Fecha inicio - fin:</strong> {{ formatFecha(r.fecha_inicio) }} - {{ formatFecha(r.fecha_fin) }}</span>
-                        <span class="espacio"><strong>Aula:</strong> {{ r.espacio }}</span>
-                        <span class="profesor"><strong>Profesor:</strong> {{ r.profesor }}</span>
-                    </div>
-                </div>
-                <div class="right">
-                    <div class="card-footer">
-                        <span class="status activa">ACTIVA</span>
-                    </div>
-                </div>
-            </article>
-            }
-            @if (activas().length === 0) {
-            <p class="empty-message">No hay reservas activas</p>
-            }
-        </div>
-        <div class="paginacion">
-            <button class="btn-paginacion" [disabled]="paginaActual() === 1" (click)="anteriorPagina()">
-                ← Anterior
-            </button>
-            <span class="pagina-info">Página {{ paginaActual() }} de {{ totalPaginas() || 1 }}</span>
-            <button class="btn-paginacion" [disabled]="paginaActual() >= totalPaginas() || totalPaginas() === 0" (click)="siguientePagina()">
-                Siguiente →
-            </button>
-        </div>
+    <section class="filtros-section" aria-label="Buscar reservas">
+      <label class="sr-only" for="buscar-reserva">Buscar reservas</label>
+      <input
+        #busqueda
+        id="buscar-reserva"
+        type="search"
+        class="input-buscar"
+        placeholder="Buscar por asignatura, comisión, aula o profesor..."
+        [value]="filtroBusqueda()"
+        (input)="aplicarFiltro(busqueda.value)"
+      />
+      <span class="total-reservas">{{ reservasFiltradas().length }} reservas</span>
     </section>
 
-    <!-- Modal para detalles de reserva -->
-    @if (selectedReserva()) {
-    <div class="modal-overlay" (click)="closeDetails()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-            <header class="modal-header">
-                <h2>Detalle de Reserva</h2>
-                <button class="btn-close" (click)="closeDetails()" aria-label="Cerrar modal">&times;</button>
-            </header>
-            
-            <div class="modal-body">
-                <div class="detail-section">
-                    <h3>Información General</h3>
-                    <p><strong>Asignatura:</strong> {{ selectedReserva()!.asignatura }}</p>
-                    <p><strong>Comisión:</strong> {{ selectedReserva()!.comision }}</p>
-                    <p><strong>Profesor:</strong> {{ selectedReserva()!.profesor }}</p>
-                    <p><strong>Aula:</strong> {{ selectedReserva()!.espacio }}</p>
-                </div>
-                
-                <div class="detail-section">
-                    <h3>Horarios</h3>
-                    <p><strong>Día:</strong> {{ selectedReserva()!.dia }}</p>
-                    <p><strong>Hora inicio:</strong> {{ formatHora(selectedReserva()!.fecha_inicio) }}</p>
-                    <p><strong>Hora fin:</strong> {{ formatHora(selectedReserva()!.fecha_fin) }}</p>
-                    <p><strong>Fecha inicio:</strong> {{ formatFecha(selectedReserva()!.fecha_inicio) }}</p>
-                    <p><strong>Fecha fin:</strong> {{ formatFecha(selectedReserva()!.fecha_fin) }}</p>
-                </div>
-                
-                <div class="detail-section">
-                    <h3>Estado</h3>
-                    <p><strong>Estado:</strong> {{ selectedReserva()!.estado }}</p>
-                </div>
-            </div>
-
-            <footer class="modal-footer">
-                <button class="btn secondary" (click)="closeDetails()">Cerrar</button>
-            </footer>
-        </div>
-    </div>
+    @if (mensaje()) {
+      <div class="mensaje" role="status">{{ mensaje() }}</div>
     }
+    @if (error() && !reservaSeleccionada()) {
+      <div class="mensaje error" role="alert">{{ error() }}</div>
+    }
+
+    <div class="tabla-container">
+      @if (cargando()) {
+        <p class="sin-resultados" role="status">Cargando reservas...</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Asignatura</th>
+              <th>Comisión</th>
+              <th>Día</th>
+              <th>Fechas</th>
+              <th>Horario</th>
+              <th>Aula</th>
+              <th>Profesor</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (reserva of reservasPaginadas(); track reserva.id) {
+              <tr>
+                <td><strong>{{ reserva.asignatura }}</strong></td>
+                <td>{{ reserva.comision }}</td>
+                <td>{{ reserva.dia }}</td>
+                <td>
+                  {{ formatFecha(reserva.fecha_inicio) }}<br />
+                  <span class="fecha-fin">hasta {{ formatFecha(reserva.fecha_fin) }}</span>
+                </td>
+                <td>{{ formatHora(reserva.hora_inicio) }} – {{ formatHora(reserva.hora_fin) }}</td>
+                <td>{{ reserva.espacio }}</td>
+                <td>{{ reserva.profesor }}</td>
+                <td class="acciones">
+                  <button
+                    type="button"
+                    class="btn-eliminar"
+                    (click)="abrirConfirmacion(reserva)"
+                    [attr.aria-label]="'Desactivar reserva de ' + reserva.asignatura"
+                  >
+                    Desactivar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (reservasFiltradas().length === 0 && !error()) {
+          <div class="sin-resultados">
+            {{ filtroBusqueda() ? 'No se encontraron reservas con esa búsqueda.' : 'No hay reservas programadas.' }}
+          </div>
+        }
+      }
     </div>
-</main>
+
+    <nav class="paginacion" aria-label="Paginación de reservas">
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual() === 1"
+        (click)="anteriorPagina()"
+      >
+        ← Anterior
+      </button>
+      <span class="pagina-info">Página {{ paginaActual() }} de {{ totalPaginas() || 1 }}</span>
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual() >= totalPaginas() || totalPaginas() === 0"
+        (click)="siguientePagina()"
+      >
+        Siguiente →
+      </button>
+    </nav>
+  </div>
+
+  @if (reservaSeleccionada(); as reserva) {
+    <div class="modal-overlay" (click)="cerrarConfirmacion()">
+      <section
+        class="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmar-desactivacion-title"
+        (click)="$event.stopPropagation()"
+      >
+        <header class="modal-header">
+          <h2 id="confirmar-desactivacion-title">Confirmar baja lógica</h2>
+          <button
+            type="button"
+            class="btn-cerrar"
+            aria-label="Cerrar"
+            [disabled]="eliminando()"
+            (click)="cerrarConfirmacion()"
+          >
+            ✕
+          </button>
+        </header>
+        <div class="modal-body">
+          <p>¿Querés desactivar esta reserva? No se eliminará físicamente.</p>
+          <dl class="detalle-reserva">
+            <div><dt>Asignatura</dt><dd>{{ reserva.asignatura }}</dd></div>
+            <div><dt>Comisión</dt><dd>{{ reserva.comision }}</dd></div>
+            <div><dt>Fecha</dt><dd>{{ formatFecha(reserva.fecha_inicio) }} – {{ formatFecha(reserva.fecha_fin) }}</dd></div>
+            <div><dt>Horario</dt><dd>{{ formatHora(reserva.hora_inicio) }} – {{ formatHora(reserva.hora_fin) }}</dd></div>
+            <div><dt>Aula</dt><dd>{{ reserva.espacio }}</dd></div>
+            <div><dt>Profesor</dt><dd>{{ reserva.profesor }}</dd></div>
+          </dl>
+          @if (error()) {
+            <p class="error-modal" role="alert">{{ error() }}</p>
+          }
+        </div>
+        <footer class="modal-footer">
+          <button
+            type="button"
+            class="btn-cancelar"
+            [disabled]="eliminando()"
+            (click)="cerrarConfirmacion()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn-eliminar"
+            [disabled]="eliminando()"
+            (click)="desactivarReserva()"
+          >
+            {{ eliminando() ? 'Desactivando...' : 'Desactivar reserva' }}
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
+</div>

@@ -1,86 +1,99 @@
-<main class="gestion-container">
-  <div class="gestion-card">
-    <section class="gestion-header">
+<div class="administrar-container">
+  <div class="administrar-card">
+    <header class="administrar-header">
       <div>
         <span class="eyebrow">Panel administrativo</span>
-        <h1>Reservas Anteriores</h1>
-        <p>Consultá el historial de reservas finalizadas de Mi Aula.</p>
+        <h1>Reservas Finalizadas</h1>
+        <p>Consultá el historial de reservas que ya concluyeron.</p>
       </div>
       <div class="header-actions">
-        <button type="button" routerLink="/reservas-todas" class="btn-volver">← Reservas activas</button>
+        <button type="button" routerLink="/reservas-todas" class="btn-nuevo">
+          ← Reservas activas
+        </button>
         <button type="button" routerLink="/dashboard" class="btn-volver">← Volver</button>
       </div>
+    </header>
+
+    <section class="filtros-section" aria-label="Buscar reservas finalizadas">
+      <label class="sr-only" for="buscar-reserva-finalizada">Buscar reservas finalizadas</label>
+      <input
+        #busqueda
+        id="buscar-reserva-finalizada"
+        type="search"
+        class="input-buscar"
+        placeholder="Buscar por asignatura, comisión, aula o profesor..."
+        [value]="filtroBusqueda()"
+        (input)="aplicarFiltro(busqueda.value)"
+      />
+      <span class="total-reservas">{{ reservasFiltradas().length }} reservas</span>
     </section>
 
-    <section class="grid-container" aria-labelledby="reservas-anteriores-title">
-      <div class="section-header">
-        <h2 id="reservas-anteriores-title" class="list-title">Historial de reservas</h2>
-        <span class="section-count pasadas-count">{{ reservas().length }}</span>
-      </div>
+    @if (error()) {
+      <div class="mensaje error" role="alert">{{ error() }}</div>
+    }
 
-      <div class="grid-list">
-        @for (r of reservasPaginadas(); track r.id) {
-          <article class="card" role="button" tabindex="0" (click)="openDetails(r)" (keydown.enter)="openDetails(r)" (keydown.space)="$event.preventDefault(); openDetails(r)">
-            <div class="card-content">
-              <h2>{{ r.asignatura }}</h2>
-              <div class="meta">
-                <span class="day">{{ r.dia }}</span>
-                <span><strong>Horario:</strong> {{ formatHora(r.fecha_inicio) }} - {{ formatHora(r.fecha_fin) }}</span>
-                <span><strong>Fecha:</strong> {{ formatFecha(r.fecha_inicio) }}</span>
-                <span><strong>Aula:</strong> {{ r.espacio }}</span>
-                <span><strong>Profesor:</strong> {{ r.profesor }}</span>
-              </div>
-            </div>
-            <div class="right">
-              <span class="status pasada">FINALIZADA</span>
-            </div>
-          </article>
+    <div class="tabla-container">
+      @if (cargando()) {
+        <p class="sin-resultados" role="status">Cargando reservas...</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th>Asignatura</th>
+              <th>Comisión</th>
+              <th>Día</th>
+              <th>Fechas</th>
+              <th>Horario</th>
+              <th>Aula</th>
+              <th>Profesor</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (reserva of reservasPaginadas(); track reserva.id) {
+              <tr>
+                <td><strong>{{ reserva.asignatura }}</strong></td>
+                <td>{{ reserva.comision }}</td>
+                <td>{{ reserva.dia }}</td>
+                <td>
+                  {{ formatFecha(reserva.fecha_inicio) }}<br />
+                  <span class="fecha-fin">hasta {{ formatFecha(reserva.fecha_fin) }}</span>
+                </td>
+                <td>{{ formatHora(reserva.hora_inicio) }} – {{ formatHora(reserva.hora_fin) }}</td>
+                <td>{{ reserva.espacio }}</td>
+                <td>{{ reserva.profesor }}</td>
+                <td><span class="estado">Finalizada</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (reservasFiltradas().length === 0 && !error()) {
+          <div class="sin-resultados">
+            {{ filtroBusqueda() ? 'No se encontraron reservas con esa búsqueda.' : 'No hay reservas finalizadas.' }}
+          </div>
         }
-        @if (reservas().length === 0) {
-          <p class="empty-message">No hay reservas anteriores</p>
-        }
-      </div>
-
-      <div class="paginacion">
-        <button class="btn-paginacion" [disabled]="paginaActual() === 1" (click)="anteriorPagina()">← Anterior</button>
-        <span class="pagina-info">Página {{ paginaActual() }} de {{ totalPaginas() || 1 }}</span>
-        <button class="btn-paginacion" [disabled]="paginaActual() >= totalPaginas() || totalPaginas() === 0" (click)="siguientePagina()">Siguiente →</button>
-      </div>
-    </section>
-  </div>
-
-  @if (selectedReserva()) {
-    <div class="modal-overlay" (click)="closeDetails()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <header class="modal-header">
-          <h2>Detalle de Reserva</h2>
-          <button class="btn-close" (click)="closeDetails()" aria-label="Cerrar modal">&times;</button>
-        </header>
-        <div class="modal-body">
-          <div class="detail-section">
-            <h3>Información General</h3>
-            <p><strong>Asignatura:</strong> {{ selectedReserva()!.asignatura }}</p>
-            <p><strong>Comisión:</strong> {{ selectedReserva()!.comision }}</p>
-            <p><strong>Profesor:</strong> {{ selectedReserva()!.profesor }}</p>
-            <p><strong>Aula:</strong> {{ selectedReserva()!.espacio }}</p>
-          </div>
-          <div class="detail-section">
-            <h3>Horarios</h3>
-            <p><strong>Día:</strong> {{ selectedReserva()!.dia }}</p>
-            <p><strong>Hora inicio:</strong> {{ formatHora(selectedReserva()!.fecha_inicio) }}</p>
-            <p><strong>Hora fin:</strong> {{ formatHora(selectedReserva()!.fecha_fin) }}</p>
-            <p><strong>Fecha inicio:</strong> {{ formatFecha(selectedReserva()!.fecha_inicio) }}</p>
-            <p><strong>Fecha fin:</strong> {{ formatFecha(selectedReserva()!.fecha_fin) }}</p>
-          </div>
-          <div class="detail-section">
-            <h3>Estado</h3>
-            <p><strong>Estado:</strong> {{ selectedReserva()!.estado }}</p>
-          </div>
-        </div>
-        <footer class="modal-footer">
-          <button class="btn secondary" (click)="closeDetails()">Cerrar</button>
-        </footer>
-      </div>
+      }
     </div>
-  }
-</main>
+
+    <nav class="paginacion" aria-label="Paginación de reservas finalizadas">
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual() === 1"
+        (click)="anteriorPagina()"
+      >
+        ← Anterior
+      </button>
+      <span class="pagina-info">Página {{ paginaActual() }} de {{ totalPaginas() || 1 }}</span>
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual() >= totalPaginas() || totalPaginas() === 0"
+        (click)="siguientePagina()"
+      >
+        Siguiente →
+      </button>
+    </nav>
+  </div>
+</div>

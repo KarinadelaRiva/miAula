@@ -1,16 +1,49 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, map } from 'rxjs';
+import { Observable, map } from 'rxjs';
+import type { Espacio } from '../models/espacio';
+import type { Reserva } from '../models/reserva';
+import { ComisionService } from './comision-service/comision-service';
+import { EspacioService } from './espacio-service/espacio-service';
+import type { Carrera } from './comision-service/comision-service';
 
-export interface Reserva {
-  id: string;
+interface ReservaApiResponse {
+  id: number;
   dia: string;
-  fecha_fin: string;
-  fecha_inicio: string;
-  hora_fin: string;
-  hora_inicio: string;
-  comision_id: number;
-  aula_id: number;
+  fechaInicio: string;
+  fechaFin: string;
+  horaInicio: string;
+  horaFin: string;
+  comisionId: number;
+  aulaId: number;
+  comisionNombre: string;
+  materiaNombre: string;
+  carreraId: number;
+  carreraNombre: string;
+  profesorId: number;
+  profesorNombre: string;
+  espacioNombre: string;
+  capacidad: number;
+}
+
+interface ReservaEstadoApiResponse {
+  id: number;
+  diaDeLaSemana: string;
+  diaDeInicio: string;
+  diaDeFin: string;
+  horaDeInicio: string;
+  horaDeFin: string;
+  comision?: {
+    id?: number;
+    nombre?: string;
+    materia?: { nombre?: string };
+    profesor?: { nombre?: string; apellido?: string };
+  };
+  espacio?: {
+    id?: number;
+    nombre?: string;
+    capacidad?: number;
+  };
 }
 
 export interface ReservaCalendario {
@@ -34,124 +67,113 @@ export interface ReservaCalendario {
   };
 }
 
-export interface Espacio {
-  id: string;
-  nombre: string;
-  tipo_espacio: string;
-  capacidad: number;
-}
-
-export interface Comision {
-  id: string;
-  nombre: string;
-  asignatura_id: number;
-  carrera_id: number;
-  usuario_profesor_id: number;
-}
-
-export interface Carrera {
-  id: string;
-  nombre: string;
-}
-
-export interface Asignatura {
-  id: string;
-  nombre_asignatura: string;
-}
-
-export interface Usuario {
-  id: string;
-  nombre: string;
-  apellido: string;
-  email: string;
-  rol: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class ReservaService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000';
-
-  constructor() { }
+  private readonly api = 'http://localhost:8080/reservas';
+  private readonly espacioService = inject(EspacioService);
+  private readonly comisionService = inject(ComisionService);
 
   getReservas(): Observable<Reserva[]> {
-    return this.http.get<Reserva[]>(`${this.baseUrl}/reservas`);
+    return this.obtenerReservas(this.api);
+  }
+
+  getReservasActivas(): Observable<Reserva[]> {
+    return this.obtenerReservasPorEstado(`${this.api}/activas`);
+  }
+
+  getReservasTerminadas(): Observable<Reserva[]> {
+    return this.obtenerReservasPorEstado(`${this.api}/terminadas`);
+  }
+
+  eliminarReserva(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.api}/${id}`);
+  }
+
+  private obtenerReservasPorEstado(url: string): Observable<Reserva[]> {
+    return this.http.get<ReservaEstadoApiResponse[]>(url).pipe(
+      map(reservas => reservas.map(reserva => ({
+        id: String(reserva.id),
+        dia: reserva.diaDeLaSemana,
+        fecha_inicio: reserva.diaDeInicio,
+        fecha_fin: reserva.diaDeFin,
+        hora_inicio: reserva.horaDeInicio,
+        hora_fin: reserva.horaDeFin,
+        comision_id: reserva.comision?.id ?? 0,
+        aula_id: reserva.espacio?.id ?? 0,
+        comision_nombre: reserva.comision?.nombre,
+        materia_nombre: reserva.comision?.materia?.nombre,
+        profesor_nombre: `${reserva.comision?.profesor?.nombre ?? ''} ${reserva.comision?.profesor?.apellido ?? ''}`.trim() || undefined,
+        espacio_nombre: reserva.espacio?.nombre,
+        capacidad: reserva.espacio?.capacidad
+      })))
+    );
+  }
+
+  getMisReservas(): Observable<Reserva[]> {
+    return this.obtenerReservas(`${this.api}/mis-reservas`);
   }
 
   getEspacios(): Observable<Espacio[]> {
-    return this.http.get<Espacio[]>(`${this.baseUrl}/espacios`);
-  }
-
-  getComisiones(): Observable<Comision[]> {
-    return this.http.get<Comision[]>(`${this.baseUrl}/comisiones`);
-  }
-
-  getAsignaturas(): Observable<Asignatura[]> {
-    return this.http.get<Asignatura[]>(`${this.baseUrl}/asignaturas`);
+    return this.espacioService.getAll();
   }
 
   getCarreras(): Observable<Carrera[]> {
-    return this.http.get<Carrera[]>(`${this.baseUrl}/carreras`);
+    return this.comisionService.getCarreras();
   }
 
-  getUsuarios(): Observable<Usuario[]> {
-    return this.http.get<Usuario[]>(`${this.baseUrl}/usuarios`);
-  }
-
-  // Obtener reservas formateadas para la vista de agenda
   getReservasParaCalendario(): Observable<ReservaCalendario[]> {
-    return forkJoin({
-      reservas: this.getReservas(),
-      espacios: this.getEspacios(),
-      comisiones: this.getComisiones(),
-      asignaturas: this.getAsignaturas(),
-      usuarios: this.getUsuarios()
-    }).pipe(
-      map(({ reservas, espacios, comisiones, asignaturas, usuarios }) => {
-        console.log('🔄 Procesando datos de la API...');
-        console.log('📊 Reservas:', reservas.length);
-        console.log('🏫 Espacios:', espacios.length);
-        console.log('👥 Comisiones:', comisiones.length);
-        console.log('📚 Asignaturas:', asignaturas.length);
-        console.log('👨‍🏫 Usuarios:', usuarios.length);
-
-        return reservas.map(reserva => {
-          const espacio = espacios.find(e => e.id === reserva.aula_id.toString());
-          const comision = comisiones.find(c => c.id === reserva.comision_id.toString());
-          const asignatura = comision ? asignaturas.find(a => a.id === comision.asignatura_id.toString()) : null;
-          const profesor = comision ? usuarios.find(u => u.id === comision.usuario_profesor_id.toString()) : null;
-
-          const fechaInicio = new Date(`${reserva.fecha_inicio}T${reserva.hora_inicio.split('.')[0]}`);
-          const fechaFin = new Date(`${reserva.fecha_inicio}T${reserva.hora_fin.split('.')[0]}`);
-
-          const evento: ReservaCalendario = {
-            id: reserva.id,
-            title: `${asignatura?.nombre_asignatura || 'Sin asignatura'} - ${espacio?.nombre || 'Sin aula'}`,
-            start: fechaInicio.toISOString(),
-            end: fechaFin.toISOString(),
-            color: this.getColorPorAsignatura(asignatura?.nombre_asignatura || ''),
-            resourceId: espacio?.nombre || 'sin-aula',
-            extendedProps: {
-              asignatura: asignatura?.nombre_asignatura || 'Sin asignatura',
-              aula: espacio?.nombre || 'Sin aula',
-              comision: comision?.nombre || 'Sin comisión',
-              profesor: profesor ? `${profesor.nombre} ${profesor.apellido}` : 'Sin profesor',
-              dia: reserva.dia,
-              capacidad: espacio?.capacidad || 0,
-              tipoEspacio: espacio?.tipo_espacio || 'AULA',
-              profesorId: comision?.usuario_profesor_id || null,
-              comisionId: reserva.comision_id,
-              estado: 'ACTIVA'
-            }
-          };
-
-          console.log('✅ Evento procesado:', evento.title, 'en', evento.extendedProps?.aula);
-          return evento;
-        });
-      })
+    return this.http.get<ReservaApiResponse[]>(this.api).pipe(
+      map(reservas => reservas.map(reserva => ({
+        id: reserva.id,
+        title: `${reserva.materiaNombre || 'Sin asignatura'} - ${reserva.espacioNombre || 'Sin aula'}`,
+        start: `${reserva.fechaInicio}T${reserva.horaInicio}`,
+        end: `${reserva.fechaInicio}T${reserva.horaFin}`,
+        color: this.getColorPorAsignatura(reserva.materiaNombre || ''),
+        resourceId: reserva.espacioNombre || 'sin-aula',
+        extendedProps: {
+          asignatura: reserva.materiaNombre || 'Sin asignatura',
+          aula: reserva.espacioNombre || 'Sin aula',
+          comision: reserva.comisionNombre || 'Sin comisión',
+          profesor: reserva.profesorNombre || 'Sin profesor',
+          dia: reserva.dia,
+          capacidad: reserva.capacidad || 0,
+          tipoEspacio: 'AULA',
+          profesorId: reserva.profesorId || null,
+          comisionId: reserva.comisionId,
+          estado: 'ACTIVA'
+        }
+      })))
     );
+  }
+
+  private obtenerReservas(url: string): Observable<Reserva[]> {
+    return this.http.get<ReservaApiResponse[]>(url).pipe(
+      map(reservas => reservas.map(reserva => this.reservaApiToReserva(reserva)))
+    );
+  }
+
+  private reservaApiToReserva(reserva: ReservaApiResponse): Reserva {
+    return {
+      id: String(reserva.id),
+      dia: reserva.dia,
+      fecha_inicio: reserva.fechaInicio,
+      fecha_fin: reserva.fechaFin,
+      hora_inicio: reserva.horaInicio,
+      hora_fin: reserva.horaFin,
+      comision_id: reserva.comisionId,
+      aula_id: reserva.aulaId,
+      comision_nombre: reserva.comisionNombre,
+      materia_nombre: reserva.materiaNombre,
+      carrera_id: reserva.carreraId,
+      carrera_nombre: reserva.carreraNombre,
+      profesor_id: reserva.profesorId,
+      profesor_nombre: reserva.profesorNombre,
+      espacio_nombre: reserva.espacioNombre,
+      capacidad: reserva.capacidad
+    };
   }
 
   private getColorPorAsignatura(nombreAsignatura: string): string {

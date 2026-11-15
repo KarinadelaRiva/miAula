@@ -1,14 +1,17 @@
-import { Component, OnInit, computed, inject, signal, WritableSignal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReservaService } from '../../services/reserva.service';
+import type { Reserva } from '../../models/reserva';
 
-interface ReservaCompleta {
-  id: number;
+interface ReservaProgramada {
+  id: string;
   dia: string;
   fecha_inicio: string;
   fecha_fin: string;
-  estado: string;
+  hora_inicio: string;
+  hora_fin: string;
   comision: string;
   espacio: string;
   profesor: string;
@@ -25,71 +28,109 @@ interface ReservaCompleta {
 export class GestorReservasComponent implements OnInit {
   private reservaService = inject(ReservaService);
 
-  // Señales para las reservas separadas por estado
-  reservas: WritableSignal<ReservaCompleta[]> = signal<ReservaCompleta[]>([]);
-  activas: WritableSignal<ReservaCompleta[]> = signal<ReservaCompleta[]>([]);
-  pasadas: WritableSignal<ReservaCompleta[]> = signal<ReservaCompleta[]>([]);
+  reservas = signal<ReservaProgramada[]>([]);
+  filtroBusqueda = signal('');
   paginaActual = signal(1);
   limite = 8;
-  totalPaginas = computed(() => Math.ceil(this.activas().length / this.limite));
-  activasPaginadas = computed(() => {
-    const inicio = (this.paginaActual() - 1) * this.limite;
-    return this.activas().slice(inicio, inicio + this.limite);
+  cargando = signal(false);
+  eliminando = signal(false);
+  mensaje = signal('');
+  error = signal('');
+  totalPaginas = computed(() => Math.ceil(this.reservasFiltradas().length / this.limite));
+  reservasFiltradas = computed(() => {
+    const termino = this.filtroBusqueda().trim().toLocaleLowerCase();
+    return this.reservas().filter(reserva =>
+      `${reserva.asignatura} ${reserva.comision} ${reserva.espacio} ${reserva.profesor} ${reserva.dia}`
+        .toLocaleLowerCase()
+        .includes(termino)
+    );
   });
-  
-  // Reserva seleccionada para ver detalles
-  private _selectedReserva: WritableSignal<ReservaCompleta | null> = signal<ReservaCompleta | null>(null);
+  reservasPaginadas = computed(() => {
+    const inicio = (this.paginaActual() - 1) * this.limite;
+    return this.reservasFiltradas().slice(inicio, inicio + this.limite);
+  });
+  reservaSeleccionada = signal<ReservaProgramada | null>(null);
 
   ngOnInit(): void {
     this.cargarReservas();
   }
 
   cargarReservas(): void {
-    this.reservaService.getReservasParaCalendario().subscribe({
+    this.cargando.set(true);
+    this.mensaje.set('');
+    this.error.set('');
+    this.reservaService.getReservasActivas().subscribe({
       next: (reservas) => {
-        console.log('📊 Cargadas', reservas.length, 'reservas para gestión');
-        
-        // Convertir las reservas del calendario a formato de gestión
-        const reservasCompletas = reservas.map(reserva => ({
-          id: reserva.id || 0,
-          dia: reserva.extendedProps?.['dia'] || '',
-          fecha_inicio: reserva.start as string,
-          fecha_fin: reserva.end as string,
-          estado: reserva.extendedProps?.['estado'] || 'ACTIVA',
-          comision: reserva.extendedProps?.['comision'] || 'Sin comisión',
-          espacio: reserva.extendedProps?.['aula'] || 'Sin espacio',
-          profesor: reserva.extendedProps?.['profesor'] || 'Sin profesor',
-          asignatura: reserva.extendedProps?.['asignatura'] || 'Sin asignatura'
-        } as ReservaCompleta));
-
-        this.reservas.set(reservasCompletas);
-        this.separarPorEstado(reservasCompletas);
+        const reservasProgramadas = reservas
+          .map(reserva => this.aReservaProgramada(reserva))
+          .sort((a, b) =>
+            `${a.fecha_inicio}T${a.hora_inicio}`.localeCompare(`${b.fecha_inicio}T${b.hora_inicio}`)
+          );
+        this.reservas.set(reservasProgramadas);
+        this.paginaActual.set(1);
+        this.cargando.set(false);
       },
-      error: (error) => {
-        console.error('❌ Error cargando reservas:', error);
+      error: (error: HttpErrorResponse) => {
+        console.error('Error cargando reservas programadas:', error);
+        this.error.set(error.error?.mensaje ?? 'No se pudieron cargar las reservas programadas.');
+        this.cargando.set(false);
       }
     });
   }
 
-  private separarPorEstado(reservas: ReservaCompleta[]): void {
-    const ahora = new Date();
-    
-    const activas = reservas.filter(r => {
-      const fechaFin = new Date(r.fecha_fin);
-      return fechaFin >= ahora;
-    });
+  private aReservaProgramada(reserva: Reserva): ReservaProgramada {
+    return {
+      id: reserva.id,
+      dia: reserva.dia,
+      fecha_inicio: reserva.fecha_inicio,
+      fecha_fin: reserva.fecha_fin,
+      hora_inicio: reserva.hora_inicio,
+      hora_fin: reserva.hora_fin,
+      comision: reserva.comision_nombre || 'Sin comisión',
+      espacio: reserva.espacio_nombre || 'Sin espacio',
+      profesor: reserva.profesor_nombre || 'Sin profesor',
+      asignatura: reserva.materia_nombre || 'Sin asignatura'
+    };
+  }
 
-    const pasadas = reservas.filter(r => {
-      const fechaFin = new Date(r.fecha_fin);
-      return fechaFin < ahora;
-    });
-
-    this.activas.set(activas);
-    this.pasadas.set(pasadas);
+  aplicarFiltro(termino: string): void {
+    this.filtroBusqueda.set(termino);
     this.paginaActual.set(1);
-    
-    console.log('📋 Reservas activas:', activas.length);
-    console.log('📋 Reservas pasadas:', pasadas.length);
+    this.mensaje.set('');
+  }
+
+  abrirConfirmacion(reserva: ReservaProgramada): void {
+    this.mensaje.set('');
+    this.error.set('');
+    this.reservaSeleccionada.set(reserva);
+  }
+
+  cerrarConfirmacion(): void {
+    if (!this.eliminando()) {
+      this.reservaSeleccionada.set(null);
+    }
+  }
+
+  desactivarReserva(): void {
+    const reserva = this.reservaSeleccionada();
+    if (!reserva || this.eliminando()) return;
+
+    this.eliminando.set(true);
+    this.reservaService.eliminarReserva(reserva.id).subscribe({
+      next: () => {
+        this.reservaSeleccionada.set(null);
+        this.eliminando.set(false);
+        this.reservas.update(reservas => reservas.filter(item => item.id !== reserva.id));
+        this.error.set('');
+        this.mensaje.set('La reserva se desactivó correctamente.');
+        this.paginaActual.set(1);
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Error desactivando la reserva:', error);
+        this.error.set(error.error?.mensaje ?? 'No se pudo desactivar la reserva.');
+        this.eliminando.set(false);
+      }
+    });
   }
 
   siguientePagina(): void {
@@ -105,7 +146,7 @@ export class GestorReservasComponent implements OnInit {
   }
 
   formatFecha(fecha: string): string {
-    return new Date(fecha).toLocaleDateString('es-ES', {
+    return new Date(`${fecha}T00:00:00`).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
@@ -113,22 +154,6 @@ export class GestorReservasComponent implements OnInit {
   }
 
   formatHora(fecha: string): string {
-    return new Date(fecha).toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return fecha.slice(0, 5);
   }
-
-  openDetails(reserva: ReservaCompleta): void {
-    this._selectedReserva.set(reserva);
-  }
-
-  closeDetails(): void {
-    this._selectedReserva.set(null);
-  }
-
-  selectedReserva() {
-    return this._selectedReserva();
-  }
-
 }

@@ -1,5 +1,6 @@
 package com.miAula.miAula.service;
 
+import com.miAula.miAula.dtos.reserva.ReservaCalendarioDTO;
 import com.miAula.miAula.entities.Reserva;
 import com.miAula.miAula.entities.Solicitud;
 import com.miAula.miAula.entities.enums.DiaSemana;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -28,6 +31,61 @@ public class ReservaService {
     public Reserva obtenerReserva(Long id) {
         return reservaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada con ID: " + id));
+    }
+
+    public List<ReservaCalendarioDTO> obtenerReservasDeUsuario(String email) {
+        return reservaRepository.findBySolicitante_EmailAndActivoTrue(email).stream()
+                .map(this::reservaAReservaCalendarioDTO)
+                .toList();
+    }
+
+    public List<ReservaCalendarioDTO> obtenerReservasParaCalendario() {
+        return reservaRepository.findByActivoTrue().stream()
+                .map(this::reservaAReservaCalendarioDTO)
+                .toList();
+    }
+
+    private ReservaCalendarioDTO reservaAReservaCalendarioDTO(Reserva reserva) {
+        return ReservaCalendarioDTO.builder()
+                .id(reserva.getId())
+                .dia(reserva.getDiaDeLaSemana().name())
+                .fechaInicio(reserva.getDiaDeInicio())
+                .fechaFin(reserva.getDiaDeFin())
+                .horaInicio(reserva.getHoraDeInicio())
+                .horaFin(reserva.getHoraDeFin())
+                .comisionId(reserva.getComision().getId())
+                .aulaId(reserva.getEspacio().getId())
+                .comisionNombre(reserva.getComision().getNombre())
+                .materiaNombre(reserva.getComision().getMateria().getNombre())
+                .carreraId(reserva.getComision().getCarrera().getId())
+                .carreraNombre(reserva.getComision().getCarrera().getNombre())
+                .profesorId(reserva.getComision().getProfesor().getId())
+                .profesorNombre(reserva.getComision().getProfesor().getNombre()
+                        + " " + reserva.getComision().getProfesor().getApellido())
+                .espacioNombre(reserva.getEspacio().getNombre())
+                .capacidad(reserva.getEspacio().getCapacidad())
+                .build();
+    }
+
+    public List<Reserva> obtenerReservasActivas() {
+        LocalDateTime ahora = LocalDateTime.now();
+        return reservaRepository.findActivasDesde(ahora.toLocalDate(), ahora.toLocalTime());
+    }
+
+    public List<Reserva> obtenerReservasTerminadas() {
+        LocalDateTime ahora = LocalDateTime.now();
+        return reservaRepository.findTerminadasAntesDe(ahora.toLocalDate(), ahora.toLocalTime());
+    }
+
+    @Transactional
+    public void desactivarReserva(Long id, String emailSolicitante, boolean esAdministrador) {
+        Reserva reserva = obtenerReserva(id);
+        if (!esAdministrador && !Objects.equals(reserva.getSolicitante().getEmail(), emailSolicitante)) {
+            throw new ResourceNotFoundException("Reserva no encontrada con ID: " + id);
+        }
+
+        reserva.setActivo(false);
+        reservaRepository.save(reserva);
     }
 
     @Transactional

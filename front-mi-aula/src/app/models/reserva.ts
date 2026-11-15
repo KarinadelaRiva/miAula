@@ -7,4 +7,12 @@ export interface Reserva {
   hora_fin: string;
   comision_id: number;
   aula_id: number;
+  comision_nombre?: string;
+  materia_nombre?: string;
+  carrera_id?: number;
+  carrera_nombre?: string;
+  profesor_id?: number;
+  profesor_nombre?: string;
+  espacio_nombre?: string;
+  capacidad?: number;
 }
