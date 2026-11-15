@@ -1,5 +1,9 @@
 <div class="dashboard-container">
 
+  <!-- ==========================================================
+       BIENVENIDA
+       ========================================================== -->
+
   <div class="welcome-section">
 
     <h1>
@@ -10,11 +14,21 @@
       Sistema de Gestión de Aulas - UTN Regional MdP
     </p>
 
+
     @if (usuario()) {
 
       <div class="user-info">
-        <p><strong>Rol:</strong> {{ usuario()!.roles.join(', ') }}</p>
-        <p><strong>Email:</strong> {{ usuario()!.email }}</p>
+
+        <p>
+          <strong>Rol:</strong>
+          {{ usuario()!.roles.join(', ') }}
+        </p>
+
+        <p>
+          <strong>Email:</strong>
+          {{ usuario()!.email }}
+        </p>
+
       </div>
 
     }
@@ -22,11 +36,18 @@
   </div>
 
 
+  <!-- ==========================================================
+       ACCIONES
+       ========================================================== -->
+
   <div class="actions-section">
 
     <div class="action-cards">
 
-      <!-- Opciones para administradores -->
+
+      <!-- ======================================================
+           ADMINISTRADOR
+           ====================================================== -->
 
       @if (tieneRol('administrador')) {
 
@@ -40,7 +61,7 @@
           <img
             class="card-icon"
             src="Solicitudes.png"
-            alt="Icono de solicitudes"/>
+            alt="Icono de solicitudes">
 
           <h3>
             Gestor Solicitudes
@@ -49,6 +70,7 @@
           <p>
             Administrar solicitudes de cambio de aula
           </p>
+
 
           @if (pendingSolicitudes > 0) {
 
@@ -70,7 +92,7 @@
           <img
             class="card-icon"
             src="Reservas.png"
-            alt="Icono de reservas"/>
+            alt="Icono de reservas">
 
           <h3>
             Ver Todas las Reservas
@@ -92,7 +114,7 @@
           <img
             class="card-icon"
             src="Usuarios.png"
-            alt="Icono de usuarios"/>
+            alt="Icono de usuarios">
 
           <h3>
             Gestión de Usuarios
@@ -114,7 +136,7 @@
           <img
             class="card-icon"
             src="Espacios.png"
-            alt="Icono de espacios"/>
+            alt="Icono de espacios">
 
           <h3>
             Gestión de Espacios
@@ -136,7 +158,7 @@
           <img
             class="card-icon"
             src="Recursos.png"
-            alt="Icono de recursos"/>
+            alt="Icono de recursos">
 
           <h3>
             Gestión de Recursos
@@ -158,7 +180,7 @@
           <img
             class="card-icon"
             src="Comisiones.png"
-            alt="Icono de comisiones"/>
+            alt="Icono de comisiones">
 
           <h3>
             Gestión de Comisiones
@@ -166,6 +188,50 @@
 
           <p>
             Administrar comisiones y asignaturas
+          </p>
+
+        </div>
+
+        <!-- MATERIAS -->
+
+       <div
+        class="action-card"
+        (click)="navigateTo('/gestion-materia')">
+
+        <img
+          class="card-icon"
+         src="Comisiones.png"
+         alt="Icono de materias">
+
+      <h3>
+    Gestión de Materias
+     </h3>
+
+       <p>
+    Administrar las materias del sistema
+      </p>
+
+      </div>
+
+        <!-- ====================================================
+             EVENTOS
+             ==================================================== -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/gestion-evento')">
+
+          <img
+            class="card-icon"
+            src="Reservas.png"
+            alt="Icono de eventos">
+
+          <h3>
+            Gestión de Eventos
+          </h3>
+
+          <p>
+            Registrar y administrar eventos institucionales
           </p>
 
         </div>
@@ -180,7 +246,7 @@
           <img
             class="card-icon"
             src="Carreras.png"
-            alt="Icono de carreras"/>
+            alt="Icono de carreras">
 
           <h3>
             Gestión de Carreras
@@ -195,7 +261,9 @@
       }
 
 
-      <!-- Opciones para profesores -->
+      <!-- ======================================================
+           PROFESOR
+           ====================================================== -->
 
       @if (tieneRol('profesor')) {
 
@@ -209,7 +277,7 @@
           <img
             class="card-icon"
             src="Solicitudes.png"
-            alt="Icono de solicitudes"/>
+            alt="Icono de solicitudes">
 
           <h3>
             Mis Solicitudes
@@ -231,7 +299,7 @@
           <img
             class="card-icon"
             src="Reservas.png"
-            alt="Icono de reservas"/>
+            alt="Icono de reservas">
 
           <h3>
             Ver Mis Reservas
@@ -253,7 +321,7 @@
           <img
             class="card-icon"
             src="Comisiones.png"
-            alt="Icono de comisiones"/>
+            alt="Icono de comisiones">
 
           <h3>
             Mis Comisiones
@@ -261,6 +329,30 @@
 
           <p>
             Ver comisiones asignadas
+          </p>
+
+        </div>
+
+
+        <!-- ====================================================
+             MIS EVENTOS
+             ==================================================== -->
+
+        <div
+          class="action-card"
+          (click)="navigateTo('/gestion-evento/administrar-eventos')">
+
+          <img
+            class="card-icon"
+            src="Reservas.png"
+            alt="Icono de eventos">
+
+          <h3>
+            Mis Eventos
+          </h3>
+
+          <p>
+            Ver los eventos en los que sos organizador
           </p>
 
         </div>
@@ -275,4 +367,5 @@
 
 
 <!-- Router outlet para rutas internas -->
+
 <router-outlet></router-outlet>

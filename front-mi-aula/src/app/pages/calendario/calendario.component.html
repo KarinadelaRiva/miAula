@@ -12,8 +12,19 @@
       <input id="fecha-calendario" type="date" [(ngModel)]="fechaSeleccionada" />
     </div>
 
-    @if (usuarioLogueado$ | async) {
-      <a class="back-button" routerLink="/dashboard">← Volver</a>
+    @if (usuarioLogueado) {
+      <div class="toolbar-actions">
+        @if (esProfesor) {
+          <button
+            type="button"
+            class="back-button reservations-filter-button"
+            (click)="alternarVistaReservas()"
+          >
+            {{ mostrarTodasLasReservas ? 'Mis reservas' : 'Ver todas las reservas' }}
+          </button>
+        }
+        <a class="back-button" routerLink="/dashboard">← Volver</a>
+      </div>
     }
   </div>
 

@@ -1,0 +1,136 @@
+<div class="gestion-container">
+
+  <div class="gestion-card">
+
+    <!-- HEADER -->
+
+    <div class="gestion-header">
+
+      <div>
+
+        <span class="eyebrow">
+          Panel administrativo
+        </span>
+
+        <h1>
+          Registrar Materia
+        </h1>
+
+        <p>
+          Ingresá los datos de la nueva materia.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- MENSAJES -->
+
+    <div
+      *ngIf="mensajeExito"
+      class="mensaje-exito">
+
+      {{ mensajeExito }}
+
+    </div>
+
+
+    <div
+      *ngIf="mensajeError"
+      class="mensaje-error">
+
+      {{ mensajeError }}
+
+    </div>
+
+
+    <!-- FORMULARIO -->
+
+    <div class="formulario">
+
+      <div class="form-grid">
+
+
+        <!-- CÓDIGO -->
+
+        <div class="campo">
+
+          <label for="codigo">
+            Código
+          </label>
+
+          <input
+            id="codigo"
+            type="text"
+            maxlength="6"
+            [(ngModel)]="codigo"
+            placeholder="Ej: MAT001">
+
+          <small>
+            Máximo 6 caracteres.
+          </small>
+
+        </div>
+
+
+        <!-- NOMBRE -->
+
+        <div class="campo">
+
+          <label for="nombre">
+            Nombre
+          </label>
+
+          <input
+            id="nombre"
+            type="text"
+            maxlength="50"
+            [(ngModel)]="nombre"
+            placeholder="Ej: Programación III">
+
+          <small>
+            Máximo 50 caracteres.
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <!-- ACCIONES -->
+
+      <div class="acciones">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cancelar()"
+          [disabled]="guardando">
+
+          ← Volver
+
+        </button>
+
+
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="registrarMateria()"
+          [disabled]="guardando">
+
+          {{
+            guardando
+              ? 'Registrando...'
+              : 'Registrar materia'
+          }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 export interface Comision {
   id: number;
@@ -48,6 +48,11 @@ export interface Asignatura {
 
 export interface Carrera {
   id: string;
+  nombre: string;
+}
+
+interface CarreraApiResponse {
+  id: number;
   nombre: string;
 }
 
@@ -103,7 +108,12 @@ export class ComisionService {
   }
 
   getCarreras(): Observable<Carrera[]> {
-    return this.http.get<Carrera[]>('http://localhost:3000/carreras');
+    return this.http.get<CarreraApiResponse[]>('http://localhost:8080/carreras').pipe(
+      map(carreras => carreras.map(carrera => ({
+        id: String(carrera.id),
+        nombre: carrera.nombre
+      })))
+    );
   }
 
   getProfesores(): Observable<Profesor[]> {

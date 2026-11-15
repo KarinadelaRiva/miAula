@@ -1,10 +1,14 @@
-<div class="administrar-container">
+<div class="gestion-container">
 
-  <div class="administrar-card">
+  <div class="gestion-card">
 
-    <div class="administrar-header">
+    <!-- ============================================================
+         HEADER
+         ============================================================ -->
 
-      <div>
+    <div class="gestion-header">
+
+      <div class="header-texto">
 
         <span class="eyebrow">
           Panel administrativo
@@ -15,45 +19,38 @@
         </h1>
 
         <p>
-          Consultá, modificá y administrá las carreras del sistema.
+          Consultá, modificá y administrá las carreras y sus materias.
         </p>
 
       </div>
 
 
-      <div class="header-actions">
+      <div class="header-acciones">
 
-        <button
-          type="button"
+        <a
           routerLink="/gestion-carreras/registrar-carrera"
           class="btn-nuevo">
-          + Nueva carrera
-        </button>
 
-        <button
-          type="button"
+          + Nueva carrera
+
+        </a>
+
+        <a
           routerLink="/dashboard"
           class="btn-volver">
+
           ← Volver
-        </button>
+
+        </a>
 
       </div>
 
     </div>
 
 
-    <div class="filtros-section">
-
-      <input
-        type="text"
-        class="input-buscar"
-        placeholder="Buscar por código o carrera..."
-        [(ngModel)]="busqueda"
-        (input)="buscar()"
-        aria-label="Buscar carrera">
-
-    </div>
-
+    <!-- ============================================================
+         MENSAJES
+         ============================================================ -->
 
     <div
       *ngIf="mensaje"
@@ -64,22 +61,59 @@
     </div>
 
 
-    <div class="tabla-container">
+    <!-- ============================================================
+         BUSCADOR
+         ============================================================ -->
+
+    <div class="panel-filtros">
+
+      <div class="campo-filtro">
+
+        <label for="buscarCarrera">
+          Buscar
+        </label>
+
+        <input
+          id="buscarCarrera"
+          type="text"
+          [(ngModel)]="busqueda"
+          (input)="buscar()"
+          placeholder="Buscar por código o nombre...">
+
+      </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         SIN RESULTADOS
+         ============================================================ -->
+
+    <div
+      *ngIf="carrerasFiltradas.length === 0"
+      class="estado-mensaje">
+
+      No se encontraron carreras.
+
+    </div>
+
+
+    <!-- ============================================================
+         TABLA
+         ============================================================ -->
+
+    <div
+      *ngIf="carrerasFiltradas.length > 0"
+      class="tabla-contenedor">
 
       <table>
 
         <thead>
 
           <tr>
-
-            <th>ID</th>
-
             <th>Código</th>
-
             <th>Carrera</th>
-
             <th>Acciones</th>
-
           </tr>
 
         </thead>
@@ -90,88 +124,41 @@
           <tr
             *ngFor="let carrera of carrerasFiltradas">
 
-
-            <td data-label="ID">
-
-              {{ carrera.id }}
-
-            </td>
-
-
             <td data-label="Código">
-
-              <input
-                *ngIf="carreraEditando?.id === carrera.id"
-                class="input-edicion"
-                [(ngModel)]="codigoEditado"
-                maxlength="6"
-                aria-label="Editar código de carrera">
-
-
-              <strong
-                *ngIf="carreraEditando?.id !== carrera.id">
-
-                {{ carrera.codigo }}
-
-              </strong>
-
+              {{ carrera.codigo }}
             </td>
 
 
             <td data-label="Carrera">
 
-              <input
-                *ngIf="carreraEditando?.id === carrera.id"
-                class="input-edicion"
-                [(ngModel)]="nombreEditado"
-                maxlength="50"
-                aria-label="Editar nombre de carrera">
-
-
-              <strong
-                *ngIf="carreraEditando?.id !== carrera.id">
-
+              <strong>
                 {{ carrera.nombre }}
-
               </strong>
 
             </td>
 
 
-            <td
-              data-label="Acciones"
-              class="acciones">
+            <td data-label="Acciones">
 
-
-              <ng-container
-                *ngIf="carreraEditando?.id === carrera.id">
+              <div class="acciones">
 
                 <button
                   type="button"
-                  class="btn-guardar"
-                  (click)="guardarEdicion()">
-                  Guardar
+                  class="btn-materias"
+                  (click)="abrirGestionMaterias(carrera)">
+
+                  Agregar materias
+
                 </button>
 
-
-                <button
-                  type="button"
-                  class="btn-cancelar"
-                  (click)="cancelarEdicion()">
-                  Cancelar
-                </button>
-
-              </ng-container>
-
-
-              <ng-container
-                *ngIf="carreraEditando?.id !== carrera.id">
 
                 <button
                   type="button"
                   class="btn-editar"
                   (click)="editarCarrera(carrera)">
+
                   Editar
+
                 </button>
 
 
@@ -179,10 +166,12 @@
                   type="button"
                   class="btn-eliminar"
                   (click)="abrirConfirmacionEliminar(carrera)">
+
                   Eliminar
+
                 </button>
 
-              </ng-container>
+              </div>
 
             </td>
 
@@ -192,12 +181,84 @@
 
       </table>
 
+    </div>
 
-      <div
-        *ngIf="carrerasFiltradas.length === 0"
-        class="sin-resultados">
 
-        No se encontraron carreras.
+    <!-- ============================================================
+         EDICIÓN
+         ============================================================ -->
+
+    <div
+      *ngIf="carreraEditando"
+      class="panel-edicion">
+
+      <div class="edicion-header">
+
+        <h2>
+          Editar carrera
+        </h2>
+
+        <p>
+          Modificá los datos de la carrera seleccionada.
+        </p>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="campo">
+
+          <label for="codigoEditado">
+            Código
+          </label>
+
+          <input
+            id="codigoEditado"
+            type="text"
+            maxlength="6"
+            [(ngModel)]="codigoEditado">
+
+        </div>
+
+
+        <div class="campo">
+
+          <label for="nombreEditado">
+            Nombre
+          </label>
+
+          <input
+            id="nombreEditado"
+            type="text"
+            maxlength="50"
+            [(ngModel)]="nombreEditado">
+
+        </div>
+
+      </div>
+
+
+      <div class="acciones-edicion">
+
+        <button
+          type="button"
+          class="btn-cancelar"
+          (click)="cancelarEdicion()">
+
+          Cancelar
+
+        </button>
+
+
+        <button
+          type="button"
+          class="btn-guardar"
+          (click)="guardarEdicion()">
+
+          Guardar cambios
+
+        </button>
 
       </div>
 
@@ -208,44 +269,297 @@
 </div>
 
 
-<!-- CONFIRMACIÓN DE ELIMINACIÓN -->
+<!-- ============================================================
+     MODAL DE MATERIAS
+     ============================================================ -->
 
 <div
-  *ngIf="mostrarConfirmacionEliminar"
+  *ngIf="mostrarGestionMaterias"
   class="modal-overlay">
 
-  <div class="modal-confirmacion">
+  <div class="modal-card modal-materias">
 
-    <h2>
-      Eliminar carrera
-    </h2>
+    <!-- HEADER -->
 
-    <p>
+    <div class="modal-header">
 
-      ¿Seguro que querés eliminar la carrera
+      <span class="modal-eyebrow">
+        Gestión de carreras
+      </span>
 
-      <strong>
-        "{{ carreraAEliminar?.codigo }} - {{ carreraAEliminar?.nombre }}"
-      </strong>?
+      <h2>
+        Agregar materias
+      </h2>
 
-    </p>
+      <p *ngIf="carreraMaterias">
+
+        {{ carreraMaterias.codigo }}
+        -
+        {{ carreraMaterias.nombre }}
+
+      </p>
+
+    </div>
 
 
-    <div class="modal-actions">
+    <!-- BODY -->
+
+    <div class="modal-body">
+
+      <p class="modal-descripcion">
+        Seleccioná las materias que pertenecen a esta carrera.
+      </p>
+
+
+      <!-- CARGANDO -->
+
+      <div
+        *ngIf="cargandoMaterias"
+        class="estado-mensaje">
+
+        Cargando materias...
+
+      </div>
+
+
+      <!-- SIN MATERIAS -->
+
+      <div
+        *ngIf="
+          !cargandoMaterias &&
+          materiasDisponibles.length === 0
+        "
+        class="estado-mensaje">
+
+        No hay materias disponibles.
+
+      </div>
+
+
+      <!-- ========================================================
+           DESPLEGABLE MULTISELECCIÓN
+           ======================================================== -->
+
+      <div
+        *ngIf="
+          !cargandoMaterias &&
+          materiasDisponibles.length > 0
+        "
+        class="selector-materias">
+
+        <label class="selector-label">
+          Materias
+        </label>
+
+
+        <details class="multi-select">
+
+          <summary class="multi-select-summary">
+
+            <span
+              *ngIf="materiasSeleccionadas.size === 0">
+
+              Seleccionar materias
+
+            </span>
+
+
+            <span
+              *ngIf="materiasSeleccionadas.size === 1">
+
+              1 materia seleccionada
+
+            </span>
+
+
+            <span
+              *ngIf="materiasSeleccionadas.size > 1">
+
+              {{ materiasSeleccionadas.size }}
+              materias seleccionadas
+
+            </span>
+
+
+            <span class="flecha">
+              ▼
+            </span>
+
+          </summary>
+
+
+          <div class="multi-select-dropdown">
+
+            <label
+              *ngFor="let materia of materiasDisponibles"
+              class="materia-option">
+
+              <input
+                type="checkbox"
+                [checked]="estaMateriaSeleccionada(materia.id)"
+                (change)="cambiarSeleccionMateria(
+                  materia.id,
+                  $event
+                )">
+
+
+              <div class="materia-info">
+
+                <span class="materia-nombre">
+                  {{ materia.nombre }}
+                </span>
+
+                <span class="materia-codigo">
+                  {{ materia.codigo }}
+                </span>
+
+              </div>
+
+            </label>
+
+          </div>
+
+        </details>
+
+
+        <!-- ======================================================
+             RESUMEN DE SELECCIONADAS
+             ====================================================== -->
+
+        <div
+          *ngIf="materiasSeleccionadas.size > 0"
+          class="seleccion-resumen">
+
+          <span class="seleccion-titulo">
+            Seleccionadas:
+          </span>
+
+
+          <div class="chips">
+
+            <ng-container
+              *ngFor="let materia of materiasDisponibles">
+
+              <span
+                *ngIf="estaMateriaSeleccionada(materia.id)"
+                class="chip">
+
+                {{ materia.nombre }}
+
+              </span>
+
+            </ng-container>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ACCIONES -->
+
+    <div class="modal-acciones">
 
       <button
         type="button"
-        class="btn-cancelar"
-        (click)="cancelarEliminar()">
+        class="modal-btn-cancelar"
+        (click)="cancelarGestionMaterias()"
+        [disabled]="guardandoMaterias">
+
         Cancelar
+
       </button>
 
 
       <button
         type="button"
-        class="btn-eliminar"
+        class="modal-btn-guardar"
+        (click)="guardarMaterias()"
+        [disabled]="
+          guardandoMaterias ||
+          cargandoMaterias
+        ">
+
+        {{
+          guardandoMaterias
+            ? 'Guardando...'
+            : 'Guardar materias'
+        }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ============================================================
+     MODAL ELIMINAR
+     ============================================================ -->
+
+<div
+  *ngIf="mostrarConfirmacionEliminar"
+  class="modal-overlay">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <span class="modal-eyebrow">
+        Gestión de carreras
+      </span>
+
+      <h2>
+        Eliminar carrera
+      </h2>
+
+    </div>
+
+
+    <div class="modal-body">
+
+      <p>
+
+        ¿Querés eliminar la carrera
+
+        <strong>
+          "{{ carreraAEliminar?.nombre }}"
+        </strong>?
+
+      </p>
+
+
+      <p class="modal-ayuda">
+        La carrera dejará de aparecer como activa en el sistema.
+      </p>
+
+    </div>
+
+
+    <div class="modal-acciones">
+
+      <button
+        type="button"
+        class="modal-btn-cancelar"
+        (click)="cancelarEliminar()">
+
+        Cancelar
+
+      </button>
+
+
+      <button
+        type="button"
+        class="modal-btn-eliminar"
         (click)="confirmarEliminar()">
+
         Eliminar
+
       </button>
 
     </div>

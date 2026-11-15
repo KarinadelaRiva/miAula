@@ -3,8 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Reserva } from '../../models/reserva';
-import { Carrera, Comision, ReservaService } from '../../services/reserva.service';
-import { forkJoin } from 'rxjs';
+import { Carrera } from '../../services/comision-service/comision-service';
+import { ReservaService } from '../../services/reserva.service';
 import { UsuarioService } from '../../services/usuario-service/usuario-service';
 
 interface Aula {
@@ -24,14 +24,14 @@ export class CalendarioComponent implements OnInit {
   private readonly reservaService = inject(ReservaService);
   private readonly changeDetector = inject(ChangeDetectorRef);
   private readonly usuarioService = inject(UsuarioService);
-  readonly usuarioLogueado$ = this.usuarioService.usuarioLogueado();
 
   aulas: Aula[] = [];
   fechaSeleccionada = this.obtenerFechaLocal();
-  private nombresMaterias = new Map<number, string>();
   carreras: Carrera[] = [];
-  private comisiones: Comision[] = [];
   reservaSeleccionada: Reserva | null = null;
+  usuarioLogueado = false;
+  esProfesor = false;
+  mostrarTodasLasReservas = false;
 
   readonly HORA_INICIO = 7; // 07:00 AM
   readonly HORA_FIN = 22;   // 10:00 PM
@@ -42,7 +42,8 @@ export class CalendarioComponent implements OnInit {
   ngOnInit() {
     this.generarBloquesHorarios();
     this.cargarEspacios();
-    this.cargarReservas();
+    this.cargarCarreras();
+    this.cargarUsuario();
   }
 
   get reservasDelDia(): Reserva[] {
@@ -106,25 +107,43 @@ export class CalendarioComponent implements OnInit {
     });
   }
 
-  private cargarReservas(): void {
-    forkJoin({
-      reservas: this.reservaService.getReservas(),
-      comisiones: this.reservaService.getComisiones(),
-      asignaturas: this.reservaService.getAsignaturas(),
-      carreras: this.reservaService.getCarreras()
-    }).subscribe({
-      next: ({ reservas, comisiones, asignaturas, carreras }) => {
-        this.comisiones = comisiones;
+  private cargarCarreras(): void {
+    this.reservaService.getCarreras().subscribe({
+      next: carreras => {
         this.carreras = carreras;
-        this.nombresMaterias = new Map(
-          comisiones.map(comision => {
-            const asignatura = asignaturas.find(
-              item => Number(item.id) === Number(comision.asignatura_id)
-            );
-            return [Number(comision.id), asignatura?.nombre_asignatura || 'Materia sin nombre'];
-          })
-        );
+        this.changeDetector.markForCheck();
+      },
+      error: error => console.error('Error cargando carreras del calendario:', error)
+    });
+  }
 
+  private cargarUsuario(): void {
+    this.usuarioService.me().subscribe({
+      next: usuario => {
+        this.usuarioLogueado = true;
+        this.esProfesor = usuario.roles.some(rol => rol.toLowerCase() === 'profesor');
+        this.cargarReservas();
+        this.changeDetector.markForCheck();
+      },
+      error: error => {
+        this.usuarioLogueado = false;
+        this.esProfesor = false;
+        if (error.status !== 401 && error.status !== 403) {
+          console.error('Error obteniendo el usuario del calendario:', error);
+        }
+        this.cargarReservas();
+        this.changeDetector.markForCheck();
+      }
+    });
+  }
+
+  private cargarReservas(): void {
+    const reservas$ = this.esProfesor && !this.mostrarTodasLasReservas
+      ? this.reservaService.getMisReservas()
+      : this.reservaService.getReservas();
+
+    reservas$.subscribe({
+      next: reservas => {
         this.reservas = reservas;
         this.changeDetector.markForCheck();
       },
@@ -132,22 +151,35 @@ export class CalendarioComponent implements OnInit {
     });
   }
 
+  alternarVistaReservas(): void {
+    if (!this.esProfesor) {
+      return;
+    }
+
+    this.mostrarTodasLasReservas = !this.mostrarTodasLasReservas;
+    this.reservaSeleccionada = null;
+    this.cargarReservas();
+  }
+
   getMateria(reserva: Reserva): string {
-    return this.nombresMaterias.get(reserva.comision_id) || 'Materia sin nombre';
+    return reserva.materia_nombre || 'Materia sin nombre';
   }
 
   getCarreraId(reserva: Reserva): number {
-    const comision = this.comisiones.find(item => Number(item.id) === Number(reserva.comision_id));
-    return comision ? Number(comision.carrera_id) : 0;
+    return reserva.carrera_id || 0;
   }
 
   getCarrera(reserva: Reserva): string {
     const carreraId = this.getCarreraId(reserva);
-    return this.carreras.find(carrera => Number(carrera.id) === carreraId)?.nombre || 'Carrera sin nombre';
+    return reserva.carrera_nombre
+      || this.carreras.find(carrera => Number(carrera.id) === carreraId)?.nombre
+      || 'Carrera sin nombre';
   }
 
   getEspacio(reserva: Reserva): string {
-    return this.aulas.find(aula => aula.id === Number(reserva.aula_id))?.nombre || 'Espacio sin nombre';
+    return reserva.espacio_nombre
+      || this.aulas.find(aula => aula.id === Number(reserva.aula_id))?.nombre
+      || 'Espacio sin nombre';
   }
 
   abrirDetalles(reserva: Reserva): void {
