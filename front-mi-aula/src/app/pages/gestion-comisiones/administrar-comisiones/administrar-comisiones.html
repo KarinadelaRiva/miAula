@@ -35,7 +35,7 @@
       <input
         type="text"
         class="input-buscar"
-        placeholder="Buscar por comisión, asignatura, carrera o profesor..."
+        placeholder="Buscar por comisión, materia, carrera o profesor..."
         [(ngModel)]="busqueda"
         (input)="buscar()"
         aria-label="Buscar comisiones">
@@ -54,7 +54,7 @@
           <tr>
             <th>Comisión</th>
             <th>Alumnos</th>
-            <th>Asignatura</th>
+            <th>Materia</th>
             <th>Carrera</th>
             <th>Profesor</th>
             <th>Estado</th>
@@ -76,7 +76,7 @@
                 {{ comision.cantidadEstudiantes }}
               </td>
 
-              <td data-label="Asignatura">
+              <td data-label="Materia">
                 {{ comision.materiaNombre }}
               </td>
 

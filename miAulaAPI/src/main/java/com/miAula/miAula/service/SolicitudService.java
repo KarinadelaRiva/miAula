@@ -172,10 +172,6 @@ public class SolicitudService {
             throw new EntityValidationException(
                     "Ya existe una solicitud pendiente para modificar esta reserva.");
         }
-        if (!solicitud.getDiaDeInicio().isAfter(reservaOriginal.getDiaDeInicio())) {
-            throw new EntityValidationException(
-                    "La fecha de inicio de la modificación debe ser posterior al inicio de la reserva original.");
-        }
         validarSolicitanteDeComision(solicitud.getSolicitante(), solicitud.getComision());
         recursoService.agregarRecursosASolicitud(solicitud, dto.getRecursos());
         return solicitudRepository.save(solicitud);

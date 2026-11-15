@@ -30,7 +30,7 @@
 					</select>
 					<p *ngIf="cargandoReservas" class="small-note">Cargando tus reservas actuales y futuras...</p>
 					<p *ngIf="form.get('reserva_original_id')?.value" class="small-note">
-						Si se aprueba, la reserva original finalizará el día anterior al nuevo inicio.
+						Si se aprueba, la reserva original quedará inactiva y, cuando corresponda, finalizará el día anterior al nuevo inicio.
 					</p>
 				</div>
 			</div>
@@ -46,6 +46,19 @@
 				</div>
 
 				<div class="form-group">
+					<label for="materia">Materia</label>
+					<input
+						id="materia"
+						class="form-control"
+						type="text"
+						[value]="nombreMateriaSeleccionada"
+						placeholder="Se completa al seleccionar una comisión"
+						readonly>
+				</div>
+			</div>
+
+			<div class="form-row">
+				<div class="form-group">
 					<label for="espacio">Espacio solicitado</label>
 					<select id="espacio" class="form-control" formControlName="nuevo_espacio_id">
 						<option [ngValue]="null">-- Seleccione --</option>
@@ -53,9 +66,7 @@
 					</select>
 					<span *ngIf="form.get('nuevo_espacio_id')?.touched && form.get('nuevo_espacio_id')?.hasError('required')" class="error-message">El espacio es requerido.</span>
 				</div>
-			</div>
 
-			<div class="form-row">
 				<div class="form-group">
 					<label for="dia">Día de la semana</label>
 					<select id="dia" class="form-control" formControlName="dia_semana" (change)="cargarRecursosDisponibles()">
@@ -84,7 +95,7 @@
 					<input id="fecha_fin" class="form-control" type="date" [min]="fechaFinMinima" formControlName="fecha_fin" (change)="actualizarFechaFinMinima(); cargarRecursosDisponibles()" />
 					<span *ngIf="form.get('fecha_fin')?.touched && form.get('fecha_fin')?.hasError('required')" class="error-message">La fecha de fin es requerida.</span>
 					<span *ngIf="form.get('fecha_fin')?.touched && form.get('fecha_fin')?.hasError('fechaNoPosteriorAHoy')" class="error-message">La fecha de fin debe ser posterior a hoy.</span>
-					<span *ngIf="form.get('fecha_fin')?.touched && form.hasError('rangoFechasInvalido')" class="error-message">La fecha de fin no puede ser anterior a la fecha de inicio.</span>
+					<span *ngIf="form.get('fecha_fin')?.touched && form.hasError('rangoFechasInvalido')" class="error-message">La fecha de fin debe ser posterior a la fecha de inicio.</span>
 				</div>
 			</div>
 

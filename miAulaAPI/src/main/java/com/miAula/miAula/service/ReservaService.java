@@ -155,17 +155,14 @@ public class ReservaService {
         if (reservaOriginal.getDiaDeFin().isBefore(LocalDate.now())) {
             throw new EntityValidationException("No se pueden modificar reservas pasadas.");
         }
-        if (!solicitud.getDiaDeInicio().isAfter(reservaOriginal.getDiaDeInicio())) {
-            throw new EntityValidationException(
-                    "La nueva fecha de inicio debe ser posterior al inicio de la reserva original.");
-        }
-
         validarDisponibilidad(solicitud, reservaOriginal.getId());
         LocalDate finAnteriorAlCambio = solicitud.getDiaDeInicio().minusDays(1);
-        if (finAnteriorAlCambio.isBefore(reservaOriginal.getDiaDeFin())) {
+        if (solicitud.getDiaDeInicio().isAfter(reservaOriginal.getDiaDeInicio())
+                && finAnteriorAlCambio.isBefore(reservaOriginal.getDiaDeFin())) {
             reservaOriginal.setDiaDeFin(finAnteriorAlCambio);
-            reservaRepository.save(reservaOriginal);
         }
+        reservaOriginal.setActivo(false);
+        reservaRepository.save(reservaOriginal);
 
         return crearDesdeSolicitud(solicitud);
     }

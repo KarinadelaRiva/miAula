@@ -6,7 +6,7 @@ export interface Comision {
   id: number;
   codigo: string;
   nombre: string;
-  asignaturaNombre: string;
+  materiaNombre: string;
   carreraNombre: string;
   profesorNombre: string;
   cantidadEstudiantes: number;

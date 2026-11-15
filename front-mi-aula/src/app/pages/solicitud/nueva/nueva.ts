@@ -90,16 +90,21 @@ export class Nueva implements OnInit {
     });
   }
 
+  get nombreMateriaSeleccionada(): string {
+    const comisionId = Number(this.form?.get('comision_id')?.value);
+    return this.comisiones.find((comision) => comision.id === comisionId)?.materiaNombre ?? '';
+  }
+
   private readonly fechaNoAnteriorAHoy: ValidatorFn = (control: AbstractControl): ValidationErrors | null =>
     control.value && control.value < this.fechaMinima ? { fechaAnteriorAHoy: true } : null;
 
   private readonly fechaPosteriorAHoy: ValidatorFn = (control: AbstractControl): ValidationErrors | null =>
-    control.value && control.value <= this.fechaMinima ? { fechaNoPosteriorAHoy: true } : null;
+    control.value && control.value <= this.fechaMinimaNueva ? { fechaNoPosteriorAHoy: true } : null;
 
   private readonly rangoFechasValido: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
     const fechaInicio = control.get('fecha_inicio')?.value;
     const fechaFin = control.get('fecha_fin')?.value;
-    return fechaInicio && fechaFin && fechaInicio > fechaFin ? { rangoFechasInvalido: true } : null;
+    return fechaInicio && fechaFin && fechaInicio >= fechaFin ? { rangoFechasInvalido: true } : null;
   };
 
   private readonly rangoHorasValido: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -153,14 +158,12 @@ export class Nueva implements OnInit {
       return;
     }
 
-    this.fechaMinima = this.maxFecha(
-      this.fechaMinimaNueva,
-      this.sumarDias(reserva.fechaInicio, 1)
-    );
+    this.fechaMinima = this.fechaMinimaNueva;
     const fechaInicio = this.fechaMinima;
+    const fechaInicioReserva = this.maxFecha(reserva.fechaInicio, fechaInicio);
     this.fechaFinMinima = this.maxFecha(
       this.fechaFinMinimaNueva,
-      this.sumarDias(fechaInicio, 1)
+      this.sumarDias(fechaInicioReserva, 1)
     );
     const fechaFin = this.maxFecha(reserva.fechaFin, this.fechaFinMinima);
 
@@ -168,7 +171,7 @@ export class Nueva implements OnInit {
       nuevo_espacio_id: reserva.espacioId,
       comision_id: reserva.comisionId,
       dia_semana: reserva.diaSemana,
-      fecha_inicio: fechaInicio,
+      fecha_inicio: fechaInicioReserva,
       fecha_fin: fechaFin,
       hora_inicio: reserva.horaInicio,
       hora_fin: reserva.horaFin,
