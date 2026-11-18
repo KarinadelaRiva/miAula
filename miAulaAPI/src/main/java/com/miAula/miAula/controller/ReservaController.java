@@ -45,15 +45,29 @@ public class ReservaController {
         return ResponseEntity.ok(reservaService.obtenerReservasDeUsuario(authentication.getName()));
     }
 
+    @GetMapping("/mis-reservas/activas")
+    @PreAuthorize("hasRole('PROFESOR')")
+    public ResponseEntity<List<ReservaCalendarioDTO>> obtenerMisReservasActivas(
+            Authentication authentication) {
+        return ResponseEntity.ok(reservaService.obtenerReservasActivasDeUsuario(authentication.getName()));
+    }
+
+    @GetMapping("/mis-reservas/terminadas")
+    @PreAuthorize("hasRole('PROFESOR')")
+    public ResponseEntity<List<ReservaCalendarioDTO>> obtenerMisReservasTerminadas(
+            Authentication authentication) {
+        return ResponseEntity.ok(reservaService.obtenerReservasTerminadasDeUsuario(authentication.getName()));
+    }
+
     @GetMapping("/activas")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<List<Reserva>> obtenerReservasActivas() {
+    public ResponseEntity<List<ReservaCalendarioDTO>> obtenerReservasActivas() {
         return new ResponseEntity<>(reservaService.obtenerReservasActivas(), HttpStatus.OK);
     }
 
     @GetMapping("/terminadas")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<List<Reserva>> obtenerReservasTerminadas() {
+    public ResponseEntity<List<ReservaCalendarioDTO>> obtenerReservasTerminadas() {
         return new ResponseEntity<>(reservaService.obtenerReservasTerminadas(), HttpStatus.OK);
     }
 

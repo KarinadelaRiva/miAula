@@ -2,13 +2,21 @@
   <div class="administrar-card">
     <header class="administrar-header">
       <div>
-        <span class="eyebrow">Panel administrativo</span>
-        <h1>Gestión de Reservas</h1>
-        <p>Consultá el estado y los detalles de las reservas de Mi Aula.</p>
+        <span class="eyebrow">{{ esProfesor ? 'Mis reservas' : 'Panel administrativo' }}</span>
+        <h1>{{ esProfesor ? 'Mis Reservas Programadas' : 'Gestión de Reservas' }}</h1>
+        <p>
+          {{ esProfesor
+            ? 'Consultá tus reservas que aún no finalizaron.'
+            : 'Consultá el estado y los detalles de las reservas de Mi Aula.' }}
+        </p>
       </div>
       <div class="header-actions">
-        <button type="button" routerLink="/reservas-anteriores" class="btn-nuevo">
-          Ver reservas anteriores
+        <button
+          type="button"
+          [routerLink]="esProfesor ? '/mis-reservas/terminadas' : '/reservas-anteriores'"
+          class="btn-nuevo"
+        >
+          {{ esProfesor ? 'Ver reservas finalizadas' : 'Ver reservas anteriores' }}
         </button>
         <button type="button" routerLink="/dashboard" class="btn-volver">← Volver</button>
       </div>
@@ -45,11 +53,13 @@
               <th>Asignatura</th>
               <th>Comisión</th>
               <th>Día</th>
-              <th>Fechas</th>
+              <th>Fecha</th>
               <th>Horario</th>
               <th>Aula</th>
               <th>Profesor</th>
-              <th>Acciones</th>
+              @if (!esProfesor) {
+                <th>Acciones</th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -65,16 +75,18 @@
                 <td>{{ formatHora(reserva.hora_inicio) }} – {{ formatHora(reserva.hora_fin) }}</td>
                 <td>{{ reserva.espacio }}</td>
                 <td>{{ reserva.profesor }}</td>
-                <td class="acciones">
-                  <button
-                    type="button"
-                    class="btn-eliminar"
-                    (click)="abrirConfirmacion(reserva)"
-                    [attr.aria-label]="'Desactivar reserva de ' + reserva.asignatura"
-                  >
-                    Desactivar
-                  </button>
-                </td>
+                @if (!esProfesor) {
+                  <td class="acciones">
+                    <button
+                      type="button"
+                      class="btn-eliminar"
+                      (click)="abrirConfirmacion(reserva)"
+                      [attr.aria-label]="'Desactivar reserva de ' + reserva.asignatura"
+                    >
+                      Desactivar
+                    </button>
+                  </td>
+                }
               </tr>
             }
           </tbody>

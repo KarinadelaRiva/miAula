@@ -95,14 +95,34 @@ public class ReservaService {
                 .build();
     }
 
-    public List<Reserva> obtenerReservasActivas() {
+    public List<ReservaCalendarioDTO> obtenerReservasActivas() {
         LocalDateTime ahora = LocalDateTime.now();
-        return reservaRepository.findActivasDesde(ahora.toLocalDate(), ahora.toLocalTime());
+        return reservaRepository.findActivasDesde(ahora.toLocalDate(), ahora.toLocalTime()).stream()
+                .map(this::reservaAReservaCalendarioDTO)
+                .toList();
     }
 
-    public List<Reserva> obtenerReservasTerminadas() {
+    public List<ReservaCalendarioDTO> obtenerReservasTerminadas() {
         LocalDateTime ahora = LocalDateTime.now();
-        return reservaRepository.findTerminadasAntesDe(ahora.toLocalDate(), ahora.toLocalTime());
+        return reservaRepository.findTerminadasAntesDe(ahora.toLocalDate(), ahora.toLocalTime()).stream()
+                .map(this::reservaAReservaCalendarioDTO)
+                .toList();
+    }
+
+    public List<ReservaCalendarioDTO> obtenerReservasActivasDeUsuario(String email) {
+        LocalDateTime ahora = LocalDateTime.now();
+        return reservaRepository.findActivasDesdeDeUsuario(
+                        email, ahora.toLocalDate(), ahora.toLocalTime()).stream()
+                .map(this::reservaAReservaCalendarioDTO)
+                .toList();
+    }
+
+    public List<ReservaCalendarioDTO> obtenerReservasTerminadasDeUsuario(String email) {
+        LocalDateTime ahora = LocalDateTime.now();
+        return reservaRepository.findTerminadasAntesDeDeUsuario(
+                        email, ahora.toLocalDate(), ahora.toLocalTime()).stream()
+                .map(this::reservaAReservaCalendarioDTO)
+                .toList();
     }
 
     @Transactional

@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 import { publicOnlyGuard } from './guards/publicOnly.guard';
+import { roleGuard } from './guards/role.guard';
 
 import { Login } from './pages/login/login';
 import { Home } from './pages/home/home';
@@ -116,9 +117,19 @@ export const routes: Routes = [
   {
     path: 'mis-reservas',
     loadComponent: () =>
-      import('./pages/calendario/calendario.component')
-        .then(m => m.CalendarioComponent),
-    canActivate: [authGuard]
+      import('./pages/gestor-reservas/gestor-reservas.component')
+        .then(m => m.GestorReservasComponent),
+    canActivate: [roleGuard],
+    data: { roles: ['profesor'], esProfesor: true }
+  },
+
+  {
+    path: 'mis-reservas/terminadas',
+    loadComponent: () =>
+      import('./pages/gestor-reservas/reservas-anteriores/reservas-anteriores.component')
+        .then(m => m.ReservasAnterioresComponent),
+    canActivate: [roleGuard],
+    data: { roles: ['profesor'], esProfesor: true }
   },
 
 

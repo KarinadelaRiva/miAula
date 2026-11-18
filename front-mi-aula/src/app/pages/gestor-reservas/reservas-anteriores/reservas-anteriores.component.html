@@ -2,13 +2,21 @@
   <div class="administrar-card">
     <header class="administrar-header">
       <div>
-        <span class="eyebrow">Panel administrativo</span>
-        <h1>Reservas Finalizadas</h1>
-        <p>Consultá el historial de reservas que ya finalizaron.</p>
+        <span class="eyebrow">{{ esProfesor ? 'Mis reservas' : 'Panel administrativo' }}</span>
+        <h1>{{ esProfesor ? 'Mis Reservas Finalizadas' : 'Reservas Finalizadas' }}</h1>
+        <p>
+          {{ esProfesor
+            ? 'Consultá el historial de tus reservas que ya finalizaron.'
+            : 'Consultá el historial de reservas que ya finalizaron.' }}
+        </p>
       </div>
       <div class="header-actions">
-        <button type="button" routerLink="/reservas-todas" class="btn-nuevo">
-          ← Reservas activas
+        <button
+          type="button"
+          [routerLink]="esProfesor ? '/mis-reservas' : '/reservas-todas'"
+          class="btn-nuevo"
+        >
+          {{ esProfesor ? '← Mis reservas activas' : '← Reservas activas' }}
         </button>
         <button type="button" routerLink="/dashboard" class="btn-volver">← Volver</button>
       </div>
@@ -42,7 +50,7 @@
               <th>Asignatura</th>
               <th>Comisión</th>
               <th>Día</th>
-              <th>Fechas</th>
+              <th>Fecha</th>
               <th>Horario</th>
               <th>Aula</th>
               <th>Profesor</th>

@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import type { Reserva } from '../../../models/reserva';
 import { ReservaService } from '../../../services/reserva.service';
 
@@ -27,6 +27,8 @@ interface ReservaFinalizada {
 })
 export class ReservasAnterioresComponent implements OnInit {
   private reservaService = inject(ReservaService);
+  private route = inject(ActivatedRoute);
+  readonly esProfesor = this.route.snapshot.data['esProfesor'] === true;
 
   reservas = signal<ReservaFinalizada[]>([]);
   filtroBusqueda = signal('');
@@ -55,7 +57,11 @@ export class ReservasAnterioresComponent implements OnInit {
   cargarReservas(): void {
     this.cargando.set(true);
     this.error.set('');
-    this.reservaService.getReservasTerminadas().subscribe({
+    const reservas$ = this.esProfesor
+      ? this.reservaService.getMisReservasTerminadas()
+      : this.reservaService.getReservasTerminadas();
+
+    reservas$.subscribe({
       next: reservas => {
         this.reservas.set(
           reservas

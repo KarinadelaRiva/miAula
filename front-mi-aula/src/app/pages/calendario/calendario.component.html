@@ -75,7 +75,7 @@
         [style.grid-row]="getRowIndex(reserva.hora_inicio) + ' / ' + getRowIndex(reserva.hora_fin)"
       >
         <span class="card-subject">{{ getMateria(reserva) }}</span>
-        <span class="card-title">Com {{ reserva.comision_id }}</span>
+        <span class="card-title">{{ reserva.comision_nombre || 'Sin nombre' }}</span>
         <span class="card-time">
           {{ reserva.hora_inicio.slice(0, 5) }} - {{ reserva.hora_fin.slice(0, 5) }}
         </span>
@@ -117,10 +117,11 @@
       </header>
 
       <div class="modal-body">
-        <p><strong>Comisión:</strong> Com {{ reserva.comision_id }}</p>
+        <p><strong>Comisión:</strong> {{ reserva.comision_nombre }}</p>
         <p><strong>Carrera:</strong> {{ getCarrera(reserva) }}</p>
         <p><strong>Espacio:</strong> {{ getEspacio(reserva) }}</p>
-        <p><strong>Fecha:</strong> {{ reserva.fecha_inicio }}</p>
+        <p><strong>Fecha inicio:</strong> {{ reserva.fecha_inicio }}</p>
+        <p><strong>Fecha fin:</strong> {{reserva.fecha_fin}}</p>
         <p><strong>Horario:</strong> {{ reserva.hora_inicio.slice(0, 5) }} - {{ reserva.hora_fin.slice(0, 5) }}</p>
       </div>
     </section>

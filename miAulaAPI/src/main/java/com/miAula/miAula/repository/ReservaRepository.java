@@ -24,9 +24,23 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
             @Param("fecha") LocalDate fecha,
             @Param("hora") LocalTime hora);
 
+    @Query("SELECT r FROM Reserva r WHERE r.activo = true AND r.solicitante.email = :email "
+            + "AND (r.diaDeFin > :fecha OR (r.diaDeFin = :fecha AND r.horaDeFin >= :hora))")
+    List<Reserva> findActivasDesdeDeUsuario(
+            @Param("email") String email,
+            @Param("fecha") LocalDate fecha,
+            @Param("hora") LocalTime hora);
+
     @Query("SELECT r FROM Reserva r WHERE r.activo = true AND (r.diaDeFin < :fecha "
             + "OR (r.diaDeFin = :fecha AND r.horaDeFin < :hora))")
     List<Reserva> findTerminadasAntesDe(
+            @Param("fecha") LocalDate fecha,
+            @Param("hora") LocalTime hora);
+
+    @Query("SELECT r FROM Reserva r WHERE r.activo = true AND r.solicitante.email = :email "
+            + "AND (r.diaDeFin < :fecha OR (r.diaDeFin = :fecha AND r.horaDeFin < :hora))")
+    List<Reserva> findTerminadasAntesDeDeUsuario(
+            @Param("email") String email,
             @Param("fecha") LocalDate fecha,
             @Param("hora") LocalTime hora);
 

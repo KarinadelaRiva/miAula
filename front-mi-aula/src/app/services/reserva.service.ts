@@ -44,26 +44,6 @@ export interface ReservaModificable {
   }>;
 }
 
-interface ReservaEstadoApiResponse {
-  id: number;
-  diaDeLaSemana: string;
-  diaDeInicio: string;
-  diaDeFin: string;
-  horaDeInicio: string;
-  horaDeFin: string;
-  comision?: {
-    id?: number;
-    nombre?: string;
-    materia?: { nombre?: string };
-    profesor?: { nombre?: string; apellido?: string };
-  };
-  espacio?: {
-    id?: number;
-    nombre?: string;
-    capacidad?: number;
-  };
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -89,27 +69,21 @@ export class ReservaService {
     return this.obtenerReservasPorEstado(`${this.api}/terminadas`);
   }
 
+  getMisReservasActivas(): Observable<Reserva[]> {
+    return this.obtenerReservasPorEstado(`${this.api}/mis-reservas/activas`);
+  }
+
+  getMisReservasTerminadas(): Observable<Reserva[]> {
+    return this.obtenerReservasPorEstado(`${this.api}/mis-reservas/terminadas`);
+  }
+
   eliminarReserva(id: string): Observable<void> {
     return this.http.delete<void>(`${this.api}/${id}`);
   }
 
   private obtenerReservasPorEstado(url: string): Observable<Reserva[]> {
-    return this.http.get<ReservaEstadoApiResponse[]>(url).pipe(
-      map(reservas => reservas.map(reserva => ({
-        id: String(reserva.id),
-        dia: reserva.diaDeLaSemana,
-        fecha_inicio: reserva.diaDeInicio,
-        fecha_fin: reserva.diaDeFin,
-        hora_inicio: reserva.horaDeInicio,
-        hora_fin: reserva.horaDeFin,
-        comision_id: reserva.comision?.id ?? 0,
-        aula_id: reserva.espacio?.id ?? 0,
-        comision_nombre: reserva.comision?.nombre,
-        materia_nombre: reserva.comision?.materia?.nombre,
-        profesor_nombre: `${reserva.comision?.profesor?.nombre ?? ''} ${reserva.comision?.profesor?.apellido ?? ''}`.trim() || undefined,
-        espacio_nombre: reserva.espacio?.nombre,
-        capacidad: reserva.espacio?.capacidad
-      })))
+    return this.http.get<ReservaApiResponse[]>(url).pipe(
+      map(reservas => reservas.map(reserva => this.reservaApiToReserva(reserva)))
     );
   }
 

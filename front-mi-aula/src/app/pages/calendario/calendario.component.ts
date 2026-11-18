@@ -31,7 +31,7 @@ export class CalendarioComponent implements OnInit {
   reservaSeleccionada: Reserva | null = null;
   usuarioLogueado = false;
   esProfesor = false;
-  mostrarTodasLasReservas = false;
+  mostrarTodasLasReservas = true;
 
   readonly HORA_INICIO = 7; // 07:00 AM
   readonly HORA_FIN = 22;   // 10:00 PM
