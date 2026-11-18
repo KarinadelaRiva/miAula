@@ -45,8 +45,8 @@ public class Reserva {
     @Column(nullable = false)
     private LocalTime horaDeFin;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "solicitud_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "solicitud_id", nullable = true)
     private Solicitud solicitud;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -64,6 +64,9 @@ public class Reserva {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evento_id")
     private Evento evento;
+
+    @Column(length = 1000)
+    private String comentario;
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

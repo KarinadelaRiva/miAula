@@ -36,6 +36,7 @@ export class GestorReservasComponent implements OnInit {
   limite = 8;
   cargando = signal(false);
   eliminando = signal(false);
+  mostrarDesactivadas = signal(false);
   mensaje = signal('');
   error = signal('');
   totalPaginas = computed(() => Math.ceil(this.reservasFiltradas().length / this.limite));
@@ -62,8 +63,12 @@ export class GestorReservasComponent implements OnInit {
     this.mensaje.set('');
     this.error.set('');
     const reservas$ = this.esProfesor
-      ? this.reservaService.getMisReservasActivas()
-      : this.reservaService.getReservasActivas();
+      ? this.mostrarDesactivadas()
+        ? this.reservaService.getMisReservasInactivas()
+        : this.reservaService.getMisReservasActivas()
+      : this.mostrarDesactivadas()
+        ? this.reservaService.getReservasInactivas()
+        : this.reservaService.getReservasActivas();
 
     reservas$.subscribe({
       next: (reservas) => {
@@ -103,6 +108,11 @@ export class GestorReservasComponent implements OnInit {
     this.filtroBusqueda.set(termino);
     this.paginaActual.set(1);
     this.mensaje.set('');
+  }
+
+  cambiarVistaDesactivadas(): void {
+    this.mostrarDesactivadas.update(mostrar => !mostrar);
+    this.cargarReservas();
   }
 
   abrirConfirmacion(reserva: ReservaProgramada): void {

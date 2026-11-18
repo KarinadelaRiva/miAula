@@ -3,20 +3,39 @@
     <header class="administrar-header">
       <div>
         <span class="eyebrow">{{ esProfesor ? 'Mis reservas' : 'Panel administrativo' }}</span>
-        <h1>{{ esProfesor ? 'Mis Reservas Finalizadas' : 'Reservas Finalizadas' }}</h1>
+        <h1>
+          {{ mostrarDesactivadas()
+            ? 'Reservas Canceladas'
+            : esProfesor
+              ? 'Reservas Finalizadas'
+              : 'Gestión de Reservas' }}
+        </h1>
         <p>
           {{ esProfesor
-            ? 'Consultá el historial de tus reservas que ya finalizaron.'
-            : 'Consultá el historial de reservas que ya finalizaron.' }}
+              ? 'Consultá el estado de tus reservas.'
+              : 'Consultá el estado y los detalles de las reservas de Mi Aula.' }}
         </p>
       </div>
       <div class="header-actions">
+        @if (!esProfesor) {
+          <button type="button" routerLink="/reservas-todas/nueva" class="btn-nuevo">
+            Crear reserva
+          </button>
+        }
+        <button
+          type="button"
+          class="btn-nuevo"
+          [attr.aria-pressed]="mostrarDesactivadas()"
+          (click)="cambiarVistaDesactivadas()"
+        >
+          {{ mostrarDesactivadas() ? 'Ver reservas finalizadas' : 'Ver reservas desactivadas' }}
+        </button>
         <button
           type="button"
           [routerLink]="esProfesor ? '/mis-reservas' : '/reservas-todas'"
           class="btn-nuevo"
         >
-          {{ esProfesor ? '← Mis reservas activas' : '← Reservas activas' }}
+          ← Mis reservas activas
         </button>
         <button type="button" routerLink="/dashboard" class="btn-volver">← Volver</button>
       </div>
@@ -70,7 +89,9 @@
                 <td>{{ formatHora(reserva.hora_inicio) }} – {{ formatHora(reserva.hora_fin) }}</td>
                 <td>{{ reserva.espacio }}</td>
                 <td>{{ reserva.profesor }}</td>
-                <td><span class="estado">Finalizada</span></td>
+                <td>
+                  <span class="estado">{{ mostrarDesactivadas() ? 'Cancelada' : 'Finalizada' }}</span>
+                </td>
               </tr>
             }
           </tbody>
@@ -78,7 +99,11 @@
 
         @if (reservasFiltradas().length === 0 && !error()) {
           <div class="sin-resultados">
-            {{ filtroBusqueda() ? 'No se encontraron reservas con esa búsqueda.' : 'No hay reservas finalizadas.' }}
+            {{ filtroBusqueda()
+              ? 'No se encontraron reservas con esa búsqueda.'
+              : mostrarDesactivadas()
+                ? 'No hay reservas canceladas.'
+                : 'No hay reservas finalizadas.' }}
           </div>
         }
       }

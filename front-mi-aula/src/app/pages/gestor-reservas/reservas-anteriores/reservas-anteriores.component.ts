@@ -5,7 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import type { Reserva } from '../../../models/reserva';
 import { ReservaService } from '../../../services/reserva.service';
 
-interface ReservaFinalizada {
+interface ReservaHistorial {
   id: string;
   dia: string;
   fecha_inicio: string;
@@ -30,11 +30,12 @@ export class ReservasAnterioresComponent implements OnInit {
   private route = inject(ActivatedRoute);
   readonly esProfesor = this.route.snapshot.data['esProfesor'] === true;
 
-  reservas = signal<ReservaFinalizada[]>([]);
+  reservas = signal<ReservaHistorial[]>([]);
   filtroBusqueda = signal('');
   paginaActual = signal(1);
   limite = 8;
   cargando = signal(false);
+  mostrarDesactivadas = signal(false);
   error = signal('');
   totalPaginas = computed(() => Math.ceil(this.reservasFiltradas().length / this.limite));
   reservasFiltradas = computed(() => {
@@ -58,14 +59,18 @@ export class ReservasAnterioresComponent implements OnInit {
     this.cargando.set(true);
     this.error.set('');
     const reservas$ = this.esProfesor
-      ? this.reservaService.getMisReservasTerminadas()
-      : this.reservaService.getReservasTerminadas();
+      ? this.mostrarDesactivadas()
+        ? this.reservaService.getMisReservasInactivas()
+        : this.reservaService.getMisReservasTerminadas()
+      : this.mostrarDesactivadas()
+        ? this.reservaService.getReservasInactivas()
+        : this.reservaService.getReservasTerminadas();
 
     reservas$.subscribe({
       next: reservas => {
         this.reservas.set(
           reservas
-            .map(reserva => this.aReservaFinalizada(reserva))
+            .map(reserva => this.aReservaHistorial(reserva))
             .sort((a, b) =>
               `${b.fecha_fin}T${b.hora_fin}`.localeCompare(`${a.fecha_fin}T${a.hora_fin}`)
             )
@@ -81,7 +86,12 @@ export class ReservasAnterioresComponent implements OnInit {
     });
   }
 
-  private aReservaFinalizada(reserva: Reserva): ReservaFinalizada {
+  cambiarVistaDesactivadas(): void {
+    this.mostrarDesactivadas.update(mostrar => !mostrar);
+    this.cargarReservas();
+  }
+
+  private aReservaHistorial(reserva: Reserva): ReservaHistorial {
     return {
       id: reserva.id,
       dia: reserva.dia,

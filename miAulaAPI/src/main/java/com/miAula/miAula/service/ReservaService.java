@@ -2,8 +2,12 @@ package com.miAula.miAula.service;
 
 import com.miAula.miAula.dtos.reserva.ReservaModificableDTO;
 import com.miAula.miAula.dtos.reserva.ReservaCalendarioDTO;
+import com.miAula.miAula.dtos.reserva.ReservaCreateDTO;
+import com.miAula.miAula.entities.Comision;
+import com.miAula.miAula.entities.Espacio;
 import com.miAula.miAula.entities.Reserva;
 import com.miAula.miAula.entities.Solicitud;
+import com.miAula.miAula.entities.Usuario;
 import com.miAula.miAula.entities.enums.DiaSemana;
 import com.miAula.miAula.entities.tablas_intermedias.RecursoReserva;
 import com.miAula.miAula.entities.tablas_intermedias.RecursoReservaId;
@@ -25,9 +29,22 @@ import java.util.Objects;
 public class ReservaService {
 
     private final ReservaRepository reservaRepository;
+    private final UsuarioService usuarioService;
+    private final EspacioService espacioService;
+    private final ComisionService comisionService;
+    private final RecursoService recursoService;
 
-    public ReservaService(ReservaRepository reservaRepository) {
+    public ReservaService(
+            ReservaRepository reservaRepository,
+            UsuarioService usuarioService,
+            EspacioService espacioService,
+            ComisionService comisionService,
+            RecursoService recursoService) {
         this.reservaRepository = reservaRepository;
+        this.usuarioService = usuarioService;
+        this.espacioService = espacioService;
+        this.comisionService = comisionService;
+        this.recursoService = recursoService;
     }
 
     public Reserva obtenerReserva(Long id) {
@@ -102,6 +119,18 @@ public class ReservaService {
                 .toList();
     }
 
+    public List<ReservaCalendarioDTO> obtenerReservasInactivas() {
+        return reservaRepository.findByActivoFalse().stream()
+                .map(this::reservaAReservaCalendarioDTO)
+                .toList();
+    }
+
+    public List<ReservaCalendarioDTO> obtenerReservasInactivasDeUsuario(String email) {
+        return reservaRepository.findBySolicitante_EmailAndActivoFalse(email).stream()
+                .map(this::reservaAReservaCalendarioDTO)
+                .toList();
+    }
+
     public List<ReservaCalendarioDTO> obtenerReservasTerminadas() {
         LocalDateTime ahora = LocalDateTime.now();
         return reservaRepository.findTerminadasAntesDe(ahora.toLocalDate(), ahora.toLocalTime()).stream()
@@ -123,6 +152,94 @@ public class ReservaService {
                         email, ahora.toLocalDate(), ahora.toLocalTime()).stream()
                 .map(this::reservaAReservaCalendarioDTO)
                 .toList();
+    }
+
+    @Transactional
+    public ReservaCalendarioDTO crearDirectamente(ReservaCreateDTO dto) {
+        validarDatosReservaDirecta(dto);
+
+        Usuario profesor = usuarioService.obtenerPorId(dto.getProfesorId());
+        if (!Boolean.TRUE.equals(profesor.getActivo())
+                || profesor.getAuthorities().stream()
+                .noneMatch(authority -> "ROLE_PROFESOR".equals(authority.getAuthority()))) {
+            throw new EntityValidationException("El usuario seleccionado no es un profesor activo.");
+        }
+
+        Espacio espacio = espacioService.obtenerPorId(dto.getEspacioId());
+        Comision comision = comisionService.obtenerComisionPorId(dto.getComisionId());
+        validarEspacioYComision(espacio, comision);
+        if (comision.getProfesor() == null
+                || !Objects.equals(comision.getProfesor().getId(), profesor.getId())) {
+            throw new EntityValidationException(
+                    "El profesor seleccionado no es el profesor asignado a la comisión.");
+        }
+
+        Solicitud datosReserva = Solicitud.builder()
+                .solicitante(profesor)
+                .espacio(espacio)
+                .comision(comision)
+                .diaDeLaSemana(dto.getDiaSemana())
+                .diaDeInicio(dto.getFechaInicio())
+                .diaDeFin(dto.getFechaFin())
+                .horaDeInicio(dto.getHoraInicio())
+                .horaDeFin(dto.getHoraFin())
+                .build();
+
+        validarDisponibilidad(datosReserva, null);
+        recursoService.agregarRecursosASolicitud(datosReserva, dto.getRecursos());
+
+        Reserva reserva = Reserva.builder()
+                .diaDeLaSemana(dto.getDiaSemana())
+                .diaDeInicio(dto.getFechaInicio())
+                .diaDeFin(dto.getFechaFin())
+                .horaDeInicio(dto.getHoraInicio())
+                .horaDeFin(dto.getHoraFin())
+                .solicitante(profesor)
+                .espacio(espacio)
+                .comision(comision)
+                .comentario(dto.getComentario())
+                .build();
+
+        for (RecursoSolicitud recursoSolicitud : datosReserva.getRecursos()) {
+            reserva.getRecursos().add(RecursoReserva.builder()
+                    .id(new RecursoReservaId(recursoSolicitud.getRecurso().getId(), null))
+                    .recurso(recursoSolicitud.getRecurso())
+                    .reserva(reserva)
+                    .cantidadReservada(recursoSolicitud.getCantidadSolicitada())
+                    .build());
+        }
+
+        return reservaAReservaCalendarioDTO(reservaRepository.save(reserva));
+    }
+
+    private void validarDatosReservaDirecta(ReservaCreateDTO dto) {
+        if (dto.getProfesorId() == null || dto.getEspacioId() == null || dto.getComisionId() == null
+                || dto.getDiaSemana() == null || dto.getFechaInicio() == null || dto.getFechaFin() == null
+                || dto.getHoraInicio() == null || dto.getHoraFin() == null) {
+            throw new EntityValidationException("Faltan datos obligatorios para crear la reserva.");
+        }
+        if (dto.getFechaInicio().isBefore(LocalDate.now())) {
+            throw new EntityValidationException("La fecha de inicio no puede ser anterior a hoy.");
+        }
+        if (!dto.getFechaFin().isAfter(dto.getFechaInicio())) {
+            throw new EntityValidationException("La fecha de fin debe ser posterior a la de inicio.");
+        }
+        if (!dto.getHoraFin().isAfter(dto.getHoraInicio())) {
+            throw new EntityValidationException("La hora de fin debe ser posterior a la de inicio.");
+        }
+    }
+
+    private void validarEspacioYComision(Espacio espacio, Comision comision) {
+        if (Boolean.FALSE.equals(espacio.getActivo())) {
+            throw new EntityValidationException("No se puede utilizar un espacio inactivo.");
+        }
+        if (Boolean.FALSE.equals(comision.getActivo())) {
+            throw new EntityValidationException("No se puede utilizar una comisión inactiva.");
+        }
+        if (espacio.getCapacidad() < comision.getCantidadEstudiantes()) {
+            throw new EntityValidationException(
+                    "La cantidad de estudiantes no puede ser mayor a la capacidad del espacio seleccionado.");
+        }
     }
 
     @Transactional

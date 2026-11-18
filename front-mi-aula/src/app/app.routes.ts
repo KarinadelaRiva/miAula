@@ -99,6 +99,14 @@ export const routes: Routes = [
   },
 
   {
+    path: 'reservas-todas/nueva',
+    loadComponent: () =>
+      import('./pages/gestor-reservas/nueva-reserva/nueva-reserva.component')
+        .then(m => m.NuevaReservaComponent),
+    canActivate: [adminGuard]
+  },
+
+  {
     path: 'reservas-todas',
     loadComponent: () =>
       import('./pages/gestor-reservas/gestor-reservas.component')

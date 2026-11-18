@@ -2,6 +2,7 @@ package com.miAula.miAula.controller;
 
 import com.miAula.miAula.dtos.reserva.ReservaModificableDTO;
 import com.miAula.miAula.dtos.reserva.ReservaCalendarioDTO;
+import com.miAula.miAula.dtos.reserva.ReservaCreateDTO;
 import com.miAula.miAula.entities.Reserva;
 import com.miAula.miAula.service.ReservaService;
 import com.miAula.miAula.service.UsuarioService;
@@ -13,9 +14,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -38,6 +42,13 @@ public class ReservaController {
         return ResponseEntity.ok(reservaService.obtenerReservasParaCalendario());
     }
 
+    @PostMapping
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<ReservaCalendarioDTO> crearReserva(
+            @Valid @RequestBody ReservaCreateDTO reserva) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservaService.crearDirectamente(reserva));
+    }
+
     @GetMapping("/mis-reservas")
     @PreAuthorize("hasRole('PROFESOR')")
     @Operation(summary = "Obtener las reservas del profesor autenticado.")
@@ -52,6 +63,13 @@ public class ReservaController {
         return ResponseEntity.ok(reservaService.obtenerReservasActivasDeUsuario(authentication.getName()));
     }
 
+    @GetMapping("/mis-reservas/inactivas")
+    @PreAuthorize("hasRole('PROFESOR')")
+    public ResponseEntity<List<ReservaCalendarioDTO>> obtenerMisReservasInactivas(
+            Authentication authentication) {
+        return ResponseEntity.ok(reservaService.obtenerReservasInactivasDeUsuario(authentication.getName()));
+    }
+
     @GetMapping("/mis-reservas/terminadas")
     @PreAuthorize("hasRole('PROFESOR')")
     public ResponseEntity<List<ReservaCalendarioDTO>> obtenerMisReservasTerminadas(
@@ -63,6 +81,12 @@ public class ReservaController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<ReservaCalendarioDTO>> obtenerReservasActivas() {
         return new ResponseEntity<>(reservaService.obtenerReservasActivas(), HttpStatus.OK);
+    }
+
+    @GetMapping("/inactivas")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<List<ReservaCalendarioDTO>> obtenerReservasInactivas() {
+        return ResponseEntity.ok(reservaService.obtenerReservasInactivas());
     }
 
     @GetMapping("/terminadas")

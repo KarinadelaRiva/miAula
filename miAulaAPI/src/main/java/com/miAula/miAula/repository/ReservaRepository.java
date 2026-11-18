@@ -16,7 +16,11 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     List<Reserva> findByActivoTrue();
 
+    List<Reserva> findByActivoFalse();
+
     List<Reserva> findBySolicitante_EmailAndActivoTrue(String email);
+
+    List<Reserva> findBySolicitante_EmailAndActivoFalse(String email);
 
     @Query("SELECT r FROM Reserva r WHERE r.activo = true AND (r.diaDeFin > :fecha "
             + "OR (r.diaDeFin = :fecha AND r.horaDeFin >= :hora))")

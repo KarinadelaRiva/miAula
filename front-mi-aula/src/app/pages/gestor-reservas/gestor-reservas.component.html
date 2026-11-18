@@ -3,20 +3,37 @@
     <header class="administrar-header">
       <div>
         <span class="eyebrow">{{ esProfesor ? 'Mis reservas' : 'Panel administrativo' }}</span>
-        <h1>{{ esProfesor ? 'Mis Reservas Programadas' : 'Gestión de Reservas' }}</h1>
+        <h1>
+          {{ mostrarDesactivadas()
+            ? esProfesor ? 'Reservas Canceladas' : 'Gestión de Reservas'
+            : esProfesor ? 'Reservas Programadas' : 'Gestión de Reservas' }}
+        </h1>
         <p>
           {{ esProfesor
-            ? 'Consultá tus reservas que aún no finalizaron.'
-            : 'Consultá el estado y los detalles de las reservas de Mi Aula.' }}
+              ? 'Consultá el estado de tus reservas.'
+              : 'Consultá el estado y los detalles de las reservas de Mi Aula.' }}
         </p>
       </div>
       <div class="header-actions">
+        @if (!esProfesor) {
+          <button type="button" routerLink="/reservas-todas/nueva" class="btn-nuevo">
+            Crear reserva
+          </button>
+        }
+        <button
+          type="button"
+          class="btn-nuevo"
+          [attr.aria-pressed]="mostrarDesactivadas()"
+          (click)="cambiarVistaDesactivadas()"
+        >
+          {{ mostrarDesactivadas() ? 'Ver reservas activas' : 'Ver reservas desactivadas' }}
+        </button>
         <button
           type="button"
           [routerLink]="esProfesor ? '/mis-reservas/terminadas' : '/reservas-anteriores'"
           class="btn-nuevo"
         >
-          {{ esProfesor ? 'Ver reservas finalizadas' : 'Ver reservas anteriores' }}
+          {{ esProfesor ? 'Ver reservas finalizadas' : 'Ver reservas finalizadas' }}
         </button>
         <button type="button" routerLink="/dashboard" class="btn-volver">← Volver</button>
       </div>
@@ -57,8 +74,8 @@
               <th>Horario</th>
               <th>Aula</th>
               <th>Profesor</th>
-              @if (!esProfesor) {
-                <th>Acciones</th>
+              @if (!esProfesor || mostrarDesactivadas()) {
+                <th>{{ mostrarDesactivadas() ? 'Estado' : 'Acciones' }}</th>
               }
             </tr>
           </thead>
@@ -75,16 +92,20 @@
                 <td>{{ formatHora(reserva.hora_inicio) }} – {{ formatHora(reserva.hora_fin) }}</td>
                 <td>{{ reserva.espacio }}</td>
                 <td>{{ reserva.profesor }}</td>
-                @if (!esProfesor) {
+                @if (!esProfesor || mostrarDesactivadas()) {
                   <td class="acciones">
-                    <button
-                      type="button"
-                      class="btn-eliminar"
-                      (click)="abrirConfirmacion(reserva)"
-                      [attr.aria-label]="'Desactivar reserva de ' + reserva.asignatura"
-                    >
-                      Desactivar
-                    </button>
+                    @if (mostrarDesactivadas()) {
+                      <span>Cancelada</span>
+                    } @else if (!esProfesor) {
+                      <button
+                        type="button"
+                        class="btn-eliminar"
+                        (click)="abrirConfirmacion(reserva)"
+                        [attr.aria-label]="'Desactivar reserva de ' + reserva.asignatura"
+                      >
+                        Desactivar
+                      </button>
+                    }
                   </td>
                 }
               </tr>
@@ -94,7 +115,11 @@
 
         @if (reservasFiltradas().length === 0 && !error()) {
           <div class="sin-resultados">
-            {{ filtroBusqueda() ? 'No se encontraron reservas con esa búsqueda.' : 'No hay reservas programadas.' }}
+            {{ filtroBusqueda()
+              ? 'No se encontraron reservas con esa búsqueda.'
+              : mostrarDesactivadas()
+                ? 'No hay reservas canceladas.'
+                : 'No hay reservas programadas.' }}
           </div>
         }
       }

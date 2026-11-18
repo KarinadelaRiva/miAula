@@ -7,6 +7,7 @@ import type { ReservaCalendario } from '../models/reserva-calendario';
 import { ComisionService } from './comision-service/comision-service';
 import { EspacioService } from './espacio-service/espacio-service';
 import type { Carrera } from './comision-service/comision-service';
+import type { DiaSemanaSolicitud, RecursoSolicitadoCreate } from './solicitud';
 
 interface ReservaApiResponse {
   id: number;
@@ -44,6 +45,19 @@ export interface ReservaModificable {
   }>;
 }
 
+export interface ReservaDirectaCreateRequest {
+  profesorId: number;
+  espacioId: number;
+  fechaInicio: string;
+  fechaFin: string;
+  horaInicio: string;
+  horaFin: string;
+  comentario: string | null;
+  comisionId: number;
+  diaSemana: DiaSemanaSolicitud;
+  recursos: RecursoSolicitadoCreate[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -61,8 +75,18 @@ export class ReservaService {
     return this.obtenerReservas(this.api);
   }
 
+  crearReservaDirecta(reserva: ReservaDirectaCreateRequest): Observable<Reserva> {
+    return this.http.post<ReservaApiResponse>(this.api, reserva).pipe(
+      map(reservaCreada => this.reservaApiToReserva(reservaCreada))
+    );
+  }
+
   getReservasActivas(): Observable<Reserva[]> {
     return this.obtenerReservasPorEstado(`${this.api}/activas`);
+  }
+
+  getReservasInactivas(): Observable<Reserva[]> {
+    return this.obtenerReservasPorEstado(`${this.api}/inactivas`);
   }
 
   getReservasTerminadas(): Observable<Reserva[]> {
@@ -71,6 +95,10 @@ export class ReservaService {
 
   getMisReservasActivas(): Observable<Reserva[]> {
     return this.obtenerReservasPorEstado(`${this.api}/mis-reservas/activas`);
+  }
+
+  getMisReservasInactivas(): Observable<Reserva[]> {
+    return this.obtenerReservasPorEstado(`${this.api}/mis-reservas/inactivas`);
   }
 
   getMisReservasTerminadas(): Observable<Reserva[]> {
