@@ -163,6 +163,12 @@ public class UsuarioService implements UserDetailsService {
         if (id.equals(administradorId)) {
             throw new ResourceConflictException("No podés eliminar tu propia cuenta desde la administración de usuarios");
         }
+
+        if (Long.valueOf(1L).equals(id)) {
+            throw new ResourceConflictException(
+                    "No se puede deshabilitar al usuario administrador con ID 1");
+        }
+
         actualizarEstadoUsuario(obtenerPorId(id), false);
     }
 
@@ -171,7 +177,12 @@ public class UsuarioService implements UserDetailsService {
     }
 
     public void desactivarUsuarioActual(String email) {
-        actualizarEstadoUsuario(obtenerPorEmail(email), false);
+        Usuario usuario = obtenerPorEmail(email);
+        if (Long.valueOf(1L).equals(usuario.getId())) {
+            throw new ResourceConflictException(
+                    "No se puede deshabilitar al usuario administrador con ID 1");
+        }
+        actualizarEstadoUsuario(usuario, false);
     }
 
     private void actualizarEstadoUsuario(Usuario usuario, boolean activo) {
