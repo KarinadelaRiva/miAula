@@ -94,7 +94,6 @@
               id="dia"
               class="form-control"
               formControlName="dia_semana"
-              (change)="cargarRecursosDisponibles()"
             >
               <option value="LUNES">LUNES</option>
               <option value="MARTES">MARTES</option>
@@ -119,7 +118,7 @@
               type="date"
               [min]="fechaMinima"
               formControlName="fecha_inicio"
-              (change)="actualizarFechaFinMinima(); cargarRecursosDisponibles()"
+              (change)="actualizarFechaFinMinima()"
             />
             <span
               *ngIf="form.get('fecha_inicio')?.touched && form.get('fecha_inicio')?.hasError('required')"
@@ -145,7 +144,7 @@
               type="date"
               [min]="fechaFinMinima"
               formControlName="fecha_fin"
-              (change)="actualizarFechaFinMinima(); cargarRecursosDisponibles()"
+              (change)="actualizarFechaFinMinima()"
             />
             <span
               *ngIf="form.get('fecha_fin')?.touched && form.get('fecha_fin')?.hasError('required')"
@@ -173,7 +172,6 @@
               class="form-control"
               type="time"
               formControlName="hora_inicio"
-              (change)="cargarRecursosDisponibles()"
             />
             <span
               *ngIf="form.get('hora_inicio')?.touched && form.get('hora_inicio')?.hasError('required')"
@@ -192,7 +190,6 @@
               class="form-control"
               type="time"
               formControlName="hora_fin"
-              (change)="cargarRecursosDisponibles()"
             />
             <span
               *ngIf="form.get('hora_fin')?.touched && form.get('hora_fin')?.hasError('required')"
@@ -211,47 +208,13 @@
 
         <div class="form-row single">
           <div class="form-group">
-            <label>Recursos (opcional)</label>
-            <p class="small-note">La disponibilidad se calcula para el día y horario seleccionados.</p>
-            <div *ngIf="cargandoRecursos" class="small-note">Consultando disponibilidad...</div>
-            <div *ngIf="errorRecursos" class="error" role="alert">{{ errorRecursos }}</div>
-            <div
-              *ngIf="disponibilidadConsultada && !cargandoRecursos && !errorRecursos && recursosDisponibles.length === 0"
-              class="small-note"
-            >
-              No hay recursos disponibles para este rango y horario.
-            </div>
-            <div *ngFor="let recurso of recursosDisponibles" class="recurso-opcion">
-              <label>
-                <input
-                  type="checkbox"
-                  [checked]="recurso.seleccionado"
-                  (change)="seleccionarRecurso(recurso, $any($event.target).checked)"
-                >
-                {{ recurso.name }} — disponibles: {{ recurso.available }}
-              </label>
-              <input
-                *ngIf="recurso.seleccionado"
-                type="number"
-                min="1"
-                [max]="recurso.available"
-                [value]="recurso.cantidadSolicitada"
-                (input)="actualizarCantidadRecurso(recurso, +$any($event.target).value)"
-                [attr.aria-label]="'Cantidad de ' + recurso.name"
-              >
-            </div>
-          </div>
-        </div>
-
-        <div class="form-row single">
-          <div class="form-group">
             <label for="comentario">Comentario (opcional)</label>
             <textarea id="comentario" class="form-control" formControlName="comentario" rows="3"></textarea>
           </div>
         </div>
 
         <div class="acciones">
-          <button type="submit" class="btn-primary" [disabled]="loading || cargandoRecursos">
+          <button type="submit" class="btn-primary" [disabled]="loading">
             {{ loading ? 'Creando reserva...' : 'Crear reserva' }}
           </button>
           <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>

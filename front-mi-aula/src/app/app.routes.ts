@@ -18,11 +18,6 @@ import { AdministrarUsuario } from './pages/gestion-usuarios/administrar-usuario
 import { RegistrarEspacio } from './pages/gestor-espacios/registrar-espacio/registrar-espacio';
 import { AdministrarEspacios } from './pages/gestor-espacios/administrar-espacios/administrar-espacios';
 
-import { RegistrarRecurso } from './pages/gestor-recursos/registrar-recurso/registrar-recurso';
-import { AdministrarRecursos } from './pages/gestor-recursos/administrar-recursos/administrar-recursos';
-
-
-
 export const routes: Routes = [
 
   // ============================================================
@@ -214,32 +209,6 @@ export const routes: Routes = [
   },
 
 
-  // ============================================================
-  // EVENTOS
-  // ============================================================
-
-  {
-    path: 'gestion-evento',
-    redirectTo: 'gestion-evento/administrar-eventos',
-    pathMatch: 'full'
-  },
-
-  {
-    path: 'gestion-evento/administrar-eventos',
-    loadComponent: () =>
-      import('./pages/gestion-evento/administrar-eventos/administrar-eventos')
-        .then(m => m.AdministrarEventos),
-    canActivate: [authGuard]
-  },
-
-  {
-    path: 'gestion-evento/registrar-evento',
-    loadComponent: () =>
-      import('./pages/gestion-evento/registrar-evento/registrar-evento')
-        .then(m => m.RegistrarEvento),
-    canActivate: [adminGuard]
-  },
-
 // ============================================================
 // MATERIAS
 // ============================================================
@@ -289,29 +258,6 @@ export const routes: Routes = [
   {
     path: 'espacios/administrar',
     component: AdministrarEspacios,
-    canActivate: [adminGuard]
-  },
-
-
-  // ============================================================
-  // RECURSOS
-  // ============================================================
-
-  {
-    path: 'recursos',
-    redirectTo: 'recursos/administrar',
-    pathMatch: 'full'
-  },
-
-  {
-    path: 'recursos/registrar',
-    component: RegistrarRecurso,
-    canActivate: [adminGuard]
-  },
-
-  {
-    path: 'recursos/administrar',
-    component: AdministrarRecursos,
     canActivate: [adminGuard]
   },
 

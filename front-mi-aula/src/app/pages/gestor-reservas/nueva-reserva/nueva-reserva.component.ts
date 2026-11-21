@@ -13,15 +13,9 @@ import { Router } from '@angular/router';
 import { Comision, ComisionService } from '../../../services/comision-service/comision-service';
 import { Espacio } from '../../../models/espacio';
 import { EspacioService } from '../../../services/espacio-service/espacio-service';
-import { RecursoDisponible, RecursoService } from '../../../services/recurso-service/recurso-service';
 import { Usuario } from '../../../models/usuario';
 import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 import { ReservaDirectaCreateRequest, ReservaService } from '../../../services/reserva.service';
-
-interface RecursoSeleccionable extends RecursoDisponible {
-  seleccionado: boolean;
-  cantidadSolicitada: number;
-}
 
 @Component({
   selector: 'app-nueva-reserva',
@@ -35,7 +29,6 @@ export class NuevaReservaComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly comisionService = inject(ComisionService);
   private readonly espacioService = inject(EspacioService);
-  private readonly recursoService = inject(RecursoService);
   private readonly usuarioService = inject(UsuarioService);
   private readonly reservaService = inject(ReservaService);
 
@@ -43,13 +36,8 @@ export class NuevaReservaComponent implements OnInit {
   profesores: Usuario[] = [];
   comisiones: Comision[] = [];
   espacios: Espacio[] = [];
-  recursosDisponibles: RecursoSeleccionable[] = [];
-  disponibilidadConsultada = false;
-  cargandoRecursos = false;
   loading = false;
-  errorRecursos: string | null = null;
   error: string | null = null;
-  private consultaDisponibilidadId = 0;
   fechaMinima = '';
   fechaFinMinima = '';
   private fechaMinimaNueva = '';
@@ -182,56 +170,6 @@ export class NuevaReservaComponent implements OnInit {
     });
   }
 
-  cargarRecursosDisponibles(): void {
-    const { fecha_inicio, fecha_fin, dia_semana, hora_inicio, hora_fin } = this.form.getRawValue();
-    if (!fecha_inicio || !fecha_fin || !dia_semana || !hora_inicio || !hora_fin
-      || fecha_inicio >= fecha_fin || hora_inicio >= hora_fin) {
-      this.consultaDisponibilidadId++;
-      this.recursosDisponibles = [];
-      this.disponibilidadConsultada = false;
-      this.cargandoRecursos = false;
-      this.errorRecursos = null;
-      return;
-    }
-
-    const consultaId = ++this.consultaDisponibilidadId;
-    this.cargandoRecursos = true;
-    this.disponibilidadConsultada = true;
-    this.errorRecursos = null;
-    this.recursoService.getDisponibles(fecha_inicio, fecha_fin, dia_semana, hora_inicio, hora_fin).subscribe({
-      next: recursos => {
-        if (consultaId !== this.consultaDisponibilidadId) return;
-        this.recursosDisponibles = recursos
-          .filter(recurso => recurso.available > 0)
-          .map(recurso => {
-            const anterior = this.recursosDisponibles.find(seleccionado => seleccionado.id === recurso.id);
-            return {
-              ...recurso,
-              seleccionado: anterior?.seleccionado ?? false,
-              cantidadSolicitada: anterior
-                ? Math.min(anterior.cantidadSolicitada, recurso.available)
-                : 1
-            };
-          });
-        this.cargandoRecursos = false;
-      },
-      error: err => {
-        if (consultaId !== this.consultaDisponibilidadId) return;
-        this.recursosDisponibles = [];
-        this.errorRecursos = this.mensajeError(err);
-        this.cargandoRecursos = false;
-      }
-    });
-  }
-
-  seleccionarRecurso(recurso: RecursoSeleccionable, seleccionado: boolean): void {
-    recurso.seleccionado = seleccionado;
-  }
-
-  actualizarCantidadRecurso(recurso: RecursoSeleccionable, cantidad: number): void {
-    recurso.cantidadSolicitada = cantidad;
-  }
-
   onSubmit(): void {
     this.error = null;
     if (this.form.invalid) {
@@ -240,17 +178,6 @@ export class NuevaReservaComponent implements OnInit {
     }
 
     const form = this.form.getRawValue();
-    const seleccionInvalida = this.recursosDisponibles.some(recurso =>
-      recurso.seleccionado
-      && (!Number.isInteger(recurso.cantidadSolicitada)
-        || recurso.cantidadSolicitada < 1
-        || recurso.cantidadSolicitada > recurso.available)
-    );
-    if (seleccionInvalida) {
-      this.error = 'La cantidad solicitada de cada recurso debe estar dentro de su disponibilidad.';
-      return;
-    }
-
     const reserva: ReservaDirectaCreateRequest = {
       profesorId: Number(form.profesor_id),
       comisionId: Number(form.comision_id),
@@ -261,12 +188,7 @@ export class NuevaReservaComponent implements OnInit {
       horaInicio: form.hora_inicio,
       horaFin: form.hora_fin,
       comentario: form.comentario?.trim() || null,
-      recursos: this.recursosDisponibles
-        .filter(recurso => recurso.seleccionado)
-        .map(recurso => ({
-          recursoId: recurso.id,
-          cantidad: Number(recurso.cantidadSolicitada)
-        }))
+      recursos: []
     };
 
     this.loading = true;

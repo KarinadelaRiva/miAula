@@ -77,14 +77,6 @@
 				<p><strong>Fechas:</strong> {{ formatFecha(selectedSolicitud()?.fecha_inicio) }} - {{ formatFecha(selectedSolicitud()?.fecha_fin) }}</p>
 				<p><strong>Comentario profesor:</strong> {{ selectedSolicitud()?.comentario_profesor || '-' }}</p>
 				<p><strong>Comentario estado:</strong> {{ selectedSolicitud()?.comentario_estado || '-' }}</p>
-				@if (selectedSolicitud()?.recursos_solicitados?.length) {
-					<p><strong>Recursos solicitados:</strong></p>
-					<ul>
-						@for (recurso of selectedSolicitud()?.recursos_solicitados; track recurso.recurso_id) {
-							<li>{{ recurso.nombre }} — cantidad: {{ recurso.cantidad }}</li>
-						}
-					</ul>
-				}
 			</div>
 
 			<footer class="modal-footer">
