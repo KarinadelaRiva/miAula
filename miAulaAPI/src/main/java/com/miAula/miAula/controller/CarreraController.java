@@ -1,6 +1,7 @@
 package com.miAula.miAula.controller;
 
 import com.miAula.miAula.dtos.carrera.CarreraCreateDTO;
+import com.miAula.miAula.dtos.carrera.CarreraEstadoDTO;
 import com.miAula.miAula.dtos.carrera.CarreraResponseDTO;
 import com.miAula.miAula.dtos.carrera.CarreraUpdateDTO;
 import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
@@ -35,6 +36,13 @@ public class CarreraController {
 
         return ResponseEntity.ok(
                 carreraService.obtenerTodas()
+        );
+    }
+
+    @GetMapping("/administracion")
+    public ResponseEntity<List<CarreraResponseDTO>> obtenerCarrerasParaAdministracion() {
+        return ResponseEntity.ok(
+                carreraService.obtenerTodasParaAdministracion()
         );
     }
 
@@ -98,6 +106,16 @@ public class CarreraController {
                 carreraService.actualizarCarrera(id, dto);
 
         return ResponseEntity.ok(carreraActualizada);
+    }
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<CarreraResponseDTO> actualizarEstado(
+            @PathVariable Long id,
+            @Valid @RequestBody CarreraEstadoDTO estado) {
+
+        return ResponseEntity.ok(
+                carreraService.actualizarEstado(id, estado.getActivo())
+        );
     }
 
     // Baja lógica de carrera

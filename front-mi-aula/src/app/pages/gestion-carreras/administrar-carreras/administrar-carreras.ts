@@ -20,6 +20,7 @@ interface Carrera {
   id: number;
   codigo: string;
   nombre: string;
+  activo: boolean;
 }
 
 
@@ -56,8 +57,13 @@ export class AdministrarCarreras implements OnInit {
 
   carreras: Carrera[] = [];
   carrerasFiltradas: Carrera[] = [];
+  carrerasPaginadas: Carrera[] = [];
 
   busqueda = '';
+  filtroEstado = 'todos';
+  paginaActual = 1;
+  limite = 8;
+  cargando = true;
 
   mensaje = '';
 
@@ -73,12 +79,14 @@ export class AdministrarCarreras implements OnInit {
 
 
   // ============================================================
-  // ELIMINAR
+  // CAMBIAR ESTADO
   // ============================================================
 
-  mostrarConfirmacionEliminar = false;
+  mostrarConfirmacionEstado = false;
 
-  carreraAEliminar: Carrera | null = null;
+  carreraSeleccionada: Carrera | null = null;
+
+  actualizandoEstado = false;
 
 
   // ============================================================
@@ -90,6 +98,7 @@ export class AdministrarCarreras implements OnInit {
   carreraMaterias: Carrera | null = null;
 
   materiasDisponibles: Materia[] = [];
+  busquedaMaterias = '';
 
   materiasSeleccionadas =
     new Set<number>();
@@ -100,6 +109,18 @@ export class AdministrarCarreras implements OnInit {
   cargandoMaterias = false;
 
   guardandoMaterias = false;
+
+  get materiasDisponiblesFiltradas(): Materia[] {
+    const texto = this.busquedaMaterias.trim().toLowerCase();
+    if (!texto) {
+      return this.materiasDisponibles;
+    }
+
+    return this.materiasDisponibles.filter((materia) =>
+      materia.nombre.toLowerCase().includes(texto) ||
+      materia.codigo.toLowerCase().includes(texto)
+    );
+  }
 
 
   constructor(
@@ -119,17 +140,17 @@ export class AdministrarCarreras implements OnInit {
 
   cargarCarreras(): void {
 
+    this.cargando = true;
+
     this.http
-      .get<Carrera[]>(this.apiUrl)
+      .get<Carrera[]>(`${this.apiUrl}/administracion`)
       .subscribe({
 
         next: (data) => {
 
           this.carreras = data;
-
-          this.carrerasFiltradas = [
-            ...data
-          ];
+          this.cargando = false;
+          this.buscar();
 
           this.cdr.detectChanges();
         },
@@ -143,6 +164,9 @@ export class AdministrarCarreras implements OnInit {
 
           this.carreras = [];
           this.carrerasFiltradas = [];
+          this.carrerasPaginadas = [];
+          this.paginaActual = 1;
+          this.cargando = false;
 
           this.mensaje =
             'No se pudieron cargar las carreras.';
@@ -165,26 +189,47 @@ export class AdministrarCarreras implements OnInit {
         .toLowerCase()
         .trim();
 
-    if (!texto) {
+    this.carrerasFiltradas = this.carreras.filter((carrera) => {
+      const coincideTexto =
+        !texto ||
+        carrera.nombre.toLowerCase().includes(texto) ||
+        carrera.codigo.toLowerCase().includes(texto);
+      const coincideEstado =
+        this.filtroEstado === 'todos' ||
+        (this.filtroEstado === 'habilitadas' && carrera.activo) ||
+        (this.filtroEstado === 'deshabilitadas' && !carrera.activo);
 
-      this.carrerasFiltradas = [
-        ...this.carreras
-      ];
+      return coincideTexto && coincideEstado;
+    });
 
-      return;
+    this.paginaActual = 1;
+    this.actualizarCarrerasPaginadas();
+  }
+
+  get totalPaginas(): number {
+    return Math.ceil(this.carrerasFiltradas.length / this.limite);
+  }
+
+  siguientePagina(): void {
+    if (this.paginaActual < this.totalPaginas) {
+      this.paginaActual += 1;
+      this.actualizarCarrerasPaginadas();
     }
+  }
 
-    this.carrerasFiltradas =
-      this.carreras.filter(
-        carrera =>
-          carrera.nombre
-            .toLowerCase()
-            .includes(texto)
-          ||
-          carrera.codigo
-            .toLowerCase()
-            .includes(texto)
-      );
+  anteriorPagina(): void {
+    if (this.paginaActual > 1) {
+      this.paginaActual -= 1;
+      this.actualizarCarrerasPaginadas();
+    }
+  }
+
+  private actualizarCarrerasPaginadas(): void {
+    const inicio = (this.paginaActual - 1) * this.limite;
+    this.carrerasPaginadas = this.carrerasFiltradas.slice(
+      inicio,
+      inicio + this.limite
+    );
   }
 
 
@@ -348,6 +393,7 @@ export class AdministrarCarreras implements OnInit {
       true;
 
     this.mensaje = '';
+    this.busquedaMaterias = '';
 
     this.materiasSeleccionadas =
       new Set<number>();
@@ -460,6 +506,7 @@ export class AdministrarCarreras implements OnInit {
       null;
 
     this.materiasDisponibles = [];
+    this.busquedaMaterias = '';
 
     this.materiasSeleccionadas =
       new Set<number>();
@@ -564,6 +611,7 @@ export class AdministrarCarreras implements OnInit {
             null;
 
           this.materiasDisponibles = [];
+          this.busquedaMaterias = '';
 
           this.materiasSeleccionadas =
             new Set<number>();
@@ -598,63 +646,64 @@ export class AdministrarCarreras implements OnInit {
 
 
   // ============================================================
-  // ELIMINAR CARRERA
+  // CAMBIAR ESTADO DE CARRERA
   // ============================================================
 
-  abrirConfirmacionEliminar(
+  abrirConfirmacionEstado(
     carrera: Carrera
   ): void {
 
-    this.carreraAEliminar =
+    this.carreraSeleccionada =
       carrera;
 
-    this.mostrarConfirmacionEliminar =
+    this.mostrarConfirmacionEstado =
       true;
 
+    this.mensaje = '';
     this.cdr.detectChanges();
   }
 
+  cancelarCambioEstado(): void {
+    if (this.actualizandoEstado) {
+      return;
+    }
 
-  cancelarEliminar(): void {
+    this.carreraSeleccionada = null;
 
-    this.carreraAEliminar = null;
-
-    this.mostrarConfirmacionEliminar =
+    this.mostrarConfirmacionEstado =
       false;
 
     this.cdr.detectChanges();
   }
 
-
-  confirmarEliminar(): void {
-
-    if (!this.carreraAEliminar) {
+  confirmarCambioEstado(): void {
+    if (!this.carreraSeleccionada) {
       return;
     }
 
-
-    const carrera =
-      this.carreraAEliminar;
-
+    const { id, activo } = this.carreraSeleccionada;
+    const nuevoEstado = !activo;
+    this.actualizandoEstado = true;
+    this.mensaje = '';
 
     this.http
-      .delete(
-        `${this.apiUrl}/${carrera.id}`
-      )
+      .patch<Carrera>(`${this.apiUrl}/${id}/estado`, { activo: nuevoEstado })
       .subscribe({
 
         next: () => {
 
-          this.carreraAEliminar =
+          this.actualizandoEstado = false;
+          this.carreraSeleccionada =
             null;
 
-          this.mostrarConfirmacionEliminar =
+          this.mostrarConfirmacionEstado =
             false;
 
           this.cargarCarreras();
 
-          this.mensaje =
-            'Carrera eliminada correctamente.';
+          this.mensaje = nuevoEstado
+            ? 'Carrera habilitada correctamente.'
+            : 'Carrera deshabilitada correctamente.';
 
           this.cdr.detectChanges();
         },
@@ -662,18 +711,14 @@ export class AdministrarCarreras implements OnInit {
         error: (error) => {
 
           console.error(
-            'Error eliminando carrera:',
+            'Error actualizando el estado de la carrera:',
             error
           );
 
-          this.carreraAEliminar =
-            null;
-
-          this.mostrarConfirmacionEliminar =
-            false;
+          this.actualizandoEstado = false;
 
           this.mensaje =
-            'No se pudo eliminar la carrera.';
+            'No se pudo actualizar el estado de la carrera.';
 
           this.cdr.detectChanges();
         }

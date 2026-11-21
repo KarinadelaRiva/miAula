@@ -35,8 +35,11 @@ export class AdministrarMaterias implements OnInit {
 
   materias: Materia[] = [];
   materiasFiltradas: Materia[] = [];
+  materiasPaginadas: Materia[] = [];
 
   cargando: boolean = true;
+  paginaActual: number = 1;
+  limite: number = 8;
 
 
   // ============================================================
@@ -44,6 +47,8 @@ export class AdministrarMaterias implements OnInit {
   // ============================================================
 
   textoBusqueda: string = '';
+
+  filtroEstado: string = 'todos';
 
 
   // ============================================================
@@ -59,14 +64,14 @@ export class AdministrarMaterias implements OnInit {
 
 
   // ============================================================
-  // ELIMINAR
+  // CAMBIAR ESTADO
   // ============================================================
 
   modalVisible: boolean = false;
 
   materiaSeleccionada: Materia | null = null;
 
-  eliminando: boolean = false;
+  actualizandoEstado: boolean = false;
 
 
   // ============================================================
@@ -99,7 +104,7 @@ export class AdministrarMaterias implements OnInit {
 
 
     this.materiaService
-      .obtenerTodas()
+      .obtenerTodasParaAdministracion()
       .subscribe({
 
         next: (materias) => {
@@ -123,6 +128,8 @@ export class AdministrarMaterias implements OnInit {
 
           this.materias = [];
           this.materiasFiltradas = [];
+          this.materiasPaginadas = [];
+          this.paginaActual = 1;
 
           this.cargando = false;
 
@@ -142,36 +149,49 @@ export class AdministrarMaterias implements OnInit {
 
   aplicarFiltro(): void {
 
-    const texto =
-      this.textoBusqueda
-        .trim()
-        .toLowerCase();
+    const texto = this.textoBusqueda.trim().toLowerCase();
 
+    this.materiasFiltradas = this.materias.filter((materia) => {
+      const coincideTexto =
+        !texto ||
+        materia.codigo.toLowerCase().includes(texto) ||
+        materia.nombre.toLowerCase().includes(texto);
+      const coincideEstado =
+        this.filtroEstado === 'todos' ||
+        (this.filtroEstado === 'habilitadas' && materia.activo) ||
+        (this.filtroEstado === 'deshabilitadas' && !materia.activo);
 
-    if (!texto) {
+      return coincideTexto && coincideEstado;
+    });
 
-      this.materiasFiltradas =
-        [...this.materias];
+    this.paginaActual = 1;
+    this.actualizarMateriasPaginadas();
+  }
 
-      return;
+  get totalPaginas(): number {
+    return Math.ceil(this.materiasFiltradas.length / this.limite);
+  }
+
+  siguientePagina(): void {
+    if (this.paginaActual < this.totalPaginas) {
+      this.paginaActual += 1;
+      this.actualizarMateriasPaginadas();
     }
+  }
 
+  anteriorPagina(): void {
+    if (this.paginaActual > 1) {
+      this.paginaActual -= 1;
+      this.actualizarMateriasPaginadas();
+    }
+  }
 
-    this.materiasFiltradas =
-      this.materias.filter(
-        materia => {
-
-          return (
-            materia.codigo
-              .toLowerCase()
-              .includes(texto) ||
-
-            materia.nombre
-              .toLowerCase()
-              .includes(texto)
-          );
-        }
-      );
+  private actualizarMateriasPaginadas(): void {
+    const inicio = (this.paginaActual - 1) * this.limite;
+    this.materiasPaginadas = this.materiasFiltradas.slice(
+      inicio,
+      inicio + this.limite
+    );
   }
 
 
@@ -324,10 +344,10 @@ export class AdministrarMaterias implements OnInit {
 
 
   // ============================================================
-  // MODAL ELIMINAR
+  // MODAL DE ESTADO
   // ============================================================
 
-  abrirModalEliminar(
+  abrirModalEstado(
     materia: Materia
   ): void {
 
@@ -344,7 +364,7 @@ export class AdministrarMaterias implements OnInit {
 
   cerrarModal(): void {
 
-    if (this.eliminando) {
+    if (this.actualizandoEstado) {
       return;
     }
 
@@ -358,22 +378,19 @@ export class AdministrarMaterias implements OnInit {
 
 
   // ============================================================
-  // ELIMINAR
+  // CAMBIAR ESTADO
   // ============================================================
 
-  confirmarEliminar(): void {
+  confirmarCambioEstado(): void {
 
     if (!this.materiaSeleccionada) {
       return;
     }
 
 
-    const id =
-      this.materiaSeleccionada.id;
-
-
-    this.eliminando =
-      true;
+    const { id, activo } = this.materiaSeleccionada;
+    const nuevoEstado = !activo;
+    this.actualizandoEstado = true;
 
     this.mensajeExito =
       '';
@@ -383,13 +400,12 @@ export class AdministrarMaterias implements OnInit {
 
 
     this.materiaService
-      .eliminar(id)
+      .actualizarEstado(id, nuevoEstado)
       .subscribe({
 
         next: () => {
 
-          this.eliminando =
-            false;
+          this.actualizandoEstado = false;
 
           this.modalVisible =
             false;
@@ -397,8 +413,9 @@ export class AdministrarMaterias implements OnInit {
           this.materiaSeleccionada =
             null;
 
-          this.mensajeExito =
-            'Materia eliminada correctamente.';
+          this.mensajeExito = nuevoEstado
+            ? 'Materia habilitada correctamente.'
+            : 'Materia deshabilitada correctamente.';
 
           this.cargarMaterias();
 
@@ -411,12 +428,11 @@ export class AdministrarMaterias implements OnInit {
         ) => {
 
           console.error(
-            'Error eliminando materia:',
+            'Error actualizando el estado de la materia:',
             error
           );
 
-          this.eliminando =
-            false;
+          this.actualizandoEstado = false;
 
           this.mensajeError =
             this.obtenerMensajeError(
@@ -453,6 +469,14 @@ export class AdministrarMaterias implements OnInit {
     ) {
 
       return error.error.message;
+    }
+
+    if (
+      error.error &&
+      error.error.mensaje
+    ) {
+
+      return error.error.mensaje;
     }
 
 

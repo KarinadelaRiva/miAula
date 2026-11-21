@@ -16,4 +16,6 @@ public class MateriaResponseDTO {
     private String codigo;
 
     private String nombre;
+
+    private Boolean activo;
 }

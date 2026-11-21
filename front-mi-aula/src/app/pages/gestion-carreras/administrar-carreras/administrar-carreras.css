@@ -171,6 +171,12 @@
    ============================================================ */
 
 .panel-filtros {
+  display: grid;
+
+  grid-template-columns: 2fr 1fr;
+
+  gap: 1rem;
+
   padding: 1rem;
 
   background: #f6f9fc;
@@ -200,6 +206,7 @@
 
 
 .campo-filtro input,
+.campo-filtro select,
 .campo input {
   width: 100%;
 
@@ -221,6 +228,7 @@
 
 
 .campo-filtro input:focus,
+.campo-filtro select:focus,
 .campo input:focus {
   outline: none;
 
@@ -345,6 +353,71 @@ tbody tr:hover {
 
 .btn-eliminar:hover {
   background: #923939;
+}
+
+.btn-reactivar {
+  background: #347348;
+
+  color: #ffffff;
+}
+
+.btn-reactivar:hover {
+  background: #285d39;
+}
+
+
+/* ESTADO Y PAGINACIÓN */
+
+.estado-etiqueta {
+  color: #347348;
+
+  font-weight: 700;
+}
+
+.estado-deshabilitado {
+  color: #9d3e3e;
+}
+
+.paginacion {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 1rem;
+
+  padding: 0 1rem 1rem;
+}
+
+.btn-paginacion {
+  padding: 0.55rem 0.8rem;
+
+  border: 0;
+  border-radius: 4px;
+
+  color: #ffffff;
+  background: #2563a6;
+
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.btn-paginacion:hover {
+  background: #133e87;
+}
+
+.btn-paginacion:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+.pagina-info {
+  color: #334e68;
+
+  font-size: 0.9rem;
 }
 
 
@@ -706,6 +779,49 @@ tbody tr:hover {
     rgba(15, 50, 90, 0.12);
 }
 
+.materia-busqueda {
+  position: sticky;
+
+  top: 0;
+  z-index: 1;
+
+  padding: 0.5rem;
+
+  border-bottom: 1px solid #e3ebf3;
+
+  background: #ffffff;
+}
+
+.materia-busqueda input {
+  box-sizing: border-box;
+
+  width: 100%;
+
+  padding: 0.55rem 0.65rem;
+
+  border: 1px solid #c8d7e8;
+  border-radius: 4px;
+
+  color: #213547;
+
+  font: inherit;
+}
+
+.materia-busqueda input:focus {
+  outline: none;
+
+  border-color: #2563a6;
+}
+
+.materias-sin-resultados {
+  padding: 0.9rem;
+
+  color: #52677d;
+
+  font-size: 0.85rem;
+  text-align: center;
+}
+
 
 .materia-option {
   display: flex;
@@ -894,6 +1010,14 @@ tbody tr:hover {
   background: #923939;
 }
 
+.modal-btn-habilitar {
+  background: #347348;
+}
+
+.modal-btn-habilitar:hover {
+  background: #285d39;
+}
+
 
 button:disabled {
   opacity: 0.6;
@@ -917,6 +1041,18 @@ button:disabled {
     flex-direction: column;
 
     align-items: flex-start;
+  }
+
+  .panel-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .paginacion {
+    gap: 0.5rem;
+  }
+
+  .pagina-info {
+    font-size: 0.8rem;
   }
 
 

@@ -86,6 +86,21 @@
 
       </div>
 
+      <div class="campo-filtro">
+        <label for="filtroEstado">
+          Estado
+        </label>
+
+        <select
+          id="filtroEstado"
+          [(ngModel)]="filtroEstado"
+          (change)="aplicarFiltro()">
+          <option value="todos">Todas</option>
+          <option value="habilitadas">Habilitadas</option>
+          <option value="deshabilitadas">Deshabilitadas</option>
+        </select>
+      </div>
+
     </div>
 
 
@@ -139,6 +154,10 @@
             </th>
 
             <th>
+              Estado
+            </th>
+
+            <th>
               Acciones
             </th>
 
@@ -150,7 +169,7 @@
         <tbody>
 
           <tr
-            *ngFor="let materia of materiasFiltradas">
+            *ngFor="let materia of materiasPaginadas">
 
             <td data-label="Código">
 
@@ -167,6 +186,13 @@
 
             </td>
 
+            <td data-label="Estado">
+              <span
+                class="estado-etiqueta"
+                [class.estado-deshabilitado]="!materia.activo">
+                {{ materia.activo ? 'Habilitada' : 'Deshabilitada' }}
+              </span>
+            </td>
 
             <td data-label="Acciones">
 
@@ -184,11 +210,10 @@
 
                 <button
                   type="button"
-                  class="btn-eliminar"
-                  (click)="abrirModalEliminar(materia)">
-
-                  Eliminar
-
+                  [class.btn-eliminar]="materia.activo"
+                  [class.btn-reactivar]="!materia.activo"
+                  (click)="abrirModalEstado(materia)">
+                  {{ materia.activo ? 'Deshabilitar' : 'Habilitar' }}
                 </button>
 
               </div>
@@ -201,6 +226,30 @@
 
       </table>
 
+    </div>
+
+    <div
+      *ngIf="!cargando && materiasFiltradas.length > 0"
+      class="paginacion">
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual === 1"
+        (click)="anteriorPagina()">
+        ← Anterior
+      </button>
+
+      <span class="pagina-info">
+        Página {{ paginaActual }} de {{ totalPaginas }}
+      </span>
+
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual >= totalPaginas"
+        (click)="siguientePagina()">
+        Siguiente →
+      </button>
     </div>
 
 
@@ -294,7 +343,7 @@
 </div>
 
 
-<!-- MODAL ELIMINAR -->
+<!-- MODAL DE ESTADO -->
 
 <div
   *ngIf="modalVisible"
@@ -309,7 +358,7 @@
       </span>
 
       <h2>
-        Eliminar materia
+        {{ materiaSeleccionada?.activo ? 'Deshabilitar materia' : 'Habilitar materia' }}
       </h2>
 
     </div>
@@ -319,7 +368,7 @@
 
       <p>
 
-        ¿Querés eliminar la materia
+        ¿Querés {{ materiaSeleccionada?.activo ? 'deshabilitar' : 'habilitar' }} la materia
 
         <strong>
           "{{ materiaSeleccionada?.nombre }}"
@@ -329,7 +378,7 @@
 
 
       <p class="modal-ayuda">
-        Esta acción eliminará la materia del sistema.
+        La materia se conservará en el sistema y podrás cambiar su estado nuevamente.
       </p>
 
     </div>
@@ -341,7 +390,7 @@
         type="button"
         class="modal-btn-cancelar"
         (click)="cerrarModal()"
-        [disabled]="eliminando">
+        [disabled]="actualizandoEstado">
 
         Cancelar
 
@@ -351,13 +400,14 @@
       <button
         type="button"
         class="modal-btn-eliminar"
-        (click)="confirmarEliminar()"
-        [disabled]="eliminando">
+        [class.modal-btn-habilitar]="!materiaSeleccionada?.activo"
+        (click)="confirmarCambioEstado()"
+        [disabled]="actualizandoEstado">
 
         {{
-          eliminando
-            ? 'Eliminando...'
-            : 'Eliminar'
+          actualizandoEstado
+            ? 'Actualizando...'
+            : (materiaSeleccionada?.activo ? 'Deshabilitar' : 'Habilitar')
         }}
 
       </button>

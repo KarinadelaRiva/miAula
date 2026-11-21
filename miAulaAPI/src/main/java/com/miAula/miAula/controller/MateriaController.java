@@ -1,6 +1,7 @@
 package com.miAula.miAula.controller;
 
 import com.miAula.miAula.dtos.materia.MateriaCreateDTO;
+import com.miAula.miAula.dtos.materia.MateriaEstadoDTO;
 import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
 import com.miAula.miAula.dtos.materia.MateriaUpdateDTO;
 import com.miAula.miAula.service.MateriaService;
@@ -25,6 +26,11 @@ public class MateriaController {
     @GetMapping
     public ResponseEntity<List<MateriaResponseDTO>> obtenerMaterias() {
         return ResponseEntity.ok(materiaService.obtenerTodas());
+    }
+
+    @GetMapping("/administracion")
+    public ResponseEntity<List<MateriaResponseDTO>> obtenerMateriasParaAdministracion() {
+        return ResponseEntity.ok(materiaService.obtenerTodasParaAdministracion());
     }
 
     @GetMapping("/{id}")
@@ -59,11 +65,21 @@ public class MateriaController {
         return ResponseEntity.ok(materiaActualizada);
     }
 
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<MateriaResponseDTO> actualizarEstado(
+            @PathVariable Long id,
+            @Valid @RequestBody MateriaEstadoDTO estado) {
+
+        return ResponseEntity.ok(
+                materiaService.actualizarEstado(id, estado.getActivo())
+        );
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarMateria(
             @PathVariable Long id) {
 
-        materiaService.eliminarMateria(id);
+        materiaService.deshabilitarMateria(id);
 
         return ResponseEntity.noContent().build();
     }

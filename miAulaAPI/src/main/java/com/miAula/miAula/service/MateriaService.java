@@ -35,11 +35,19 @@ public class MateriaService {
                 .id(materia.getId())
                 .codigo(materia.getCodigo())
                 .nombre(materia.getNombre())
+                .activo(materia.getActivo())
                 .build();
     }
 
     public List<MateriaResponseDTO> obtenerTodas() {
         return materiaRepository.findByActivoTrue()
+                .stream()
+                .map(this::materiaToMateriaResponseDTO)
+                .toList();
+    }
+
+    public List<MateriaResponseDTO> obtenerTodasParaAdministracion() {
+        return materiaRepository.findAll()
                 .stream()
                 .map(this::materiaToMateriaResponseDTO)
                 .toList();
@@ -92,7 +100,9 @@ public class MateriaService {
             Long id,
             MateriaUpdateDTO dto) {
 
-        Materia existente = obtenerPorId(id);
+        Materia existente = materiaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Materia no encontrada con ID: " + id));
 
         String codigoNuevo =
                 CodigoUtils.normalizar(dto.getCodigo());
@@ -116,12 +126,17 @@ public class MateriaService {
         return materiaToMateriaResponseDTO(actualizada);
     }
 
-    public void eliminarMateria(Long id) {
+    public MateriaResponseDTO actualizarEstado(Long id, Boolean activo) {
+        Materia materia = materiaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Materia no encontrada con ID: " + id));
 
-        Materia materia = obtenerPorId(id);
+        materia.setActivo(activo);
 
-        materia.setActivo(false);
+        return materiaToMateriaResponseDTO(materiaRepository.save(materia));
+    }
 
-        materiaRepository.save(materia);
+    public void deshabilitarMateria(Long id) {
+        actualizarEstado(id, false);
     }
 }

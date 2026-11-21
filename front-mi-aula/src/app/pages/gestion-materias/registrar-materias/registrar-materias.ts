@@ -195,10 +195,10 @@ export class RegistrarMateria {
 
     if (
       error.error &&
-      error.error.message
+      (error.error.mensaje || error.error.message)
     ) {
 
-      return error.error.message;
+      return error.error.mensaje || error.error.message;
     }
 
 

@@ -137,6 +137,9 @@
 /* FILTRO */
 
 .panel-filtros {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
   padding: 1rem;
   background: #f6f9fc;
   border-bottom: 1px solid #c8d7e8;
@@ -159,6 +162,7 @@
 
 
 .campo-filtro input,
+.campo-filtro select,
 .campo input {
   width: 100%;
   box-sizing: border-box;
@@ -173,6 +177,7 @@
 
 
 .campo-filtro input:focus,
+.campo-filtro select:focus,
 .campo input:focus {
   outline: none;
   border-color: #2563a6;
@@ -246,6 +251,53 @@ tbody tr:hover {
 .btn-eliminar {
   background: #a84444;
   color: #fff;
+}
+
+.btn-reactivar {
+  background: #347348;
+  color: #fff;
+}
+
+.estado-etiqueta {
+  color: #347348;
+  font-weight: 700;
+}
+
+.estado-deshabilitado {
+  color: #9d3e3e;
+}
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0 1rem 1rem;
+}
+
+.btn-paginacion {
+  padding: 0.55rem 0.8rem;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  background: #2563a6;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-paginacion:hover {
+  background: #133e87;
+}
+
+.btn-paginacion:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pagina-info {
+  color: #334e68;
+  font-size: 0.9rem;
 }
 
 
@@ -448,6 +500,10 @@ tbody tr:hover {
   color: #fff;
 }
 
+.modal-btn-habilitar {
+  background: #347348;
+}
+
 
 button:disabled {
   opacity: 0.6;
@@ -466,6 +522,18 @@ button:disabled {
   .gestion-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .panel-filtros {
+    grid-template-columns: 1fr;
+  }
+
+  .paginacion {
+    gap: 0.5rem;
+  }
+
+  .pagina-info {
+    font-size: 0.8rem;
   }
 
   .header-acciones {

@@ -14,4 +14,6 @@ public class CarreraResponseDTO {
     private Long id;
     private String codigo;
     private String nombre;
+
+    private Boolean activo;
 }

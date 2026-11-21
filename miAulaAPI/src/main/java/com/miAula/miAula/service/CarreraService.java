@@ -39,6 +39,7 @@ public class CarreraService {
                 .id(carrera.getId())
                 .codigo(carrera.getCodigo())
                 .nombre(carrera.getNombre())
+                .activo(carrera.getActivo())
                 .build();
     }
 
@@ -48,6 +49,13 @@ public class CarreraService {
 
     public List<CarreraResponseDTO> obtenerTodas() {
         return carreraRepository.findByActivoTrue()
+                .stream()
+                .map(this::carreraToCarreraResponseDTO)
+                .toList();
+    }
+
+    public List<CarreraResponseDTO> obtenerTodasParaAdministracion() {
+        return carreraRepository.findAll()
                 .stream()
                 .map(this::carreraToCarreraResponseDTO)
                 .toList();
@@ -118,7 +126,12 @@ public class CarreraService {
             Long id,
             CarreraUpdateDTO dto) {
 
-        Carrera existente = obtenerPorId(id);
+        Carrera existente = carreraRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Carrera no encontrada con ID: " + id
+                        )
+                );
 
         String codigoNuevo =
                 CodigoUtils.normalizar(dto.getCodigo());
@@ -143,14 +156,22 @@ public class CarreraService {
         return carreraToCarreraResponseDTO(actualizada);
     }
 
-   // ELIMINAR - BAJA LÓGICA
+    public CarreraResponseDTO actualizarEstado(Long id, Boolean activo) {
+        Carrera carrera = carreraRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Carrera no encontrada con ID: " + id
+                        )
+                );
 
-    public void eliminarCarrera(Long id) {
+        carrera.setActivo(activo);
 
-        Carrera carrera = obtenerPorId(id);
-
-        carrera.setActivo(false);
-
-        carreraRepository.save(carrera);
+        return carreraToCarreraResponseDTO(carreraRepository.save(carrera));
     }
+
+    // Mantiene la ruta existente como compatibilidad; solo deshabilita la carrera.
+    public void eliminarCarrera(Long id) {
+        actualizarEstado(id, false);
+    }
+
 }

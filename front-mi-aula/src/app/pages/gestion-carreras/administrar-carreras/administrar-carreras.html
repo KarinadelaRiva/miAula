@@ -82,6 +82,21 @@
 
       </div>
 
+      <div class="campo-filtro">
+        <label for="filtroEstado">
+          Estado
+        </label>
+
+        <select
+          id="filtroEstado"
+          [(ngModel)]="filtroEstado"
+          (change)="buscar()">
+          <option value="todos">Todas</option>
+          <option value="habilitadas">Habilitadas</option>
+          <option value="deshabilitadas">Deshabilitadas</option>
+        </select>
+      </div>
+
     </div>
 
 
@@ -90,7 +105,16 @@
          ============================================================ -->
 
     <div
-      *ngIf="carrerasFiltradas.length === 0"
+      *ngIf="cargando"
+      class="estado-mensaje">
+
+      Cargando carreras...
+
+    </div>
+
+
+    <div
+      *ngIf="!cargando && carrerasFiltradas.length === 0"
       class="estado-mensaje">
 
       No se encontraron carreras.
@@ -103,7 +127,7 @@
          ============================================================ -->
 
     <div
-      *ngIf="carrerasFiltradas.length > 0"
+      *ngIf="!cargando && carrerasFiltradas.length > 0"
       class="tabla-contenedor">
 
       <table>
@@ -113,6 +137,7 @@
           <tr>
             <th>Código</th>
             <th>Carrera</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
 
@@ -122,7 +147,7 @@
         <tbody>
 
           <tr
-            *ngFor="let carrera of carrerasFiltradas">
+            *ngFor="let carrera of carrerasPaginadas">
 
             <td data-label="Código">
               {{ carrera.codigo }}
@@ -137,12 +162,20 @@
 
             </td>
 
+            <td data-label="Estado">
+              <span
+                class="estado-etiqueta"
+                [class.estado-deshabilitado]="!carrera.activo">
+                {{ carrera.activo ? 'Habilitada' : 'Deshabilitada' }}
+              </span>
+            </td>
 
             <td data-label="Acciones">
 
               <div class="acciones">
 
                 <button
+                  *ngIf="carrera.activo"
                   type="button"
                   class="btn-materias"
                   (click)="abrirGestionMaterias(carrera)">
@@ -164,11 +197,10 @@
 
                 <button
                   type="button"
-                  class="btn-eliminar"
-                  (click)="abrirConfirmacionEliminar(carrera)">
-
-                  Eliminar
-
+                  [class.btn-eliminar]="carrera.activo"
+                  [class.btn-reactivar]="!carrera.activo"
+                  (click)="abrirConfirmacionEstado(carrera)">
+                  {{ carrera.activo ? 'Deshabilitar' : 'Habilitar' }}
                 </button>
 
               </div>
@@ -181,6 +213,30 @@
 
       </table>
 
+    </div>
+
+    <div
+      *ngIf="!cargando && carrerasFiltradas.length > 0"
+      class="paginacion">
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual === 1"
+        (click)="anteriorPagina()">
+        ← Anterior
+      </button>
+
+      <span class="pagina-info">
+        Página {{ paginaActual }} de {{ totalPaginas }}
+      </span>
+
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual >= totalPaginas"
+        (click)="siguientePagina()">
+        Siguiente →
+      </button>
     </div>
 
 
@@ -391,8 +447,22 @@
 
           <div class="multi-select-dropdown">
 
+            <div class="materia-busqueda">
+              <input
+                type="search"
+                aria-label="Buscar materias"
+                placeholder="Buscar por código o nombre..."
+                [(ngModel)]="busquedaMaterias">
+            </div>
+
+            <div
+              *ngIf="materiasDisponiblesFiltradas.length === 0"
+              class="materias-sin-resultados">
+              No hay materias que coincidan con la búsqueda.
+            </div>
+
             <label
-              *ngFor="let materia of materiasDisponibles"
+              *ngFor="let materia of materiasDisponiblesFiltradas"
               class="materia-option">
 
               <input
@@ -500,11 +570,11 @@
 
 
 <!-- ============================================================
-     MODAL ELIMINAR
+     MODAL DE ESTADO
      ============================================================ -->
 
 <div
-  *ngIf="mostrarConfirmacionEliminar"
+  *ngIf="mostrarConfirmacionEstado"
   class="modal-overlay">
 
   <div class="modal-card">
@@ -516,7 +586,7 @@
       </span>
 
       <h2>
-        Eliminar carrera
+        {{ carreraSeleccionada?.activo ? 'Deshabilitar carrera' : 'Habilitar carrera' }}
       </h2>
 
     </div>
@@ -526,17 +596,17 @@
 
       <p>
 
-        ¿Querés eliminar la carrera
+        ¿Querés {{ carreraSeleccionada?.activo ? 'deshabilitar' : 'habilitar' }} la carrera
 
         <strong>
-          "{{ carreraAEliminar?.nombre }}"
+          "{{ carreraSeleccionada?.nombre }}"
         </strong>?
 
       </p>
 
 
       <p class="modal-ayuda">
-        La carrera dejará de aparecer como activa en el sistema.
+        La carrera se conservará en el sistema y podrás cambiar su estado nuevamente.
       </p>
 
     </div>
@@ -547,7 +617,8 @@
       <button
         type="button"
         class="modal-btn-cancelar"
-        (click)="cancelarEliminar()">
+        (click)="cancelarCambioEstado()"
+        [disabled]="actualizandoEstado">
 
         Cancelar
 
@@ -557,9 +628,12 @@
       <button
         type="button"
         class="modal-btn-eliminar"
-        (click)="confirmarEliminar()">
-
-        Eliminar
+        [class.modal-btn-habilitar]="!carreraSeleccionada?.activo"
+        (click)="confirmarCambioEstado()"
+        [disabled]="actualizandoEstado">
+        {{ actualizandoEstado
+          ? 'Actualizando...'
+          : (carreraSeleccionada?.activo ? 'Deshabilitar' : 'Habilitar') }}
 
       </button>
 

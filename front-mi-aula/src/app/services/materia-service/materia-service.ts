@@ -10,6 +10,8 @@ export interface Materia {
   codigo: string;
 
   nombre: string;
+
+  activo: boolean;
 }
 
 
@@ -51,6 +53,12 @@ export class MateriaService {
 
     return this.http.get<Materia[]>(
       this.apiUrl
+    );
+  }
+
+  obtenerTodasParaAdministracion(): Observable<Materia[]> {
+    return this.http.get<Materia[]>(
+      `${this.apiUrl}/administracion`
     );
   }
 
@@ -100,16 +108,13 @@ export class MateriaService {
   }
 
 
-  // ============================================================
-  // ELIMINAR
-  // ============================================================
-
-  eliminar(
-    id: number
-  ): Observable<void> {
-
-    return this.http.delete<void>(
-      `${this.apiUrl}/${id}`
+  actualizarEstado(
+    id: number,
+    activo: boolean
+  ): Observable<Materia> {
+    return this.http.patch<Materia>(
+      `${this.apiUrl}/${id}/estado`,
+      { activo }
     );
   }
 }
