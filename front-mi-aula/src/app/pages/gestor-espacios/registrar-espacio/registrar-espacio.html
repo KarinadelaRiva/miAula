@@ -9,12 +9,12 @@
       <div class="form-row">
         <div class="campo">
           <label for="codigo">Código</label>
-          <input id="codigo" type="text" maxlength="6" formControlName="codigo" placeholder="Ej. A101" />
+          <input id="codigo" type="text" maxlength="6" pattern="[A-Za-z0-9]{6}" formControlName="codigo" placeholder="Ej. AULA01" />
           @if (form.get('codigo')?.dirty && form.get('codigo')?.hasError('required')) {
             <span class="error">El código es obligatorio</span>
           }
-          @if (form.get('codigo')?.dirty && form.get('codigo')?.hasError('maxlength')) {
-            <span class="error">El código no puede superar 6 caracteres</span>
+          @if (form.get('codigo')?.dirty && form.get('codigo')?.hasError('pattern')) {
+            <span class="error">El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios</span>
           }
         </div>
 

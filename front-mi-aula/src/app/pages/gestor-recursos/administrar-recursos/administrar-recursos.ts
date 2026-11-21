@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Recurso } from '../../../models/recurso';
 import { RecursoService } from '../../../services/recurso-service/recurso-service';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 @Component({
   selector: 'app-administrar-recursos',
@@ -125,13 +126,18 @@ export class AdministrarRecursos {
 
   guardarEdicion() {
     const recurso = this.recursoEditando();
-    const code = this.codigoEditado.trim();
+    const code = normalizarCodigo(this.codigoEditado);
     const name = this.nombreEditado.trim();
     const description = this.descripcionEditada.trim();
     const quantity = this.cantidadEditada;
 
     if (!recurso || !code || !name || !description || quantity < 0) {
       this.mensaje.set('Completá todos los campos para poder guardar.');
+      return;
+    }
+
+    if (!esCodigoValido(this.codigoEditado)) {
+      this.mensaje.set('El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.');
       return;
     }
 

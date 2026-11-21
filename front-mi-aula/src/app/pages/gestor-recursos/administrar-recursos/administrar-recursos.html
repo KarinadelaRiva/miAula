@@ -48,7 +48,7 @@
             <tr>
               @if (recursoEditando()?.id === recurso.id) {
                 <td><input [(ngModel)]="nombreEditado" aria-label="Editar nombre" /></td>
-                <td><input [(ngModel)]="codigoEditado" aria-label="Editar código" /></td>
+                <td><input [(ngModel)]="codigoEditado" maxlength="6" pattern="[A-Za-z0-9]{6}" aria-label="Editar código" /></td>
                 <td><input [(ngModel)]="descripcionEditada" aria-label="Editar descripción" /></td>
                 <td><input [(ngModel)]="cantidadEditada" type="number" aria-label="Editar cantidad" /></td>
                 <td>

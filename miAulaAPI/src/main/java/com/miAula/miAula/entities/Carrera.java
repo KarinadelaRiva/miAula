@@ -1,6 +1,7 @@
 package com.miAula.miAula.entities;
 
 import com.miAula.miAula.entities.tablas_intermedias.CarreraMateria;
+import com.miAula.miAula.util.CodigoUtils;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -22,7 +23,8 @@ public class Carrera {
     private Long id;
 
     @NotBlank
-    @Size(max = 6)
+    @Size(min = 6, max = 6)
+    @Pattern(regexp = CodigoUtils.PATRON_CANONICO)
     @Column(nullable = false, length = 6)
     private String codigo;
 

@@ -3,6 +3,7 @@ package com.miAula.miAula.service;
 import com.miAula.miAula.dtos.carrera.CarreraCreateDTO;
 import com.miAula.miAula.dtos.carrera.CarreraResponseDTO;
 import com.miAula.miAula.dtos.carrera.CarreraUpdateDTO;
+import com.miAula.miAula.util.CodigoUtils;
 import com.miAula.miAula.entities.Carrera;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
@@ -27,7 +28,7 @@ public class CarreraService {
 
     public Carrera carreraCreateDTOtoCarrera(CarreraCreateDTO dto) {
         return Carrera.builder()
-                .codigo(dto.getCodigo().trim().toUpperCase())
+                .codigo(CodigoUtils.normalizar(dto.getCodigo()))
                 .nombre(dto.getNombre().trim())
                 .activo(true)
                 .build();
@@ -120,7 +121,7 @@ public class CarreraService {
         Carrera existente = obtenerPorId(id);
 
         String codigoNuevo =
-                dto.getCodigo().trim().toUpperCase();
+                CodigoUtils.normalizar(dto.getCodigo());
 
         Optional<Carrera> carreraConEseCodigo =
                 carreraRepository.findByCodigoIgnoreCase(codigoNuevo);

@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 
 interface Materia {
@@ -141,11 +142,11 @@ export class RegistrarComision implements OnInit {
     this.mensajeError = '';
     this.mensajeExito = '';
 
-    const codigo = this.comision.codigo.trim().toUpperCase();
+    const codigo = normalizarCodigo(this.comision.codigo);
 
-    if (codigo.length !== 6) {
+    if (!esCodigoValido(this.comision.codigo)) {
       this.mensajeError =
-        'El código de la comisión debe tener 6 caracteres.';
+        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.';
 
       return;
     }

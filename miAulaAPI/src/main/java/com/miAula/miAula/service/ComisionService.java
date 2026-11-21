@@ -3,6 +3,7 @@ package com.miAula.miAula.service;
 import com.miAula.miAula.dtos.comision.ComisionCreateDTO;
 import com.miAula.miAula.dtos.comision.ComisionResponseDTO;
 import com.miAula.miAula.dtos.comision.ComisionUpdateDTO;
+import com.miAula.miAula.util.CodigoUtils;
 import com.miAula.miAula.dtos.cronograma.CronogramaComisionDTO;
 import com.miAula.miAula.entities.Comision;
 import com.miAula.miAula.entities.Usuario;
@@ -41,7 +42,7 @@ public class ComisionService {
 
     public Comision comisionCreateDTOtoComision(ComisionCreateDTO dto) {
         return Comision.builder()
-                .codigo(dto.getCodigo().trim().toUpperCase())
+                .codigo(CodigoUtils.normalizar(dto.getCodigo()))
                 .nombre(dto.getNombre().trim())
                 .cantidadEstudiantes(dto.getCantidadEstudiantes())
                 .materia(materiaService.obtenerPorId(dto.getMateriaId()))
@@ -107,7 +108,7 @@ public class ComisionService {
     public Comision actualizarComision(ComisionUpdateDTO dto) {
         Comision existente = obtenerComisionPorId(dto.getId());
         existente.setCantidadEstudiantes(dto.getCantidadEstudiantes());
-        existente.setCodigo(dto.getCodigo().trim().toUpperCase());
+        existente.setCodigo(CodigoUtils.normalizar(dto.getCodigo()));
         existente.setNombre(dto.getNombre().trim());
         existente.setProfesor(usuarioService.obtenerPorId(dto.getProfesorId()));
         existente.setCarrera(carreraService.obtenerPorId(dto.getCarreraId()));

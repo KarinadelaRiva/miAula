@@ -95,7 +95,7 @@ public class EspacioController {
     @Operation(
             summary = "Crear espacio.",
             description = "Permite a administradores crear un nuevo espacio.")
-    public ResponseEntity<Espacio> crearEspacio(@RequestBody EspacioCreateDTO espacio) {
+    public ResponseEntity<Espacio> crearEspacio(@Valid @RequestBody EspacioCreateDTO espacio) {
         System.err.println("CONTROLLER");
         return new ResponseEntity<>(espacioService.guardar(espacio), HttpStatus.CREATED);
     }

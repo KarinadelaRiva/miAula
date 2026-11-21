@@ -4,8 +4,10 @@ import com.miAula.miAula.entities.tablas_intermedias.AtributoEspacio;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import com.miAula.miAula.util.CodigoUtils;
 
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class EspacioUpdateDTO {
 
     @Schema(description = "Código del espacio", example = "AULA01")
     @NotNull(message = "El código del espacio no puede ser nulo")
-    @Size(min = 6, max = 6, message = "El código del espacio debe tener exactamente 6 caracteres")
+    @Pattern(regexp = CodigoUtils.PATRON_ENTRADA, message = "El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios")
     private String codigo;
 
     @Schema(description = "Nombre del espacio físico (aula, laboratorio, etc.)", example = "Aula 101")

@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 import {
   MateriaCreateDTO,
@@ -60,7 +61,7 @@ export class RegistrarMateria {
     this.mensajeError = '';
 
 
-    if (!this.codigo.trim()) {
+    if (!this.codigo) {
 
       this.mensajeError =
         'Ingresá el código de la materia.';
@@ -69,14 +70,10 @@ export class RegistrarMateria {
     }
 
 
-    if (
-      this.codigo
-        .trim()
-        .length > 6
-    ) {
+    if (!esCodigoValido(this.codigo)) {
 
       this.mensajeError =
-        'El código no puede superar los 6 caracteres.';
+        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.';
 
       return;
     }
@@ -106,8 +103,7 @@ export class RegistrarMateria {
 
     const dto: MateriaCreateDTO = {
 
-      codigo:
-        this.codigo.trim(),
+      codigo: normalizarCodigo(this.codigo),
 
       nombre:
         this.nombre.trim()

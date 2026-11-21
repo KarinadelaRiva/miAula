@@ -3,6 +3,7 @@ package com.miAula.miAula.service;
 import java.util.List;
 
 import com.miAula.miAula.dtos.espacio.EspacioUpdateDTO;
+import com.miAula.miAula.util.CodigoUtils;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ public class EspacioService {
 
     private static Espacio espacioCreateDtoToEspacio(EspacioCreateDTO dto) {
         return Espacio.builder()
-            .codigo(dto.getCodigo())
+            .codigo(CodigoUtils.normalizar(dto.getCodigo()))
             .nombre(dto.getNombre())
             .capacidad(dto.getCapacidad())
             .nroPiso(dto.getNroPiso())
@@ -107,8 +108,9 @@ public class EspacioService {
 
     public Espacio actualizar(EspacioUpdateDTO nuevoEspacio) {
         Espacio existente = obtenerPorId(nuevoEspacio.getId());
+        String codigo = CodigoUtils.normalizar(nuevoEspacio.getCodigo());
 
-        if (!existente.getCodigo().equals(nuevoEspacio.getCodigo()) && espacioRepository.existsByCodigo(nuevoEspacio.getCodigo())) {
+        if (!existente.getCodigo().equals(codigo) && espacioRepository.existsByCodigo(codigo)) {
             throw new ResourceConflictException("Ya existe otro espacio con ese código");
         }
 
@@ -120,7 +122,7 @@ public class EspacioService {
             throw new IllegalArgumentException("La capacidad debe ser mayor a 0");
         }
 
-        existente.setCodigo(nuevoEspacio.getCodigo());
+        existente.setCodigo(codigo);
         existente.setNombre(nuevoEspacio.getNombre());
         existente.setCapacidad(nuevoEspacio.getCapacidad());
         existente.setNroPiso(nuevoEspacio.getNroPiso());

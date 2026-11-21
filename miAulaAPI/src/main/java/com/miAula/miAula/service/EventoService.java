@@ -3,6 +3,7 @@ package com.miAula.miAula.service;
 import com.miAula.miAula.dtos.evento.EventoCreateDTO;
 import com.miAula.miAula.dtos.evento.EventoResponseDTO;
 import com.miAula.miAula.dtos.evento.EventoUpdateDTO;
+import com.miAula.miAula.util.CodigoUtils;
 import com.miAula.miAula.entities.Evento;
 import com.miAula.miAula.entities.Usuario;
 import com.miAula.miAula.exceptions.EntityValidationException;
@@ -167,7 +168,7 @@ public class EventoService {
     ) {
 
         String codigo =
-                dto.getCodigo().trim();
+                CodigoUtils.normalizar(dto.getCodigo());
 
 
         // Validamos código único
@@ -240,7 +241,7 @@ public class EventoService {
 
 
         String codigoNuevo =
-                dto.getCodigo().trim();
+                CodigoUtils.normalizar(dto.getCodigo());
 
 
         /*

@@ -4,6 +4,7 @@ import com.miAula.miAula.dtos.recurso.RecursoCreateDTO;
 import com.miAula.miAula.dtos.recurso.RecursoDisponibilidadDTO;
 import com.miAula.miAula.dtos.recurso.RecursoResponseDTO;
 import com.miAula.miAula.dtos.recurso.RecursoUpdateDTO;
+import com.miAula.miAula.util.CodigoUtils;
 import com.miAula.miAula.dtos.solicitud.RecursoSolicitadoDTO;
 import com.miAula.miAula.entities.Recurso;
 import com.miAula.miAula.entities.Reserva;
@@ -60,7 +61,7 @@ public class RecursoService {
 
     private static Recurso recursoCreateDTOToRecurso(RecursoCreateDTO dto) {
         return Recurso.builder()
-                .codigo(dto.getCodigo())
+                .codigo(CodigoUtils.normalizar(dto.getCodigo()))
                 .nombre(dto.getNombre())
                 .descripcion(dto.getDescripcion())
                 .cantidad(dto.getCantidad())
@@ -103,7 +104,8 @@ public class RecursoService {
     }
 
     public Recurso guardar(RecursoCreateDTO recursoDTO) {
-        if (recursoRepository.existsByCodigo(recursoDTO.getCodigo())) {
+        String codigo = CodigoUtils.normalizar(recursoDTO.getCodigo());
+        if (recursoRepository.existsByCodigo(codigo)) {
             throw new ResourceConflictException("Ya existe un recurso con ese código");
         }
 
@@ -117,8 +119,9 @@ public class RecursoService {
     public Recurso actualizar(RecursoUpdateDTO nuevoRecurso) {
         Recurso existente = obtenerPorId(nuevoRecurso.getId());
 
-        if (!existente.getCodigo().equals(nuevoRecurso.getCodigo())
-                && recursoRepository.existsByCodigo(nuevoRecurso.getCodigo())) {
+        String codigo = CodigoUtils.normalizar(nuevoRecurso.getCodigo());
+        if (!existente.getCodigo().equals(codigo)
+                && recursoRepository.existsByCodigo(codigo)) {
             throw new ResourceConflictException("Ya existe otro recurso con ese código");
         }
 
@@ -127,7 +130,7 @@ public class RecursoService {
             throw new ResourceConflictException("Ya existe otro recurso con ese nombre");
         }
 
-        existente.setCodigo(nuevoRecurso.getCodigo());
+        existente.setCodigo(codigo);
         existente.setNombre(nuevoRecurso.getNombre());
         existente.setDescripcion(nuevoRecurso.getDescripcion());
         existente.setCantidad(nuevoRecurso.getCantidad());

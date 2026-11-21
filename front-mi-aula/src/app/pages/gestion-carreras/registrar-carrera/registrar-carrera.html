@@ -30,7 +30,8 @@
           type="text"
           name="codigo"
           [(ngModel)]="codigo"
-          placeholder="Ej: TUP"
+          pattern="[A-Za-z0-9]{6}"
+          placeholder="Ej: TUP001"
           maxlength="6"
           required>
 

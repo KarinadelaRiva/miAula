@@ -15,6 +15,7 @@ import {
 
 import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 import { Usuario } from '../../../models/usuario';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 
 @Component({
@@ -298,11 +299,10 @@ export class RegistrarEvento implements OnInit {
     // VALIDAR CÓDIGO
     // ==========================================================
 
-    const codigoLimpio =
-      this.codigo.trim();
+    const codigoLimpio = normalizarCodigo(this.codigo);
 
 
-    if (!codigoLimpio) {
+    if (!this.codigo) {
 
       this.mensajeError =
         'Ingresá el código del evento.';
@@ -311,10 +311,10 @@ export class RegistrarEvento implements OnInit {
     }
 
 
-    if (codigoLimpio.length > 6) {
+    if (!esCodigoValido(this.codigo)) {
 
       this.mensajeError =
-        'El código no puede superar los 6 caracteres.';
+        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.';
 
       return;
     }

@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 import {
   Materia,
@@ -225,7 +226,7 @@ export class AdministrarMaterias implements OnInit {
     }
 
 
-    if (!this.editCodigo.trim()) {
+    if (!this.editCodigo) {
 
       this.mensajeError =
         'Ingresá el código de la materia.';
@@ -234,14 +235,10 @@ export class AdministrarMaterias implements OnInit {
     }
 
 
-    if (
-      this.editCodigo
-        .trim()
-        .length > 6
-    ) {
+    if (!esCodigoValido(this.editCodigo)) {
 
       this.mensajeError =
-        'El código no puede superar los 6 caracteres.';
+        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.';
 
       return;
     }
@@ -271,8 +268,7 @@ export class AdministrarMaterias implements OnInit {
 
     const dto: MateriaUpdateDTO = {
 
-      codigo:
-        this.editCodigo.trim(),
+      codigo: normalizarCodigo(this.editCodigo),
 
       nombre:
         this.editNombre.trim()

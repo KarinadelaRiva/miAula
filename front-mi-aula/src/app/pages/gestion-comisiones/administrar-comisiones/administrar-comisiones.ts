@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 interface Comision {
   id: number;
@@ -215,7 +216,7 @@ export class AdministrarComisiones implements OnInit {
     if (
       !this.comisionEditando.nombre.trim()
       ||
-      !this.comisionEditando.codigo.trim()
+      !this.comisionEditando.codigo
       ||
       !this.comisionEditando.cantidadEstudiantes
       ||
@@ -230,9 +231,15 @@ export class AdministrarComisiones implements OnInit {
       return;
     }
 
+    if (!esCodigoValido(this.comisionEditando.codigo)) {
+      this.mensaje =
+        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.';
+      return;
+    }
+
     const comisionActualizada = {
       id: this.comisionEditando.id,
-      codigo: this.comisionEditando.codigo,
+      codigo: normalizarCodigo(this.comisionEditando.codigo),
       nombre: this.comisionEditando.nombre,
       carreraId: this.comisionEditando.carreraId,
       profesorId: this.comisionEditando.profesorId,

@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { EspacioCreateDto } from '../../../models/espacioCreateDto';
 import { EspacioService } from '../../../services/espacio-service/espacio-service';
+import { CODIGO_PATTERN, normalizarCodigo } from '../../../shared/codigo';
 
 @Component({
   selector: 'app-registrar-espacio',
@@ -18,7 +19,7 @@ export class RegistrarEspacio {
   exito = signal('');
 
   form = this.fb.group({
-    codigo: ['', [Validators.required, Validators.maxLength(6)]],
+    codigo: ['', [Validators.required, Validators.pattern(CODIGO_PATTERN)]],
     nombre: ['', [Validators.required, Validators.maxLength(50)]],
     capacidad: [null as number | null, [Validators.required, Validators.min(1)]],
     nroPiso: [null as number | null, [Validators.required]],
@@ -35,7 +36,7 @@ export class RegistrarEspacio {
 
     const value = this.form.getRawValue();
     const payload: EspacioCreateDto = {
-      codigo: (value.codigo || '').trim().toUpperCase(),
+      codigo: normalizarCodigo(value.codigo || ''),
       nombre: (value.nombre || '').trim(),
       capacidad: Number(value.capacidad),
       nroPiso: Number(value.nroPiso),

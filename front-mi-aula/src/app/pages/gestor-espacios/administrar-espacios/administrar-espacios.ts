@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Espacio } from '../../../models/espacio';
 import { EspacioService } from '../../../services/espacio-service/espacio-service';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 @Component({
   selector: 'app-administrar-espacios',
@@ -141,7 +142,7 @@ export class AdministrarEspacios {
 
   guardarEdicion() {
     const espacio = this.espacioEditando();
-    const codigo = this.codigoEditado.trim();
+    const codigo = normalizarCodigo(this.codigoEditado);
     const nombre = this.nombreEditado.trim();
     const capacidad = this.capacidadEditado;
     const nroPiso = this.pisoEditado;
@@ -161,6 +162,11 @@ export class AdministrarEspacios {
           ? 'La capacidad debe ser como mínimo 1.'
           : 'Completá todos los campos para poder guardar.'
       );
+      return;
+    }
+
+    if (!esCodigoValido(this.codigoEditado)) {
+      this.mensaje.set('El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.');
       return;
     }
 

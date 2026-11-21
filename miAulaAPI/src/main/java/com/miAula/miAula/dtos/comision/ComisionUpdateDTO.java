@@ -5,7 +5,9 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import com.miAula.miAula.util.CodigoUtils;
 import lombok.*;
 
 @Data
@@ -20,7 +22,7 @@ public class ComisionUpdateDTO {
 
     @Schema(description = "Código de la comisión", example = "COM001")
     @NotBlank(message = "El código de la comisión no puede estar vacío")
-    @Size(min = 6, max = 6, message = "El código de la comisión debe tener 6 caracteres")
+    @Pattern(regexp = CodigoUtils.PATRON_ENTRADA, message = "El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios")
     private String codigo;
 
     @Schema(description = "Nombre de la comisión", example = "Comisión A")

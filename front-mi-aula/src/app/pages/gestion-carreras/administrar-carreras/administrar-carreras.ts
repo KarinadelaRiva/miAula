@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 import {
   forkJoin,
@@ -226,17 +227,14 @@ export class AdministrarCarreras implements OnInit {
       return;
     }
 
-    const codigoLimpio =
-      this.codigoEditado
-        .trim()
-        .toUpperCase();
+    const codigoLimpio = normalizarCodigo(this.codigoEditado);
 
     const nombreLimpio =
       this.nombreEditado
         .trim();
 
 
-    if (!codigoLimpio) {
+    if (!this.codigoEditado) {
 
       this.mensaje =
         'Ingresá un código para la carrera.';
@@ -245,10 +243,10 @@ export class AdministrarCarreras implements OnInit {
     }
 
 
-    if (codigoLimpio.length > 6) {
+    if (!esCodigoValido(this.codigoEditado)) {
 
       this.mensaje =
-        'El código no puede superar los 6 caracteres.';
+        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.';
 
       return;
     }

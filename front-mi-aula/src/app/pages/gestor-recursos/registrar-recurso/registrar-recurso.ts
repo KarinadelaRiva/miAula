@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { RecursoCreateDto } from '../../../models/recursoCreateDto';
 import { RecursoService } from '../../../services/recurso-service/recurso-service';
+import { CODIGO_PATTERN, normalizarCodigo } from '../../../shared/codigo';
 
 @Component({
   selector: 'app-registrar-recurso',
@@ -19,7 +20,7 @@ export class RegistrarRecurso {
   exito = signal('');
 
   form = this.fb.group({
-    code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+    code: ['', [Validators.required, Validators.pattern(CODIGO_PATTERN)]],
     name: ['', [Validators.required, Validators.maxLength(30)]],
     description: ['', [Validators.required, Validators.maxLength(250)]],
     quantity: [null as number | null, [Validators.required, Validators.min(0)]],
@@ -36,7 +37,7 @@ export class RegistrarRecurso {
 
     const value = this.form.getRawValue();
     const payload: RecursoCreateDto = {
-      code: (value.code || '').trim().toUpperCase(),
+      code: normalizarCodigo(value.code || ''),
       name: (value.name || '').trim(),
       description: (value.description || '').trim(),
       quantity: Number(value.quantity),

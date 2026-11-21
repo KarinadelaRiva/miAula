@@ -3,6 +3,7 @@ package com.miAula.miAula.service;
 import com.miAula.miAula.dtos.materia.MateriaCreateDTO;
 import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
 import com.miAula.miAula.dtos.materia.MateriaUpdateDTO;
+import com.miAula.miAula.util.CodigoUtils;
 import com.miAula.miAula.entities.Materia;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
@@ -23,7 +24,7 @@ public class MateriaService {
 
     public Materia materiaCreateDTOtoMateria(MateriaCreateDTO dto) {
         return Materia.builder()
-                .codigo(dto.getCodigo().trim().toUpperCase())
+                .codigo(CodigoUtils.normalizar(dto.getCodigo()))
                 .nombre(dto.getNombre().trim())
                 .activo(true)
                 .build();
@@ -94,7 +95,7 @@ public class MateriaService {
         Materia existente = obtenerPorId(id);
 
         String codigoNuevo =
-                dto.getCodigo().trim().toUpperCase();
+                CodigoUtils.normalizar(dto.getCodigo());
 
         Optional<Materia> materiaConEseCodigo =
                 materiaRepository.findByCodigoIgnoreCase(codigoNuevo);

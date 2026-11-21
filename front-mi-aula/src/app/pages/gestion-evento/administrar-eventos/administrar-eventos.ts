@@ -21,6 +21,7 @@ import {
 import {
   Usuario
 } from '../../../models/usuario';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 
 @Component({
@@ -761,9 +762,7 @@ export class AdministrarEventos implements OnInit {
     }
 
 
-    if (
-      !this.editCodigo.trim()
-    ) {
+    if (!this.editCodigo) {
 
       this.mensajeError =
         'Ingresá el código del evento.';
@@ -772,14 +771,10 @@ export class AdministrarEventos implements OnInit {
     }
 
 
-    if (
-      this.editCodigo
-        .trim()
-        .length > 6
-    ) {
+    if (!esCodigoValido(this.editCodigo)) {
 
       this.mensajeError =
-        'El código no puede superar los 6 caracteres.';
+        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.';
 
       return;
     }
@@ -855,7 +850,7 @@ export class AdministrarEventos implements OnInit {
         this.eventoEditando.id,
 
       codigo:
-        this.editCodigo.trim(),
+        normalizarCodigo(this.editCodigo),
 
       nombre:
         this.editNombre.trim(),

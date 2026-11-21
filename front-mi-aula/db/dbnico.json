@@ -2,7 +2,7 @@
   "espacios": [
     {
       "id": "1",
-      "code": "A101",
+      "code": "A00101",
       "name": "Aula 101",
       "capacity": 42,
       "floor_number": 1,
@@ -10,7 +10,7 @@
     },
     {
       "id": "2",
-      "code": "A102",
+      "code": "A00102",
       "name": "Aula 102",
       "capacity": 35,
       "floor_number": 1,
@@ -18,7 +18,7 @@
     },
     {
       "id": "3",
-      "code": "A103",
+      "code": "A00103",
       "name": "Aula 103",
       "capacity": 45,
       "floor_number": 1,
@@ -26,7 +26,7 @@
     },
     {
       "id": "4",
-      "code": "A201",
+      "code": "A00201",
       "name": "Aula 201",
       "capacity": 50,
       "floor_number": 2,
@@ -34,7 +34,7 @@
     },
     {
       "id": "5",
-      "code": "A202",
+      "code": "A00202",
       "name": "Aula 202",
       "capacity": 30,
       "floor_number": 2,
@@ -42,7 +42,7 @@
     },
     {
       "id": "6",
-      "code": "A203",
+      "code": "A00203",
       "name": "Aula 203",
       "capacity": 38,
       "floor_number": 2,
@@ -58,7 +58,7 @@
     },
     {
       "id": "8",
-      "code": "LI001",
+      "code": "LI0001",
       "name": "Lab Informática 1",
       "capacity": 25,
       "floor_number": 1,
@@ -66,7 +66,7 @@
     },
     {
       "id": "9",
-      "code": "LI002",
+      "code": "LI0002",
       "name": "Lab Informática 2",
       "capacity": 30,
       "floor_number": 1,
@@ -74,7 +74,7 @@
     },
     {
       "id": "10",
-      "code": "LI003",
+      "code": "LI0003",
       "name": "Lab Informática 3",
       "capacity": 50,
       "floor_number": 1,
@@ -98,7 +98,7 @@
     },
     {
       "id": "13",
-      "code": "SCONF",
+      "code": "SCONF0",
       "name": "Sala de Conferencias",
       "capacity": 25,
       "floor_number": 1,
@@ -122,7 +122,7 @@
     },
     {
       "id": "cf80",
-      "code": "A999",
+      "code": "A00999",
       "name": "Nueva Aula",
       "capacity": 2,
       "floor_number": 1,
@@ -130,7 +130,7 @@
     },
     {
       "id": "6959",
-      "codigo": "999",
+      "codigo": "000999",
       "nombre": "test backend",
       "capacidad": 33,
       "nroPiso": 3
@@ -139,91 +139,91 @@
   "asignaturas": [
     {
       "id": "1",
-      "codigo": 101,
+      "codigo": "000101",
       "nombre_asignatura": "Programación 1",
       "requiere_laboratorio": 1
     },
     {
       "id": "2",
-      "codigo": 102,
+      "codigo": "000102",
       "nombre_asignatura": "Bases de Datos",
       "requiere_laboratorio": 1
     },
     {
       "id": "3",
-      "codigo": 103,
+      "codigo": "000103",
       "nombre_asignatura": "Matemática Discreta",
       "requiere_laboratorio": 0
     },
     {
       "id": "4",
-      "codigo": 201,
+      "codigo": "000201",
       "nombre_asignatura": "Programación 2",
       "requiere_laboratorio": 1
     },
     {
       "id": "5",
-      "codigo": 202,
+      "codigo": "000202",
       "nombre_asignatura": "Estructuras de Datos",
       "requiere_laboratorio": 1
     },
     {
       "id": "6",
-      "codigo": 203,
+      "codigo": "000203",
       "nombre_asignatura": "Algoritmos",
       "requiere_laboratorio": 0
     },
     {
       "id": "7",
-      "codigo": 301,
+      "codigo": "000301",
       "nombre_asignatura": "Ingeniería de Software",
       "requiere_laboratorio": 0
     },
     {
       "id": "8",
-      "codigo": 302,
+      "codigo": "000302",
       "nombre_asignatura": "Redes de Computadoras",
       "requiere_laboratorio": 1
     },
     {
       "id": "9",
-      "codigo": 303,
+      "codigo": "000303",
       "nombre_asignatura": "Sistemas Operativos",
       "requiere_laboratorio": 1
     },
     {
       "id": "10",
-      "codigo": 104,
+      "codigo": "000104",
       "nombre_asignatura": "Álgebra Lineal",
       "requiere_laboratorio": 0
     },
     {
       "id": "11",
-      "codigo": 105,
+      "codigo": "000105",
       "nombre_asignatura": "Cálculo 1",
       "requiere_laboratorio": 0
     },
     {
       "id": "12",
-      "codigo": 106,
+      "codigo": "000106",
       "nombre_asignatura": "Física 1",
       "requiere_laboratorio": 1
     },
     {
       "id": "13",
-      "codigo": 304,
+      "codigo": "000304",
       "nombre_asignatura": "Inteligencia Artificial",
       "requiere_laboratorio": 1
     },
     {
       "id": "14",
-      "codigo": 305,
+      "codigo": "000305",
       "nombre_asignatura": "Desarrollo Web",
       "requiere_laboratorio": 1
     },
     {
       "id": "15",
-      "codigo": 306,
+      "codigo": "000306",
       "nombre_asignatura": "Seguridad Informática",
       "requiere_laboratorio": 0
     }
@@ -1578,7 +1578,7 @@
   "recursos": [
     {
       "id": "1",
-      "code": "PRJ01",
+      "code": "PRJ001",
       "name": "Proyector",
       "description": "Proyector multimedia portátil para aulas.",
       "quantity": 7,
@@ -1586,7 +1586,7 @@
     },
     {
       "id": "2",
-      "code": "PC01",
+      "code": "PC0001",
       "name": "Computadora",
       "description": "Computadora de laboratorio con hardware actualizado.",
       "quantity": 20,
@@ -1594,7 +1594,7 @@
     },
     {
       "id": "3",
-      "code": "TAB01",
+      "code": "TAB001",
       "name": "Tablet",
       "description": "Tablets para actividades prácticas y evaluaciones.",
       "quantity": 12,
@@ -1602,7 +1602,7 @@
     },
     {
       "id": "4",
-      "code": "MIC01",
+      "code": "MIC001",
       "name": "Micrófono",
       "description": "Micrófono inalámbrico para clases y conferencias.",
       "quantity": 6,
@@ -1610,7 +1610,7 @@
     },
     {
       "id": "5",
-      "code": "CAM01",
+      "code": "CAM001",
       "name": "Cámara",
       "description": "Cámara web para grabaciones y videollamadas.",
       "quantity": 3,
@@ -1618,7 +1618,7 @@
     },
     {
       "id": "36e0",
-      "code": "EJEMPLO",
+      "code": "EJEMP1",
       "name": "recurso",
       "description": "hfghfghf",
       "quantity": 45,

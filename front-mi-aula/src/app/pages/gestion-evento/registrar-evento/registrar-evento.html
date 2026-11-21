@@ -71,8 +71,9 @@
           type="text"
           [(ngModel)]="codigo"
           maxlength="6"
+          pattern="[A-Za-z0-9]{6}"
           required
-          placeholder="Ej: EV001">
+          placeholder="Ej: EV0001">
 
         <small>
           Máximo 6 caracteres.

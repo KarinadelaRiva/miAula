@@ -4,6 +4,7 @@ import com.miAula.miAula.entities.tablas_intermedias.AtributoEspacio;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import com.miAula.miAula.util.CodigoUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,8 @@ public class Espacio {
     private Long id;
 
     @NotBlank
-    @Size(max = 6)
+    @Size(min = 6, max = 6)
+    @Pattern(regexp = CodigoUtils.PATRON_CANONICO)
     @Column(nullable = false, length = 6)
     private String codigo;
 

@@ -48,7 +48,7 @@
             <tr>
             @if (espacioEditando()?.id === espacio.id) {
 
-              <td class="edicion-datos"><input [(ngModel)]="codigoEditado" aria-label="Editar código" /></td>
+              <td class="edicion-datos"><input [(ngModel)]="codigoEditado" maxlength="6" pattern="[A-Za-z0-9]{6}" aria-label="Editar código" /></td>
               <td><input [(ngModel)]="nombreEditado" aria-label="Editar nombre" /></td>
               <td><input [(ngModel)]="capacidadEditado" type="number" min="1" aria-label="Editar capacidad" /></td>
               <td><input [(ngModel)]="pisoEditado" type="number" aria-label="Editar piso" /></td>

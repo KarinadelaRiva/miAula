@@ -139,91 +139,91 @@
   "asignaturas": [
     {
       "id": "1",
-      "codigo": 101,
+      "codigo": "000101",
       "nombre_asignatura": "Programación 1",
       "requiere_laboratorio": 1
     },
     {
       "id": "2",
-      "codigo": 102,
+      "codigo": "000102",
       "nombre_asignatura": "Bases de Datos",
       "requiere_laboratorio": 1
     },
     {
       "id": "3",
-      "codigo": 103,
+      "codigo": "000103",
       "nombre_asignatura": "Matemática Discreta",
       "requiere_laboratorio": 0
     },
     {
       "id": "4",
-      "codigo": 201,
+      "codigo": "000201",
       "nombre_asignatura": "Programación 2",
       "requiere_laboratorio": 1
     },
     {
       "id": "5",
-      "codigo": 202,
+      "codigo": "000202",
       "nombre_asignatura": "Estructuras de Datos",
       "requiere_laboratorio": 1
     },
     {
       "id": "6",
-      "codigo": 203,
+      "codigo": "000203",
       "nombre_asignatura": "Algoritmos",
       "requiere_laboratorio": 0
     },
     {
       "id": "7",
-      "codigo": 301,
+      "codigo": "000301",
       "nombre_asignatura": "Ingeniería de Software",
       "requiere_laboratorio": 0
     },
     {
       "id": "8",
-      "codigo": 302,
+      "codigo": "000302",
       "nombre_asignatura": "Redes de Computadoras",
       "requiere_laboratorio": 1
     },
     {
       "id": "9",
-      "codigo": 303,
+      "codigo": "000303",
       "nombre_asignatura": "Sistemas Operativos",
       "requiere_laboratorio": 1
     },
     {
       "id": "10",
-      "codigo": 104,
+      "codigo": "000104",
       "nombre_asignatura": "Álgebra Lineal",
       "requiere_laboratorio": 0
     },
     {
       "id": "11",
-      "codigo": 105,
+      "codigo": "000105",
       "nombre_asignatura": "Cálculo 1",
       "requiere_laboratorio": 0
     },
     {
       "id": "12",
-      "codigo": 106,
+      "codigo": "000106",
       "nombre_asignatura": "Física 1",
       "requiere_laboratorio": 1
     },
     {
       "id": "13",
-      "codigo": 304,
+      "codigo": "000304",
       "nombre_asignatura": "Inteligencia Artificial",
       "requiere_laboratorio": 1
     },
     {
       "id": "14",
-      "codigo": 305,
+      "codigo": "000305",
       "nombre_asignatura": "Desarrollo Web",
       "requiere_laboratorio": 1
     },
     {
       "id": "15",
-      "codigo": 306,
+      "codigo": "000306",
       "nombre_asignatura": "Seguridad Informática",
       "requiere_laboratorio": 0
     }

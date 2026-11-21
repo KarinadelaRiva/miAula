@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 @Component({
   selector: 'app-registrar-carrera',
@@ -33,16 +34,13 @@ export class RegistrarCarrera {
     this.mensajeError = '';
     this.mensajeExito = '';
 
-    const codigoLimpio =
-      this.codigo
-        .trim()
-        .toUpperCase();
+    const codigoLimpio = normalizarCodigo(this.codigo);
 
     const nombreLimpio =
       this.nombre
         .trim();
 
-    if (!codigoLimpio) {
+    if (!this.codigo) {
 
       this.mensajeError =
         'Ingresá el código de la carrera.';
@@ -50,10 +48,10 @@ export class RegistrarCarrera {
       return;
     }
 
-    if (codigoLimpio.length > 6) {
+    if (!esCodigoValido(this.codigo)) {
 
       this.mensajeError =
-        'El código de la carrera no puede superar los 6 caracteres.';
+        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.';
 
       return;
     }
