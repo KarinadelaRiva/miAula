@@ -169,6 +169,13 @@ textarea { resize: vertical; min-height: 84px; }
 .gestion-header h1 { margin: 0; font-size: 1.5rem; }
 .gestion-header p { margin: 0.35rem 0 0; opacity: 0.86; }
 
+.gestion-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-agenda,
 .btn-volver {
   padding: 0.55rem 0.8rem;
   border: 1px solid rgba(255, 255, 255, 0.45);
@@ -180,6 +187,11 @@ textarea { resize: vertical; min-height: 84px; }
   cursor: pointer;
 }
 
+.btn-agenda {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.btn-agenda:hover,
 .btn-volver:hover { background: rgba(255, 255, 255, 0.28); }
 
 .nueva-card {
@@ -241,7 +253,8 @@ input:focus, select:focus, textarea:focus {
 
 @media (max-width: 720px) {
   .gestion-header { align-items: flex-start; flex-direction: column; }
-  .btn-volver { width: 100%; }
+  .gestion-header-actions { width: 100%; }
+  .gestion-header-actions button { flex: 1; }
   .nueva-card { padding: 0.9rem; }
   .form-row { grid-template-columns: 1fr; }
   .acciones { align-items: stretch; flex-direction: column; }
@@ -250,4 +263,108 @@ input:focus, select:focus, textarea:focus {
 
 @media (max-width: 420px) {
   .gestion-container { padding: 0.75rem; }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 35, 60, 0.55);
+  font-family: var(--font-sans, Arial, sans-serif);
+}
+
+.modal-card {
+  width: min(100%, 520px);
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #c8d7e8;
+  border-radius: 8px;
+  box-shadow: 0 14px 40px rgba(15, 50, 90, 0.25);
+}
+
+.modal-header {
+  padding: 1rem 1.1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #133e87, #608bc1);
+}
+
+.modal-eyebrow {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.modal-body {
+  padding: 1.1rem;
+}
+
+.modal-body p {
+  margin: 0;
+  color: #213547;
+  line-height: 1.5;
+}
+
+.modal-body strong {
+  color: #133e87;
+}
+
+.modal-ayuda {
+  margin-top: 0.75rem !important;
+  color: #52677d !important;
+  font-size: 0.85rem;
+}
+
+.modal-acciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem 1.1rem 1.1rem;
+  border-top: 1px solid #d8e3ef;
+  background: #f8fbff;
+}
+
+.modal-acciones button {
+  padding: 0.55rem 0.8rem;
+  border-radius: 4px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modal-btn-cancelar {
+  border: 1px solid #b8c8d9;
+  color: #52677d;
+  background: #fff;
+}
+
+.modal-btn-confirmar {
+  border: 0;
+  color: #fff;
+  background: #2563a6;
+}
+
+.modal-acciones button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 520px) {
+  .modal-acciones {
+    flex-direction: column-reverse;
+  }
+
+  .modal-acciones button {
+    width: 100%;
+  }
 }

@@ -6,7 +6,12 @@
         <h1>Nueva reserva</h1>
         <p>Completá los datos para crear una reserva directamente.</p>
       </div>
-      <button type="button" class="btn-volver" (click)="cancelar()">← Volver</button>
+      <div class="gestion-header-actions">
+        <button type="button" class="btn-agenda" (click)="abrirAgendaPublica()">
+          Ver agenda
+        </button>
+        <button type="button" class="btn-volver" (click)="cancelar()">← Volver</button>
+      </div>
     </section>
 
     <section class="nueva-card">
@@ -213,3 +218,53 @@
     </section>
   </div>
 </main>
+
+<div
+  *ngIf="mostrarConfirmacion"
+  class="modal-overlay"
+  (click)="cancelarConfirmacion()"
+>
+  <section
+    class="modal-card"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirmacion-reserva-titulo"
+    aria-describedby="confirmacion-reserva-mensaje"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="modal-header">
+      <span class="modal-eyebrow">Gestión de reservas</span>
+      <h2 id="confirmacion-reserva-titulo">Confirmar creación de reserva</h2>
+    </header>
+
+    <div class="modal-body">
+      <p>
+        ¿Querés crear esta reserva?
+      </p>
+      <p id="confirmacion-reserva-mensaje" class="modal-ayuda">
+        Verificá que todos los datos sean correctos antes de continuar. Una vez creada, la reserva
+        no se puede modificar. Si detectás un error después de crearla, deberás finalizarla y crear
+        una nueva.
+      </p>
+    </div>
+
+    <footer class="modal-acciones">
+      <button
+        type="button"
+        class="modal-btn-cancelar"
+        [disabled]="loading"
+        (click)="cancelarConfirmacion()"
+      >
+        Volver a revisar
+      </button>
+      <button
+        type="button"
+        class="modal-btn-confirmar"
+        [disabled]="loading"
+        (click)="confirmarCreacion()"
+      >
+        {{ loading ? 'Creando reserva...' : 'Confirmar y crear' }}
+      </button>
+    </footer>
+  </section>
+</div>

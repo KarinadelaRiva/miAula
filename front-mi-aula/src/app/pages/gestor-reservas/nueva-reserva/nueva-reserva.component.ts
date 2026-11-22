@@ -38,6 +38,7 @@ export class NuevaReservaComponent implements OnInit {
   comisiones: Comision[] = [];
   espacios: Espacio[] = [];
   loading = false;
+  mostrarConfirmacion = false;
   error: string | null = null;
   fechaMinima = '';
   fechaFinMinima = '';
@@ -200,6 +201,21 @@ export class NuevaReservaComponent implements OnInit {
       return;
     }
 
+    this.mostrarConfirmacion = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelarConfirmacion(): void {
+    if (!this.loading) {
+      this.mostrarConfirmacion = false;
+    }
+  }
+
+  confirmarCreacion(): void {
+    if (this.loading || this.form.invalid) {
+      return;
+    }
+
     const form = this.form.getRawValue();
     const reserva: ReservaDirectaCreateRequest = {
       profesorId: Number(form.profesor_id),
@@ -218,11 +234,13 @@ export class NuevaReservaComponent implements OnInit {
     this.reservaService.crearReservaDirecta(reserva).subscribe({
       next: () => {
         this.loading = false;
+        this.mostrarConfirmacion = false;
         this.cdr.markForCheck();
         this.router.navigate(['/reservas-todas']);
       },
       error: err => {
         this.loading = false;
+        this.mostrarConfirmacion = false;
         this.error = this.mensajeError(err);
         this.cdr.markForCheck();
       }
@@ -256,5 +274,13 @@ export class NuevaReservaComponent implements OnInit {
 
   cancelar(): void {
     this.router.navigate(['/reservas-todas']);
+  }
+
+  abrirAgendaPublica(): void {
+    window.open(
+      `${window.location.origin}/agenda`,
+      '_blank',
+      'noopener,noreferrer'
+    );
   }
 }
