@@ -35,9 +35,10 @@
       <div class="form-row">
         <div class="campo">
           <label for="password">Contraseña</label>
-          <input formControlName="password" id="password" type="password" maxlength="255" placeholder="Mínimo 6 caracteres">
-          @if (form.get('password')?.dirty && form.get('password')?.hasError('minlength')) {
-            <span class="error">La contraseña debe tener al menos 6 caracteres</span>
+          <input formControlName="password" id="password" type="password" maxlength="255" placeholder="Mínimo 8 caracteres">
+          <small class="password-hint">Incluí una mayúscula, una minúscula, un número y un carácter especial.</small>
+          @if (form.get('password')?.dirty && (form.get('password')?.hasError('minlength') || form.get('password')?.hasError('pattern'))) {
+            <span class="error">Usá al menos 8 caracteres e incluí una mayúscula, una minúscula, un número y un carácter especial.</span>
           }
         </div>
 

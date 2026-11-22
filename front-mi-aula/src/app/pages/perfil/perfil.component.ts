@@ -15,6 +15,7 @@ import { UsuarioResponseDto } from '../../models/usuarioResponseDto';
 import { UsuarioService } from '../../services/usuario-service/usuario-service';
 import { EMPTY, Observable, switchMap, tap } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { PASSWORD_PATTERN } from '../../auth/service/auth-service';
 
 @Component({
   selector: 'app-perfil',
@@ -60,7 +61,10 @@ export class PerfilComponent implements OnInit {
 
   formPassword = this.fb.group({
     passwordActual: ['', [Validators.required]],
-    passwordNuevo: ['', [Validators.required, Validators.minLength(6)]],
+    passwordNuevo: [
+      '',
+      [Validators.required, Validators.minLength(8), Validators.maxLength(255), Validators.pattern(PASSWORD_PATTERN)],
+    ],
     passwordConfirmar: ['', [Validators.required]],
   }, { validators: this.passwordsMatchValidator });
 

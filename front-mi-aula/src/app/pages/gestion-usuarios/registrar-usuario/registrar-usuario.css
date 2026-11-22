@@ -18,6 +18,7 @@
 .campo input, .campo select { box-sizing: border-box; min-height: 2.4rem; padding: 0.55rem 0.65rem; border: 1px solid #b8c8d9; border-radius: 4px; color: #213547; background: #fff; font: inherit; }
 .campo input:focus, .campo select:focus { outline: 2px solid rgba(37, 99, 166, 0.2); border-color: #2563a6; }
 .campo input::placeholder { color: #829ab1; }
+.campo .password-hint { color: #52677d; font-size: 0.78rem; }
 .campo .error { min-height: 1rem; color: #c0392b; font-size: 0.8rem; }
 .form-actions { display: flex; justify-content: flex-end; }
 .btn-registrar { padding: 0.7rem 1.1rem; border: 0; border-radius: 4px; color: #fff; background: #2563a6; font: inherit; font-weight: 700; cursor: pointer; }

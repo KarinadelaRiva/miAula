@@ -14,6 +14,8 @@
         <h2 class="list-title">Datos de la reserva</h2>
       </div>
 
+      <div *ngIf="error" class="error" role="alert" aria-live="assertive">{{ error }}</div>
+
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="form-row">
           <div class="form-group">
@@ -42,7 +44,7 @@
             <select id="comision" class="form-control" formControlName="comision_id">
               <option [ngValue]="null">-- Seleccione --</option>
               <option *ngFor="let comision of comisionesDisponibles" [ngValue]="comision.id">
-                {{ comision.nombre }}
+                {{ comision.nombre }} ({{ comision.cantidadEstudiantes }} alumnos)
               </option>
             </select>
             <span
@@ -75,9 +77,18 @@
             <select id="espacio" class="form-control" formControlName="nuevo_espacio_id">
               <option [ngValue]="null">-- Seleccione --</option>
               <option *ngFor="let espacio of espacios" [ngValue]="espacio.id">
-                {{ espacio.nombre }}
+                {{ espacio.nombre }} (capacidad: {{ espacio.capacidad }} alumnos)
               </option>
             </select>
+            <p
+              *ngIf="comisionSeleccionada && espacioSeleccionado
+                && comisionSeleccionada.cantidadEstudiantes > espacioSeleccionado.capacidad"
+              class="error-message"
+              role="status"
+            >
+              La comisión tiene {{ comisionSeleccionada.cantidadEstudiantes }} alumnos y el espacio admite
+              {{ espacioSeleccionado.capacidad }}. Elegí un espacio con mayor capacidad.
+            </p>
             <span
               *ngIf="form.get('nuevo_espacio_id')?.touched && form.get('nuevo_espacio_id')?.hasError('required')"
               class="error-message"
@@ -220,8 +231,6 @@
           <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
         </div>
       </form>
-
-      <div *ngIf="error" class="error" role="alert" aria-live="assertive">{{ error }}</div>
     </section>
   </div>
 </main>

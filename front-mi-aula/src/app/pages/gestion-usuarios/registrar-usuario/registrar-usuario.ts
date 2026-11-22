@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { UsuarioService } from '../../../services/usuario-service/usuario-service';
-import { AuthService } from '../../../auth/service/auth-service';
+import { AuthService, PASSWORD_PATTERN } from '../../../auth/service/auth-service';
 import {
   FormBuilder,
   ReactiveFormsModule,
@@ -27,7 +27,10 @@ export class RegistrarUsuario {
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
     apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(30)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(50)]],
-    password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(255)]],
+    password: [
+      '',
+      [Validators.required, Validators.minLength(8), Validators.maxLength(255), Validators.pattern(PASSWORD_PATTERN)],
+    ],
     passwordConfirmar: ['', [Validators.required]],
     rol: ['', [Validators.required]],
   });

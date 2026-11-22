@@ -4,6 +4,8 @@ import { catchError, map, Observable, tap, throwError } from 'rxjs';
 import { LoginRequest } from '../models/LoginRequest';
 import { LoginResponse } from '../models/LoginResponse';
 
+export const PASSWORD_PATTERN = /^(?=.*\p{Ll})(?=.*\p{Lu})(?=.*\p{N})(?=.*[^\p{L}\p{N}\s]).+$/u;
+
 @Injectable({
   providedIn: 'root',
 })

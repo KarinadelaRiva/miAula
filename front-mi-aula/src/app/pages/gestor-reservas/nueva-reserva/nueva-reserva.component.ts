@@ -86,6 +86,16 @@ export class NuevaReservaComponent implements OnInit {
     return this.comisionesDisponibles.find(comision => comision.id === comisionId)?.materiaNombre ?? '';
   }
 
+  get comisionSeleccionada(): Comision | undefined {
+    const comisionId = Number(this.form?.get('comision_id')?.value);
+    return this.comisionesDisponibles.find(comision => comision.id === comisionId);
+  }
+
+  get espacioSeleccionado(): Espacio | undefined {
+    const espacioId = Number(this.form?.get('nuevo_espacio_id')?.value);
+    return this.espacios.find(espacio => espacio.id === espacioId);
+  }
+
   private readonly fechaNoAnteriorAHoy: ValidatorFn = (control: AbstractControl): ValidationErrors | null =>
     control.value && control.value < this.fechaMinima ? { fechaAnteriorAHoy: true } : null;
 
@@ -193,7 +203,10 @@ export class NuevaReservaComponent implements OnInit {
 
     this.loading = true;
     this.reservaService.crearReservaDirecta(reserva).subscribe({
-      next: () => this.router.navigate(['/reservas-todas']),
+      next: () => {
+        this.loading = false;
+        this.router.navigate(['/reservas-todas']);
+      },
       error: err => {
         this.loading = false;
         this.error = this.mensajeError(err);
@@ -201,7 +214,7 @@ export class NuevaReservaComponent implements OnInit {
     });
   }
 
-  private mensajeError(error: { error?: unknown; message?: string }): string {
+  private mensajeError(error: { error?: unknown; message?: string; statusText?: string }): string {
     const respuesta = error?.error;
     if (typeof respuesta === 'string' && respuesta.trim()) {
       return respuesta;
@@ -209,9 +222,11 @@ export class NuevaReservaComponent implements OnInit {
 
     if (respuesta && typeof respuesta === 'object') {
       const datos = respuesta as Record<string, unknown>;
-      const mensaje = datos['mensaje'] ?? datos['message'];
-      if (typeof mensaje === 'string' && mensaje.trim()) {
-        return mensaje;
+      for (const campo of ['mensaje', 'detail', 'message', 'error_description', 'error']) {
+        const mensaje = datos[campo];
+        if (typeof mensaje === 'string' && mensaje.trim()) {
+          return mensaje;
+        }
       }
       const errores = Object.values(datos).filter(
         (valor): valor is string => typeof valor === 'string' && valor.trim().length > 0
@@ -221,7 +236,7 @@ export class NuevaReservaComponent implements OnInit {
       }
     }
 
-    return error?.message || 'No se pudo crear la reserva. Intentá nuevamente.';
+    return error?.statusText || error?.message || 'No se pudo crear la reserva. Intentá nuevamente.';
   }
 
   cancelar(): void {

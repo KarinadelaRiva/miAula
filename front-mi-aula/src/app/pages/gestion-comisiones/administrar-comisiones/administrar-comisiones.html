@@ -64,7 +64,7 @@
 
         <tbody>
 
-          <tr *ngFor="let comision of comisionesFiltradas">
+          <tr *ngFor="let comision of comisionesPaginadas">
 
             <ng-container *ngIf="comisionEditando?.id !== comision.id">
 
@@ -237,6 +237,30 @@
         No se encontraron comisiones.
       </div>
 
+    </div>
+
+    <div
+      *ngIf="comisionesFiltradas.length > 0"
+      class="paginacion">
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual === 1"
+        (click)="anteriorPagina()">
+        ← Anterior
+      </button>
+
+      <span class="pagina-info">
+        Página {{ paginaActual }} de {{ totalPaginas }}
+      </span>
+
+      <button
+        type="button"
+        class="btn-paginacion"
+        [disabled]="paginaActual >= totalPaginas"
+        (click)="siguientePagina()">
+        Siguiente →
+      </button>
     </div>
 
   </div>

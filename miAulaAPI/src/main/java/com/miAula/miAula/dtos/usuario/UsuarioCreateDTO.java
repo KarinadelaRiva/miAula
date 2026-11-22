@@ -27,7 +27,11 @@ public class UsuarioCreateDTO {
     private String email;
 
     @NotBlank
-    @Size(min = 6, max = 255)
+    @Size(min = 8, max = 255, message = "La contraseña debe tener entre 8 y 255 caracteres.")
+    @Pattern(
+            regexp = "^(?=.*\\p{Ll})(?=.*\\p{Lu})(?=.*\\p{N})(?=.*[^\\p{L}\\p{N}\\s]).+$",
+            message = "La contraseña debe incluir una mayúscula, una minúscula, un número y un carácter especial."
+    )
     private String password;
 
     @NotBlank

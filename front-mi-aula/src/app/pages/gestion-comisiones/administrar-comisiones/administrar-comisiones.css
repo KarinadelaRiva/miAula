@@ -319,6 +319,39 @@ td select {
   color: #52677d;
 }
 
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0 1.25rem 1rem;
+}
+
+.btn-paginacion {
+  padding: 0.55rem 0.8rem;
+  border: 0;
+  border-radius: 4px;
+  color: #fff;
+  background: #2563a6;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-paginacion:hover:not(:disabled) {
+  background: #133e87;
+}
+
+.btn-paginacion:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pagina-info {
+  color: #334e68;
+  font-size: 0.9rem;
+}
+
 
 /* =========================
    MODAL CONFIRMACIÓN
@@ -479,6 +512,14 @@ td select {
   .filtros-section {
 
     padding: 0.75rem;
+  }
+
+  .paginacion {
+    gap: 0.5rem;
+  }
+
+  .pagina-info {
+    font-size: 0.8rem;
   }
 
 

@@ -52,12 +52,15 @@ export class AdministrarComisiones implements OnInit {
 
   comisiones: Comision[] = [];
   comisionesFiltradas: Comision[] = [];
+  comisionesPaginadas: Comision[] = [];
 
   asignaturas: Asignatura[] = [];
   carreras: Carrera[] = [];
   profesores: Usuario[] = [];
 
   busqueda = '';
+  paginaActual = 1;
+  readonly limite = 8;
 
   comisionEditando: Comision | null = null;
 
@@ -118,7 +121,7 @@ export class AdministrarComisiones implements OnInit {
     ).subscribe({
       next: (data) => {
         this.comisiones = data;
-        this.comisionesFiltradas = [...data];
+        this.buscar();
         this.mensaje = '';
         this.cdr.markForCheck();
 
@@ -136,6 +139,8 @@ export class AdministrarComisiones implements OnInit {
 
         this.comisiones = [];
         this.comisionesFiltradas = [];
+        this.comisionesPaginadas = [];
+        this.paginaActual = 1;
 
         this.mensaje =
           'No se pudieron cargar las comisiones.';
@@ -162,35 +167,64 @@ export class AdministrarComisiones implements OnInit {
         ...this.comisiones
       ];
 
-      return;
+    } else {
+
+      this.comisionesFiltradas =
+        this.comisiones.filter(comision =>
+
+          comision.nombre
+            .toLowerCase()
+            .includes(texto)
+
+          ||
+
+          comision.materiaNombre
+            .toLowerCase()
+            .includes(texto)
+
+          ||
+
+          comision.carreraNombre
+            .toLowerCase()
+            .includes(texto)
+
+          ||
+
+          comision.profesorNombre
+            .toLowerCase()
+            .includes(texto)
+
+        );
     }
 
-    this.comisionesFiltradas =
-      this.comisiones.filter(comision =>
+    this.paginaActual = 1;
+    this.actualizarComisionesPaginadas();
+  }
 
-        comision.nombre
-          .toLowerCase()
-          .includes(texto)
+  get totalPaginas(): number {
+    return Math.ceil(this.comisionesFiltradas.length / this.limite);
+  }
 
-        ||
+  siguientePagina(): void {
+    if (this.paginaActual < this.totalPaginas) {
+      this.paginaActual += 1;
+      this.actualizarComisionesPaginadas();
+    }
+  }
 
-        comision.materiaNombre
-          .toLowerCase()
-          .includes(texto)
+  anteriorPagina(): void {
+    if (this.paginaActual > 1) {
+      this.paginaActual -= 1;
+      this.actualizarComisionesPaginadas();
+    }
+  }
 
-        ||
-
-        comision.carreraNombre
-          .toLowerCase()
-          .includes(texto)
-
-        ||
-
-        comision.profesorNombre
-          .toLowerCase()
-          .includes(texto)
-
-      );
+  private actualizarComisionesPaginadas(): void {
+    const inicio = (this.paginaActual - 1) * this.limite;
+    this.comisionesPaginadas = this.comisionesFiltradas.slice(
+      inicio,
+      inicio + this.limite
+    );
   }
 
   editarComision(comision: Comision): void {

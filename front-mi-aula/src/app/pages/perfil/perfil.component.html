@@ -105,16 +105,21 @@
               type="password"
               formControlName="passwordNuevo"
               class="form-control"
+              maxlength="255"
               placeholder="Nueva contraseña"
             />
+            <small class="password-hint">
+              Al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.
+            </small>
             <div class="error-message">
               @if (formPassword.get('passwordNuevo')?.errors?.['required'] &&
               formPassword.get('passwordNuevo')?.touched &&
               formPassword.get('passwordNuevo')?.dirty){ La contraseña es requerida } @if
-              (formPassword.get('passwordNuevo')?.errors?.['minlength'] &&
+              ((formPassword.get('passwordNuevo')?.errors?.['minlength'] ||
+              formPassword.get('passwordNuevo')?.errors?.['pattern']) &&
               formPassword.get('passwordNuevo')?.touched &&
-              formPassword.get('passwordNuevo')?.dirty) { La contraseña debe tener mínimo 6
-              caracteres }
+              formPassword.get('passwordNuevo')?.dirty) { Usá al menos 8 caracteres e incluí una
+              mayúscula, una minúscula, un número y un carácter especial. }
             </div>
           </div>
 
