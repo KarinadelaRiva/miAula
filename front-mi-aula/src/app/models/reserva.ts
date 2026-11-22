@@ -1,5 +1,6 @@
 export interface Reserva {
   id: string;
+  activo?: boolean;
   dia: string;
   fecha_inicio: string;
   fecha_fin: string;

@@ -14,6 +14,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class ReservaCalendarioDTO {
     private Long id;
+    private Boolean activo;
     private String dia;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;

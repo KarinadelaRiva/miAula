@@ -16,6 +16,7 @@ interface ReservaHistorial {
   espacio: string;
   profesor: string;
   asignatura: string;
+  estado: string;
 }
 
 @Component({
@@ -104,7 +105,8 @@ export class ReservasAnterioresComponent implements OnInit {
       comision: reserva.comision_nombre || 'Sin comisión',
       espacio: reserva.espacio_nombre || 'Sin espacio',
       profesor: reserva.profesor_nombre || 'Sin profesor',
-      asignatura: reserva.materia_nombre || 'Sin asignatura'
+      asignatura: reserva.materia_nombre || 'Sin asignatura',
+      estado: reserva.activo === false ? 'Cancelada' : 'Finalizada'
     };
   }
 

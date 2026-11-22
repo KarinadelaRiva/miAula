@@ -11,6 +11,7 @@ import type { DiaSemanaSolicitud, RecursoSolicitadoCreate } from './solicitud';
 
 interface ReservaApiResponse {
   id: number;
+  activo: boolean;
   dia: string;
   fechaInicio: string;
   fechaFin: string;
@@ -161,6 +162,7 @@ export class ReservaService {
   private reservaApiToReserva(reserva: ReservaApiResponse): Reserva {
     return {
       id: String(reserva.id),
+      activo: reserva.activo,
       dia: reserva.dia,
       fecha_inicio: reserva.fechaInicio,
       fecha_fin: reserva.fechaFin,

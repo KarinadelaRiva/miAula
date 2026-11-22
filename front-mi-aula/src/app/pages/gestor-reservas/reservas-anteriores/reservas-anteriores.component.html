@@ -92,7 +92,7 @@
                 <td>{{ reserva.espacio }}</td>
                 <td>{{ reserva.profesor }}</td>
                 <td>
-                  <span class="estado">{{ mostrarDesactivadas() ? 'Cancelada' : 'Finalizada' }}</span>
+                  <span class="estado">{{ reserva.estado }}</span>
                 </td>
               </tr>
             }

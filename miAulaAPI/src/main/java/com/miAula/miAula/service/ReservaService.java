@@ -93,6 +93,7 @@ public class ReservaService {
     private ReservaCalendarioDTO reservaAReservaCalendarioDTO(Reserva reserva) {
         return ReservaCalendarioDTO.builder()
                 .id(reserva.getId())
+                .activo(reserva.getActivo())
                 .dia(reserva.getDiaDeLaSemana().name())
                 .fechaInicio(reserva.getDiaDeInicio())
                 .fechaFin(reserva.getDiaDeFin())
