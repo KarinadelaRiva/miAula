@@ -20,21 +20,25 @@
             Crear reserva
           </button>
         }
-        <button
-          type="button"
-          class="btn-nuevo"
-          [attr.aria-pressed]="mostrarDesactivadas()"
-          (click)="cambiarVistaDesactivadas()"
-        >
-          {{ mostrarDesactivadas() ? 'Ver reservas activas' : 'Ver reservas desactivadas' }}
-        </button>
-        <button
-          type="button"
-          [routerLink]="esProfesor ? '/mis-reservas/terminadas' : '/reservas-anteriores'"
-          class="btn-nuevo"
-        >
-          {{ esProfesor ? 'Ver reservas finalizadas' : 'Ver reservas finalizadas' }}
-        </button>
+        @if (!esProfesor) {
+          <button
+            type="button"
+            class="btn-nuevo"
+            [attr.aria-pressed]="mostrarDesactivadas()"
+            (click)="cambiarVistaDesactivadas()"
+          >
+            {{ mostrarDesactivadas() ? 'Ver reservas activas' : 'Ver reservas finalizadas' }}
+          </button>
+        }
+        @if (esProfesor) {
+          <button
+            type="button"
+            routerLink="/mis-reservas/terminadas"
+            class="btn-nuevo"
+          >
+            Ver reservas finalizadas
+          </button>
+        }
         <button type="button" routerLink="/dashboard" class="btn-volver">← Volver</button>
       </div>
     </header>
@@ -95,15 +99,15 @@
                 @if (!esProfesor || mostrarDesactivadas()) {
                   <td class="acciones">
                     @if (mostrarDesactivadas()) {
-                      <span>Cancelada</span>
+                      <span>Finalizada</span>
                     } @else if (!esProfesor) {
                       <button
                         type="button"
                         class="btn-eliminar"
                         (click)="abrirConfirmacion(reserva)"
-                        [attr.aria-label]="'Desactivar reserva de ' + reserva.asignatura"
+                        [attr.aria-label]="'Finalizar reserva de ' + reserva.asignatura"
                       >
-                        Desactivar
+                        Finalizar
                       </button>
                     }
                   </td>
@@ -156,7 +160,7 @@
         (click)="$event.stopPropagation()"
       >
         <header class="modal-header">
-          <h2 id="confirmar-desactivacion-title">Confirmar baja lógica</h2>
+          <h2 id="confirmar-desactivacion-title">Confirmar fin de reserva</h2>
           <button
             type="button"
             class="btn-cerrar"
@@ -168,7 +172,7 @@
           </button>
         </header>
         <div class="modal-body">
-          <p>¿Querés desactivar esta reserva? No se eliminará físicamente.</p>
+          <p>¿Querés finalizar esta reserva?</p>
           <dl class="detalle-reserva">
             <div><dt>Asignatura</dt><dd>{{ reserva.asignatura }}</dd></div>
             <div><dt>Comisión</dt><dd>{{ reserva.comision }}</dd></div>
@@ -196,7 +200,7 @@
             [disabled]="eliminando()"
             (click)="desactivarReserva()"
           >
-            {{ eliminando() ? 'Desactivando...' : 'Desactivar reserva' }}
+            {{ eliminando() ? 'Finalizando...' : 'Finalizar reserva' }}
           </button>
         </footer>
       </section>

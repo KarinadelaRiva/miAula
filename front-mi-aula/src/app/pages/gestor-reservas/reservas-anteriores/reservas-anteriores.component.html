@@ -22,20 +22,22 @@
             Crear reserva
           </button>
         }
-        <button
-          type="button"
-          class="btn-nuevo"
-          [attr.aria-pressed]="mostrarDesactivadas()"
-          (click)="cambiarVistaDesactivadas()"
-        >
-          {{ mostrarDesactivadas() ? 'Ver reservas finalizadas' : 'Ver reservas desactivadas' }}
-        </button>
+        @if (!esProfesor) {
+          <button
+            type="button"
+            class="btn-nuevo"
+            [attr.aria-pressed]="mostrarDesactivadas()"
+            (click)="cambiarVistaDesactivadas()"
+          >
+            {{ mostrarDesactivadas() ? 'Ver reservas finalizadas' : 'Ver reservas desactivadas' }}
+          </button>
+        }
         <button
           type="button"
           [routerLink]="esProfesor ? '/mis-reservas' : '/reservas-todas'"
           class="btn-nuevo"
         >
-          ← Mis reservas activas
+          {{ esProfesor ? '← Mis reservas activas' : '← Reservas activas' }}
         </button>
         <button type="button" routerLink="/dashboard" class="btn-volver">← Volver</button>
       </div>

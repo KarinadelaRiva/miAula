@@ -87,6 +87,8 @@ export class ReservasAnterioresComponent implements OnInit {
   }
 
   cambiarVistaDesactivadas(): void {
+    if (this.esProfesor) return;
+
     this.mostrarDesactivadas.update(mostrar => !mostrar);
     this.cargarReservas();
   }

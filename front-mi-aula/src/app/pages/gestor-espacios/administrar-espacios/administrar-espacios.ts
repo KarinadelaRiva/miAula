@@ -2,6 +2,7 @@ import { Component, inject, model, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { map } from 'rxjs';
 import { Espacio } from '../../../models/espacio';
 import { EspacioService } from '../../../services/espacio-service/espacio-service';
 import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
@@ -21,6 +22,8 @@ export class AdministrarEspacios {
   filtroBusqueda = model('');
   filtroEstado = model<string | boolean>('');
   espacioSeleccionado = signal<Espacio | null>(null);
+  mostrarConfirmacionEstado = signal(false);
+  actualizandoEstado = signal(false);
   listaEspacios = signal<Espacio[]>([]);
   espacioEditando = signal<Espacio | null>(null);
   codigoEditado = '';
@@ -70,59 +73,52 @@ export class AdministrarEspacios {
     }
   }
 
-  abrirModal(espacio: Espacio) {
+  abrirConfirmacionEstado(espacio: Espacio) {
     this.espacioSeleccionado.set(espacio);
+    this.mostrarConfirmacionEstado.set(true);
+    this.mensaje.set('');
   }
 
-  cerrarModal() {
+  cerrarConfirmacionEstado() {
+    if (this.actualizandoEstado()) return;
+
+    this.mostrarConfirmacionEstado.set(false);
     this.espacioSeleccionado.set(null);
   }
 
-  eliminar() {
+  confirmarCambioEstado() {
     const espacio = this.espacioSeleccionado();
-    if (!espacio) return;
+    if (!espacio || this.actualizandoEstado()) return;
 
-    this.espacioService.eliminarById(espacio.id).subscribe({
+    this.actualizandoEstado.set(true);
+    this.mensaje.set('');
+
+    const solicitud = espacio.activo
+      ? this.espacioService.eliminarById(espacio.id).pipe(map(() => undefined))
+      : this.espacioService.reactivarById(espacio.id).pipe(map(() => undefined));
+
+    solicitud.subscribe({
       next: () => {
+        this.actualizandoEstado.set(false);
+        this.mostrarConfirmacionEstado.set(false);
         this.espacioSeleccionado.set(null);
+        this.mensaje.set(
+          espacio.activo
+            ? 'Espacio deshabilitado correctamente.'
+            : 'Espacio habilitado correctamente.'
+        );
         this.cargarEspacios();
       },
       error: (error: HttpErrorResponse) => {
-        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo deshabilitar el espacio.'));
-      },
-    });
-  }
-
-  reactivar() {
-    const espacio = this.espacioSeleccionado();
-    if (!espacio) return;
-
-    this.espacioService.reactivarById(espacio.id).subscribe({
-      next: () => {
-        this.espacioSeleccionado.set(null);
-        this.cargarEspacios();
-      },
-      error: (error: HttpErrorResponse) => {
-        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo reactivar el espacio.'));
-      },
-    });
-  }
-
-  cambiarEstadoEspacio(espacio: Espacio) {
-    if (this.estaHabilitado(espacio)) {
-      this.espacioService.eliminarById(espacio.id).subscribe({
-        next: () => this.cargarEspacios(),
-        error: (error: HttpErrorResponse) => {
-          this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo deshabilitar el espacio.'));
-        },
-      });
-      return;
-    }
-
-    this.espacioService.reactivarById(espacio.id).subscribe({
-      next: () => this.cargarEspacios(),
-      error: (error: HttpErrorResponse) => {
-        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo reactivar el espacio.'));
+        this.actualizandoEstado.set(false);
+        this.mensaje.set(
+          this.obtenerMensajeError(
+            error,
+            espacio.activo
+              ? 'No se pudo deshabilitar el espacio.'
+              : 'No se pudo habilitar el espacio.'
+          )
+        );
       },
     });
   }

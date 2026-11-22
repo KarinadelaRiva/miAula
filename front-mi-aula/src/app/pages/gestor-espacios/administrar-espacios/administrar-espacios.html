@@ -71,9 +71,13 @@
               <td class="acciones">
                 <button type="button" class="btn-editar" (click)="editarEspacio(espacio)">Editar</button>
                 @if (estaHabilitado(espacio)) {
-                  <button type="button" class="btn-eliminar" (click)="abrirModal(espacio)">Deshabilitar</button>
+                  <button type="button" class="btn-eliminar" (click)="abrirConfirmacionEstado(espacio)">
+                    Deshabilitar
+                  </button>
                 } @else {
-                  <button type="button" class="btn-reactivar" (click)="abrirModal(espacio)">Reactivar</button>
+                  <button type="button" class="btn-reactivar" (click)="abrirConfirmacionEstado(espacio)">
+                    Habilitar
+                  </button>
                 }
               </td>
             }
@@ -102,48 +106,54 @@
     </div>
   </div>
 
-  @if (espacioSeleccionado()) {
-    <div class="modal-overlay" (click)="cerrarModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <button class="btn-cerrar" (click)="cerrarModal()">✕</button>
-
-        <h2>Detalles del Espacio</h2>
-
-        <div class="detalle-grupo">
-          <label>ID:</label>
-          <p>{{ espacioSeleccionado()!.id }}</p>
+  @if (mostrarConfirmacionEstado() && espacioSeleccionado()) {
+    <div class="modal-overlay" (click)="cerrarConfirmacionEstado()">
+      <div
+        class="modal-card"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="confirmacion-estado-titulo"
+        aria-describedby="confirmacion-estado-descripcion"
+        (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <span class="modal-eyebrow">Gestión de espacios</span>
+          <h2 id="confirmacion-estado-titulo">
+            {{ espacioSeleccionado()!.activo ? 'Deshabilitar espacio' : 'Habilitar espacio' }}
+          </h2>
         </div>
 
-        <div class="detalle-grupo">
-          <label>Código:</label>
-          <p>{{ espacioSeleccionado()!.codigo }}</p>
+        <div class="modal-body">
+          <p id="confirmacion-estado-descripcion">
+            ¿Querés {{ espacioSeleccionado()!.activo ? 'deshabilitar' : 'habilitar' }} el espacio
+            <strong>"{{ espacioSeleccionado()!.nombre }}"</strong>?
+          </p>
+          <p class="modal-ayuda">
+            El espacio se conservará en el sistema y podrás cambiar su estado nuevamente.
+          </p>
+          @if (mensaje()) {
+            <p class="modal-error" role="alert">{{ mensaje() }}</p>
+          }
         </div>
 
-        <div class="detalle-grupo">
-          <label>Nombre:</label>
-          <p>{{ espacioSeleccionado()!.nombre }}</p>
+        <div class="modal-acciones">
+          <button
+            type="button"
+            class="modal-btn-cancelar"
+            (click)="cerrarConfirmacionEstado()"
+            [disabled]="actualizandoEstado()">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="modal-btn-eliminar"
+            [class.modal-btn-habilitar]="!espacioSeleccionado()!.activo"
+            (click)="confirmarCambioEstado()"
+            [disabled]="actualizandoEstado()">
+            {{ actualizandoEstado()
+              ? 'Actualizando...'
+              : (espacioSeleccionado()!.activo ? 'Deshabilitar' : 'Habilitar') }}
+          </button>
         </div>
-
-        <div class="detalle-grupo">
-          <label>Capacidad:</label>
-          <p>{{ espacioSeleccionado()!.capacidad }} personas</p>
-        </div>
-
-        <div class="detalle-grupo">
-          <label>Piso:</label>
-          <p>{{ espacioSeleccionado()!.nroPiso }}</p>
-        </div>
-
-        <div class="detalle-grupo">
-          <label>Estado:</label>
-          <p>{{ estaHabilitado(espacioSeleccionado()!) ? 'Habilitado' : 'Deshabilitado' }}</p>
-        </div>
-
-        @if (estaHabilitado(espacioSeleccionado()!)) {
-          <button (click)="eliminar()" class="btn-eliminar-usuario">Deshabilitar Espacio</button>
-        } @else {
-          <button (click)="reactivar()" class="btn-reactivar-usuario">Reactivar Espacio</button>
-        }
       </div>
     </div>
   }

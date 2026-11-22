@@ -106,7 +106,7 @@
                   *ngIf="comision.activo"
                   type="button"
                   class="btn-eliminar"
-                  (click)="eliminarComision(comision)">
+                  (click)="abrirConfirmacionEstado(comision)">
                   Deshabilitar
                 </button>
 
@@ -114,8 +114,8 @@
                   *ngIf="!comision.activo"
                   type="button"
                   class="btn-editar"
-                  (click)="activarComision(comision)">
-                  Reactivar
+                  (click)="abrirConfirmacionEstado(comision)">
+                  Habilitar
                 </button>
 
               </td>
@@ -265,4 +265,53 @@
 
   </div>
 
+</div>
+
+<div
+  *ngIf="mostrarConfirmacionEstado"
+  class="modal-overlay">
+  <div
+    class="modal-card"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="confirmacion-estado-titulo"
+    aria-describedby="confirmacion-estado-descripcion">
+    <div class="modal-header">
+      <span class="modal-eyebrow">Gestión de comisiones</span>
+      <h2 id="confirmacion-estado-titulo">
+        {{ comisionSeleccionada?.activo ? 'Deshabilitar comisión' : 'Habilitar comisión' }}
+      </h2>
+    </div>
+
+    <div class="modal-body">
+      <p id="confirmacion-estado-descripcion">
+        ¿Querés {{ comisionSeleccionada?.activo ? 'deshabilitar' : 'habilitar' }} la comisión
+        <strong>"{{ comisionSeleccionada?.nombre }}"</strong>?
+      </p>
+      <p class="modal-ayuda">
+        La comisión se conservará en el sistema y podrás cambiar su estado nuevamente.
+      </p>
+      <p *ngIf="mensaje" class="modal-error" role="alert">{{ mensaje }}</p>
+    </div>
+
+    <div class="modal-acciones">
+      <button
+        type="button"
+        class="modal-btn-cancelar"
+        (click)="cerrarConfirmacionEstado()"
+        [disabled]="actualizandoEstado">
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="modal-btn-eliminar"
+        [class.modal-btn-habilitar]="!comisionSeleccionada?.activo"
+        (click)="confirmarCambioEstado()"
+        [disabled]="actualizandoEstado">
+        {{ actualizandoEstado
+          ? 'Actualizando...'
+          : (comisionSeleccionada?.activo ? 'Deshabilitar' : 'Habilitar') }}
+      </button>
+    </div>
+  </div>
 </div>

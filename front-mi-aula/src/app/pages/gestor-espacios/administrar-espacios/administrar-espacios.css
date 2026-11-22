@@ -98,16 +98,53 @@ td input, td select { width: 100%; min-width: 120px; }
 .btn-paginacion:disabled { opacity: 0.45; cursor: not-allowed; }
 .pagina-info { color: #334e68; font-size: 0.9rem; }
 
-.modal-overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(15, 30, 45, 0.48); z-index: 1000; }
-.modal-content { position: relative; width: min(100%, 440px); max-height: 80vh; overflow-y: auto; border: 1px solid #c7d1dc; border-radius: 6px; background: #fff; box-shadow: 0 18px 45px rgba(15, 30, 45, 0.28); }
-.modal-content h2 { margin: 0; padding: 1rem 1.1rem; color: #fff; background: linear-gradient(135deg, #133e87, #608bc1); font-size: 1.2rem; }
-.btn-cerrar { position: absolute; top: 0.65rem; right: 0.7rem; width: 30px; height: 30px; border: 0; border-radius: 4px; color: #fff; background: rgba(255, 255, 255, 0.16); font-size: 1.3rem; cursor: pointer; }
-.detalle-grupo { margin: 1rem 1.1rem; }
-.detalle-grupo label { display: block; color: #52677d; font-size: 0.8rem; font-weight: 700; }
-.detalle-grupo p { margin: 0.25rem 0 0; color: #213547; }
-.btn-eliminar-usuario, .btn-reactivar-usuario { width: calc(100% - 2.2rem); margin: 0 1.1rem 1.1rem; padding: 0.75rem; border: 0; border-radius: 4px; color: #fff; font-weight: 700; cursor: pointer; }
-.btn-eliminar-usuario { background: #c0392b; }
-.btn-reactivar-usuario { background: #287d59; }
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 35, 60, 0.55);
+  font-family: var(--font-sans, Arial, sans-serif);
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 460px;
+  overflow: hidden;
+  border: 1px solid #c8d7e8;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 14px 40px rgba(15, 50, 90, 0.25);
+}
+
+.modal-header {
+  padding: 1rem 1.25rem;
+  color: #fff;
+  background: linear-gradient(135deg, #133e87, #608bc1);
+}
+
+.modal-eyebrow {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.modal-header h2 { margin: 0; font-size: 1.25rem; }
+.modal-body { padding: 1.25rem; }
+.modal-body p { margin: 0; color: #213547; line-height: 1.5; }
+.modal-ayuda { margin-top: 0.75rem !important; color: #52677d !important; font-size: 0.85rem; }
+.modal-error { display: block; margin-top: 0.75rem !important; color: #8a3329 !important; font-size: 0.85rem; }
+.modal-acciones { display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.25rem; border-top: 1px solid #e3ebf3; background: #f8fbff; }
+.modal-acciones button { padding: 0.65rem 1rem; border-radius: 4px; font: inherit; font-weight: 700; cursor: pointer; }
+.modal-btn-cancelar { border: 1px solid #c8d7e8; background: #fff; color: #52677d; }
+.modal-btn-eliminar { border: 0; background: #a84444; color: #fff; }
+.modal-btn-habilitar { background: #347348; }
 
 .mensaje {
   margin: 1rem 1.25rem 0;
@@ -124,4 +161,7 @@ td input, td select { width: 100%; min-width: 120px; }
   .filtros-section { padding: 0.9rem; }
   .tabla-container { padding: 0 0.75rem 1rem; }
   .administrar-header h1 { font-size: 1.25rem; }
+  .modal-card { max-width: 380px; }
+  .modal-acciones { flex-direction: column-reverse; }
+  .modal-acciones button { width: 100%; }
 }

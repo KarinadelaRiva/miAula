@@ -66,6 +66,10 @@ export class AdministrarComisiones implements OnInit {
 
   mensaje = '';
 
+  mostrarConfirmacionEstado = false;
+  comisionSeleccionada: Comision | null = null;
+  actualizandoEstado = false;
+
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef
@@ -122,7 +126,6 @@ export class AdministrarComisiones implements OnInit {
       next: (data) => {
         this.comisiones = data;
         this.buscar();
-        this.mensaje = '';
         this.cdr.markForCheck();
 
         console.log(
@@ -304,51 +307,51 @@ export class AdministrarComisiones implements OnInit {
     });
   }
 
-  eliminarComision(
-    comision: Comision
-  ): void {
+  abrirConfirmacionEstado(comision: Comision): void {
+    this.comisionSeleccionada = comision;
+    this.mostrarConfirmacionEstado = true;
+    this.mensaje = '';
+  }
 
-    const confirmar = confirm(
-      `¿Seguro que querés deshabilitar la comisión "${comision.nombre}"?`
-    );
-
-    if (!confirmar) {
+  cerrarConfirmacionEstado(): void {
+    if (this.actualizandoEstado) {
       return;
     }
 
-    this.http.delete(
-      `${this.apiUrl}/comisiones/${comision.id}`
-    ).subscribe({
-      next: () => {
-
-        this.mensaje =
-          'Comisión eliminada correctamente.';
-
-        this.cargarComisiones();
-      },
-
-      error: (error) => {
-
-        console.error(error);
-
-        this.mensaje =
-          'No se pudo eliminar la comisión.';
-      }
-    });
+    this.mostrarConfirmacionEstado = false;
+    this.comisionSeleccionada = null;
   }
 
-  activarComision(comision: Comision): void {
-    this.http.put(
-      `${this.apiUrl}/comisiones/activar/${comision.id}`,
-      null
-    ).subscribe({
+  confirmarCambioEstado(): void {
+    if (!this.comisionSeleccionada || this.actualizandoEstado) {
+      return;
+    }
+
+    const { id, activo } = this.comisionSeleccionada;
+    const nuevoEstado = !activo;
+    this.actualizandoEstado = true;
+    this.mensaje = '';
+
+    const solicitud = activo
+      ? this.http.delete(`${this.apiUrl}/comisiones/${id}`)
+      : this.http.put(`${this.apiUrl}/comisiones/activar/${id}`, null);
+
+    solicitud.subscribe({
       next: () => {
-        this.mensaje = 'Comisión reactivada correctamente.';
+        this.actualizandoEstado = false;
+        this.mostrarConfirmacionEstado = false;
+        this.comisionSeleccionada = null;
+        this.mensaje = nuevoEstado
+          ? 'Comisión habilitada correctamente.'
+          : 'Comisión deshabilitada correctamente.';
         this.cargarComisiones();
+        this.cdr.markForCheck();
       },
       error: (error) => {
-        console.error(error);
-        this.mensaje = 'No se pudo reactivar la comisión.';
+        console.error('Error actualizando el estado de la comisión:', error);
+        this.actualizandoEstado = false;
+        this.mensaje = 'No se pudo actualizar el estado de la comisión.';
+        this.cdr.markForCheck();
       }
     });
   }
