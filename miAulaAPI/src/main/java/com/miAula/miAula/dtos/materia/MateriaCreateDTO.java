@@ -22,4 +22,6 @@ public class MateriaCreateDTO {
     @NotBlank(message = "El nombre de la materia es obligatorio")
     @Size(max = 50, message = "El nombre no puede tener más de 50 caracteres")
     private String nombre;
+
+    private Long carreraId;
 }

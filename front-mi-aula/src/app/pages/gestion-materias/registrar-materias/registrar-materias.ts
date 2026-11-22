@@ -2,11 +2,13 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectorRef,
-  Component
+  Component,
+  OnInit
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
+import { Carrera, ComisionService } from '../../../services/comision-service/comision-service';
 
 import {
   MateriaCreateDTO,
@@ -24,7 +26,7 @@ import {
   templateUrl: 'registrar-materias.html',
   styleUrls: ['registrar-materias.css']
 })
-export class RegistrarMateria {
+export class RegistrarMateria implements OnInit {
 
   // ============================================================
   // FORMULARIO
@@ -32,6 +34,10 @@ export class RegistrarMateria {
 
   codigo: string = '';
   nombre: string = '';
+  carreraId: number | null = null;
+  carreras: Carrera[] = [];
+  cargandoCarreras = false;
+  errorCargaCarreras = '';
 
   guardando: boolean = false;
 
@@ -46,9 +52,34 @@ export class RegistrarMateria {
 
   constructor(
     private materiaService: MateriaService,
+    private comisionService: ComisionService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnInit(): void {
+    this.cargarCarreras();
+  }
+
+  private cargarCarreras(): void {
+    this.cargandoCarreras = true;
+    this.comisionService.getCarreras().subscribe({
+      next: carreras => {
+        this.carreras = [...carreras].sort((a, b) =>
+          a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+        );
+        this.cargandoCarreras = false;
+        this.errorCargaCarreras = '';
+        this.cdr.markForCheck();
+      },
+      error: error => {
+        console.error('Error cargando carreras para asignar la materia:', error);
+        this.cargandoCarreras = false;
+        this.errorCargaCarreras = 'No se pudieron cargar las carreras.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
 
   // ============================================================
@@ -105,8 +136,8 @@ export class RegistrarMateria {
 
       codigo: normalizarCodigo(this.codigo),
 
-      nombre:
-        this.nombre.trim()
+      nombre: this.nombre.trim(),
+      carreraId: this.carreraId
     };
 
 
@@ -161,6 +192,7 @@ export class RegistrarMateria {
 
     this.codigo = '';
     this.nombre = '';
+    this.carreraId = null;
   }
 
 

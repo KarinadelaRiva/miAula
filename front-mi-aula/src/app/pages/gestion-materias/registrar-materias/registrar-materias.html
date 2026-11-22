@@ -98,6 +98,33 @@
 
       </div>
 
+      <div class="campo">
+
+        <label for="carrera">
+          Carrera (opcional)
+        </label>
+
+        <select
+          id="carrera"
+          name="carrera"
+          [(ngModel)]="carreraId"
+          [disabled]="cargandoCarreras || guardando">
+          <option [ngValue]="null">
+            {{ cargandoCarreras ? 'Cargando carreras...' : 'Sin asignar' }}
+          </option>
+          <option
+            *ngFor="let carrera of carreras"
+            [ngValue]="+carrera.id">
+            {{ carrera.nombre }}
+          </option>
+        </select>
+
+        <small *ngIf="errorCargaCarreras" class="mensaje-error">
+          {{ errorCargaCarreras }}
+        </small>
+
+      </div>
+
 
       <!-- ACCIONES -->
 

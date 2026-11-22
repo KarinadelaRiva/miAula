@@ -73,6 +73,20 @@
           </div>
 
           <div class="form-group">
+            <label for="carrera">Carrera</label>
+            <input
+              id="carrera"
+              class="form-control"
+              type="text"
+              [value]="nombreCarreraSeleccionada"
+              placeholder="Se completa al seleccionar una comisión"
+              readonly
+            >
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
             <label for="espacio">Espacio solicitado</label>
             <select id="espacio" class="form-control" formControlName="nuevo_espacio_id">
               <option [ngValue]="null">-- Seleccione --</option>
@@ -96,16 +110,10 @@
               El espacio es requerido.
             </span>
           </div>
-        </div>
 
-        <div class="form-row">
           <div class="form-group">
             <label for="dia">Día de la semana</label>
-            <select
-              id="dia"
-              class="form-control"
-              formControlName="dia_semana"
-            >
+            <select id="dia" class="form-control" formControlName="dia_semana">
               <option value="LUNES">LUNES</option>
               <option value="MARTES">MARTES</option>
               <option value="MIERCOLES">MIÉRCOLES</option>
@@ -114,13 +122,13 @@
               <option value="SABADO">SÁBADO</option>
               <option value="DOMINGO">DOMINGO</option>
             </select>
-            <span
-              *ngIf="form.get('dia_semana')?.touched && form.get('dia_semana')?.hasError('required')"
-              class="error-message"
-            >
+            <span *ngIf="form.get('dia_semana')?.touched && form.get('dia_semana')?.hasError('required')" class="error-message">
               El día es requerido.
             </span>
           </div>
+        </div>
+
+        <div class="form-row">
           <div class="form-group">
             <label for="fecha_inicio">Fecha inicio</label>
             <input
@@ -144,9 +152,7 @@
               La fecha de inicio debe ser hoy o un día posterior.
             </span>
           </div>
-        </div>
 
-        <div class="form-row">
           <div class="form-group">
             <label for="fecha_fin">Fecha fin</label>
             <input
@@ -157,61 +163,34 @@
               formControlName="fecha_fin"
               (change)="actualizarFechaFinMinima()"
             />
-            <span
-              *ngIf="form.get('fecha_fin')?.touched && form.get('fecha_fin')?.hasError('required')"
-              class="error-message"
-            >
+            <span *ngIf="form.get('fecha_fin')?.touched && form.get('fecha_fin')?.hasError('required')" class="error-message">
               La fecha de fin es requerida.
             </span>
-            <span
-              *ngIf="form.get('fecha_fin')?.touched && form.get('fecha_fin')?.hasError('fechaNoPosteriorAHoy')"
-              class="error-message"
-            >
+            <span *ngIf="form.get('fecha_fin')?.touched && form.get('fecha_fin')?.hasError('fechaNoPosteriorAHoy')" class="error-message">
               La fecha de fin debe ser posterior a hoy.
             </span>
-            <span
-              *ngIf="form.get('fecha_fin')?.touched && form.hasError('rangoFechasInvalido')"
-              class="error-message"
-            >
+            <span *ngIf="form.get('fecha_fin')?.touched && form.hasError('rangoFechasInvalido')" class="error-message">
               La fecha de fin debe ser posterior a la fecha de inicio.
-            </span>
-          </div>
-          <div class="form-group">
-            <label for="hora_inicio">Hora inicio</label>
-            <input
-              id="hora_inicio"
-              class="form-control"
-              type="time"
-              formControlName="hora_inicio"
-            />
-            <span
-              *ngIf="form.get('hora_inicio')?.touched && form.get('hora_inicio')?.hasError('required')"
-              class="error-message"
-            >
-              La hora de inicio es requerida.
             </span>
           </div>
         </div>
 
-        <div class="form-row single">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="hora_inicio">Hora inicio</label>
+            <input id="hora_inicio" class="form-control" type="time" formControlName="hora_inicio" />
+            <span *ngIf="form.get('hora_inicio')?.touched && form.get('hora_inicio')?.hasError('required')" class="error-message">
+              La hora de inicio es requerida.
+            </span>
+          </div>
+
           <div class="form-group">
             <label for="hora_fin">Hora fin</label>
-            <input
-              id="hora_fin"
-              class="form-control"
-              type="time"
-              formControlName="hora_fin"
-            />
-            <span
-              *ngIf="form.get('hora_fin')?.touched && form.get('hora_fin')?.hasError('required')"
-              class="error-message"
-            >
+            <input id="hora_fin" class="form-control" type="time" formControlName="hora_fin" />
+            <span *ngIf="form.get('hora_fin')?.touched && form.get('hora_fin')?.hasError('required')" class="error-message">
               La hora de fin es requerida.
             </span>
-            <span
-              *ngIf="form.get('hora_fin')?.touched && form.hasError('rangoHorasInvalido')"
-              class="error-message"
-            >
+            <span *ngIf="form.get('hora_fin')?.touched && form.hasError('rangoHorasInvalido')" class="error-message">
               La hora de fin debe ser posterior a la hora de inicio.
             </span>
           </div>

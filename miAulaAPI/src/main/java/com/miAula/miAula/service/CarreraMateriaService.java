@@ -1,5 +1,6 @@
 package com.miAula.miAula.service;
 
+import com.miAula.miAula.dtos.materia.MateriaCreateDTO;
 import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
 import com.miAula.miAula.entities.Carrera;
 import com.miAula.miAula.entities.Materia;
@@ -28,6 +29,22 @@ public class CarreraMateriaService {
         this.carreraMateriaRepository = carreraMateriaRepository;
         this.carreraService = carreraService;
         this.materiaService = materiaService;
+    }
+
+    @Transactional
+    public MateriaResponseDTO crearMateriaConAsignacion(MateriaCreateDTO dto) {
+        MateriaResponseDTO materia = materiaService.crearMateria(dto);
+        Long carreraId = dto.getCarreraId();
+
+        if (carreraId != null) {
+            carreraService.obtenerPorId(carreraId);
+            if (!carreraMateriaRepository.existsByCarrera_IdAndMateria_Id(
+                    carreraId, materia.getId())) {
+                asignarMateriaACarrera(carreraId, materia.getId());
+            }
+        }
+
+        return materia;
     }
 
     // Obtener materias asociadas a una carrera

@@ -24,11 +24,17 @@ public class ComisionResponseDTO {
     @Schema(description = "ID de la materia asociada", example = "10")
     private Long materiaId;
 
+    @Schema(description = "Indica si la materia asociada está activa", example = "true")
+    private Boolean materiaActiva;
+
     @Schema(description = "Nombre de la carrera asociada", example = "Ingeniería en Sistemas")
     private String carreraNombre;
 
     @Schema(description = "ID de la carrera asociada", example = "5")
     private Long carreraId;
+
+    @Schema(description = "Indica si la carrera asociada está activa", example = "true")
+    private Boolean carreraActiva;
 
     @Schema(description = "Nombre del profesor responsable", example = "Juan Pérez")
     private String profesorNombre;

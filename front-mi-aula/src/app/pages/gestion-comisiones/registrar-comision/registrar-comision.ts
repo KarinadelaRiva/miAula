@@ -82,8 +82,11 @@ export class RegistrarComision implements OnInit {
       )
       .subscribe({
         next: (data) => {
-          this.asignaturas = data;
+          this.asignaturas = [...data].sort((a, b) =>
+            a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+          );
           this.errorCargaMaterias = '';
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error(
@@ -92,6 +95,7 @@ export class RegistrarComision implements OnInit {
           );
           this.errorCargaMaterias =
             'No se pudieron cargar las materias.';
+          this.cdr.markForCheck();
         }
       });
 
@@ -104,6 +108,7 @@ export class RegistrarComision implements OnInit {
         next: (data) => {
           this.carreras = data;
           this.errorCargaCarreras = '';
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error(
@@ -112,6 +117,7 @@ export class RegistrarComision implements OnInit {
           );
           this.errorCargaCarreras =
             'No se pudieron cargar las carreras.';
+          this.cdr.markForCheck();
         }
       });
 
@@ -125,7 +131,7 @@ export class RegistrarComision implements OnInit {
             usuario.roles?.includes('profesor') &&
             usuario.activo
           );
-
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.error(

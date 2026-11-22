@@ -4,6 +4,7 @@ import com.miAula.miAula.dtos.materia.MateriaCreateDTO;
 import com.miAula.miAula.dtos.materia.MateriaEstadoDTO;
 import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
 import com.miAula.miAula.dtos.materia.MateriaUpdateDTO;
+import com.miAula.miAula.service.CarreraMateriaService;
 import com.miAula.miAula.service.MateriaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -18,9 +19,13 @@ import java.util.List;
 public class MateriaController {
 
     private final MateriaService materiaService;
+    private final CarreraMateriaService carreraMateriaService;
 
-    public MateriaController(MateriaService materiaService) {
+    public MateriaController(
+            MateriaService materiaService,
+            CarreraMateriaService carreraMateriaService) {
         this.materiaService = materiaService;
+        this.carreraMateriaService = carreraMateriaService;
     }
 
     @GetMapping
@@ -47,7 +52,7 @@ public class MateriaController {
             @Valid @RequestBody MateriaCreateDTO dto) {
 
         MateriaResponseDTO materiaCreada =
-                materiaService.crearMateria(dto);
+                carreraMateriaService.crearMateriaConAsignacion(dto);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

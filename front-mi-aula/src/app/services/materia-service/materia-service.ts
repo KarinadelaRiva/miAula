@@ -20,6 +20,8 @@ export interface MateriaCreateDTO {
   codigo: string;
 
   nombre: string;
+
+  carreraId: number | null;
 }
 
 

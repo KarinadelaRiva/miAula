@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -26,6 +26,7 @@ import { ReservaDirectaCreateRequest, ReservaService } from '../../../services/r
 })
 export class NuevaReservaComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
   private readonly comisionService = inject(ComisionService);
   private readonly espacioService = inject(EspacioService);
@@ -77,13 +78,19 @@ export class NuevaReservaComponent implements OnInit {
     }
 
     return this.comisiones.filter(comision =>
-      comision.activo && Number(comision.profesorId) === profesorId
+      comision.activo === true
+      && comision.materiaActiva === true
+      && comision.carreraActiva === true
+      && Number(comision.profesorId) === profesorId
     );
   }
 
   get nombreMateriaSeleccionada(): string {
-    const comisionId = Number(this.form?.get('comision_id')?.value);
-    return this.comisionesDisponibles.find(comision => comision.id === comisionId)?.materiaNombre ?? '';
+    return this.comisionSeleccionada?.materiaNombre ?? '';
+  }
+
+  get nombreCarreraSeleccionada(): string {
+    return this.comisionSeleccionada?.carreraNombre ?? '';
   }
 
   get comisionSeleccionada(): Comision | undefined {
@@ -148,9 +155,11 @@ export class NuevaReservaComponent implements OnInit {
         this.profesores = usuarios.filter(usuario =>
           usuario.activo && usuario.roles.includes('profesor')
         );
+        this.cdr.markForCheck();
       },
       error: () => {
         this.error = 'No se pudieron cargar los profesores. Intentá nuevamente más tarde.';
+        this.cdr.markForCheck();
       }
     });
   }
@@ -162,9 +171,11 @@ export class NuevaReservaComponent implements OnInit {
         if (this.form.get('profesor_id')?.value) {
           this.onProfesorChange();
         }
+        this.cdr.markForCheck();
       },
       error: () => {
         this.error = 'No se pudieron cargar las comisiones. Intentá nuevamente más tarde.';
+        this.cdr.markForCheck();
       }
     });
   }
@@ -173,9 +184,11 @@ export class NuevaReservaComponent implements OnInit {
     this.espacioService.getAll().subscribe({
       next: espacios => {
         this.espacios = espacios.filter(espacio => espacio.activo);
+        this.cdr.markForCheck();
       },
       error: () => {
         this.error = 'No se pudieron cargar los espacios. Intentá nuevamente más tarde.';
+        this.cdr.markForCheck();
       }
     });
   }
@@ -205,11 +218,13 @@ export class NuevaReservaComponent implements OnInit {
     this.reservaService.crearReservaDirecta(reserva).subscribe({
       next: () => {
         this.loading = false;
+        this.cdr.markForCheck();
         this.router.navigate(['/reservas-todas']);
       },
       error: err => {
         this.loading = false;
         this.error = this.mensajeError(err);
+        this.cdr.markForCheck();
       }
     });
   }
