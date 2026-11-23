@@ -42,7 +42,7 @@
 
     </div>
 
-    <div *ngIf="mensaje" class="mensaje">
+    <div *ngIf="mensaje" class="mensaje" role="alert" aria-live="assertive">
       {{ mensaje }}
     </div>
 
@@ -153,36 +153,11 @@
               </td>
 
               <td data-label="Asignatura">
-
-                <select
-                  [ngModel]="editando.materiaNombre"
-                  disabled
-                  aria-label="Asignatura">
-
-                  <option
-                    *ngFor="let asignatura of asignaturas"
-                    [ngValue]="asignatura.nombre">
-                    {{ asignatura.nombre }}
-                  </option>
-
-                </select>
-
+                {{ editando.materiaNombre }}
               </td>
 
               <td data-label="Carrera">
-
-                <select
-                  [(ngModel)]="editando.carreraId"
-                  aria-label="Carrera">
-
-                  <option
-                    *ngFor="let carrera of carreras"
-                    [ngValue]="carrera.id">
-                    {{ carrera.nombre }}
-                  </option>
-
-                </select>
-
+                {{ editando.carreraNombre }}
               </td>
 
               <td data-label="Profesor">

@@ -185,22 +185,56 @@ export class AdministrarEspacios {
   }
 
   private obtenerMensajeError(error: HttpErrorResponse, mensajePredeterminado: string): string {
+    const textoError =
+      typeof error.error === 'string'
+        ? error.error
+        : error.error instanceof Error
+          ? error.error.message
+          : '';
+
+    if (/unexpected non-whitespace character after json|json parse/i.test(textoError)) {
+      return 'El servidor devolvió una respuesta inválida. Intentá nuevamente y, si el problema continúa, avisá al soporte.';
+    }
+
     if (typeof error.error === 'string' && error.error.trim()) {
       return error.error;
     }
 
     if (error.error && typeof error.error === 'object') {
-      const cuerpo = error.error as { message?: unknown; error?: unknown };
-      if (typeof cuerpo.message === 'string' && cuerpo.message.trim()) {
-        return cuerpo.message;
+      const cuerpo = error.error as Record<string, unknown>;
+      for (const clave of ['mensaje', 'message', 'detail', 'error']) {
+        const valor = cuerpo[clave];
+        if (typeof valor === 'string' && valor.trim()) {
+          return valor;
+        }
       }
-      if (typeof cuerpo.error === 'string' && cuerpo.error.trim()) {
-        return cuerpo.error;
+
+      const mensajes = Object.values(cuerpo).filter(
+        (valor): valor is string => typeof valor === 'string' && valor.trim().length > 0
+      );
+      if (mensajes.length > 0) {
+        return mensajes.join(' ');
       }
     }
 
-    if (error.message?.trim()) {
-      return error.message;
+    if (error.status === 0) {
+      return 'No se pudo conectar con el servidor. Verificá tu conexión e intentá nuevamente.';
+    }
+
+    if (error.status === 401) {
+      return 'Tu sesión venció. Volvé a iniciar sesión e intentá nuevamente.';
+    }
+
+    if (error.status === 403) {
+      return 'No tenés permiso para realizar esta acción.';
+    }
+
+    if (error.status === 409) {
+      return 'Ya existe otro espacio con ese código o nombre. Revisá los datos e intentá nuevamente.';
+    }
+
+    if (error.status >= 500) {
+      return 'Ocurrió un problema en el servidor. Intentá nuevamente más tarde.';
     }
 
     return mensajePredeterminado;

@@ -28,7 +28,7 @@
     </div>
 
     @if (mensaje()) {
-      <div class="mensaje">{{ mensaje() }}</div>
+      <div class="mensaje" role="alert" aria-live="assertive">{{ mensaje() }}</div>
     }
 
     <div class="tabla-container">

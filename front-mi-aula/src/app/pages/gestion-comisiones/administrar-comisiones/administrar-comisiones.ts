@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 interface Comision {
@@ -17,17 +17,6 @@ interface Comision {
   profesorId: number;
   cantidadEstudiantes: number;
   activo: boolean;
-}
-
-interface Asignatura {
-  id: number;
-  codigo: string;
-  nombre: string;
-}
-
-interface Carrera {
-  id: number;
-  nombre: string;
 }
 
 interface Usuario {
@@ -54,8 +43,6 @@ export class AdministrarComisiones implements OnInit {
   comisionesFiltradas: Comision[] = [];
   comisionesPaginadas: Comision[] = [];
 
-  asignaturas: Asignatura[] = [];
-  carreras: Carrera[] = [];
   profesores: Usuario[] = [];
 
   busqueda = '';
@@ -80,28 +67,6 @@ export class AdministrarComisiones implements OnInit {
   }
 
   cargarDatos(): void {
-
-    this.http.get<Carrera[]>(
-      `${this.apiUrl}/carreras`
-    ).subscribe({
-      next: (data) => {
-        this.carreras = data;
-      },
-      error: (error) => {
-        console.error('Error cargando carreras:', error);
-      }
-    });
-
-    this.http.get<Asignatura[]>(
-      `${this.apiUrl}/materias`
-    ).subscribe({
-      next: (data) => {
-        this.asignaturas = data;
-      },
-      error: (error) => {
-        console.error('Error cargando materias:', error);
-      }
-    });
 
     this.http.get<Usuario[]>('http://localhost:8080/usuarios').subscribe({
       next: (data) => {
@@ -237,6 +202,7 @@ export class AdministrarComisiones implements OnInit {
     };
 
     this.mensaje = '';
+    this.cdr.markForCheck();
   }
 
   cancelarEdicion(): void {
@@ -257,20 +223,18 @@ export class AdministrarComisiones implements OnInit {
       ||
       !this.comisionEditando.cantidadEstudiantes
       ||
-      !this.comisionEditando.carreraId
-      ||
       !this.comisionEditando.profesorId
     ) {
 
-      this.mensaje =
-        'Completá todos los campos.';
+      this.mostrarMensaje('Completá todos los campos.');
 
       return;
     }
 
     if (!esCodigoValido(this.comisionEditando.codigo)) {
-      this.mensaje =
-        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.';
+      this.mostrarMensaje(
+        'El código debe tener exactamente 6 caracteres alfanuméricos, sin espacios.'
+      );
       return;
     }
 
@@ -289,8 +253,7 @@ export class AdministrarComisiones implements OnInit {
     ).subscribe({
       next: () => {
 
-        this.mensaje =
-          'Comisión actualizada correctamente.';
+        this.mostrarMensaje('Comisión actualizada correctamente.');
 
         this.comisionEditando = null;
 
@@ -301,10 +264,43 @@ export class AdministrarComisiones implements OnInit {
 
         console.error(error);
 
-        this.mensaje =
-          'No se pudo actualizar la comisión.';
+        this.mostrarMensaje(this.obtenerMensajeError(error));
       }
     });
+  }
+
+  private mostrarMensaje(mensaje: string): void {
+    this.mensaje = mensaje;
+    this.cdr.markForCheck();
+  }
+
+  private obtenerMensajeError(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const body: unknown = error.error;
+
+      if (typeof body === 'string' && body.trim()) {
+        return body;
+      }
+
+      if (body && typeof body === 'object') {
+        const mensajes = Object.values(body).filter(
+          (valor): valor is string =>
+            typeof valor === 'string' && valor.trim().length > 0
+        );
+
+        if (mensajes.length > 0) {
+          return mensajes.join(' ');
+        }
+      }
+
+      if (error.status === 0) {
+        return 'No se pudo conectar con el servidor. Verificá tu conexión e intentá nuevamente.';
+      }
+
+      return `No se pudo actualizar la comisión (error ${error.status}).`;
+    }
+
+    return 'Ocurrió un error inesperado al actualizar la comisión.';
   }
 
   abrirConfirmacionEstado(comision: Comision): void {

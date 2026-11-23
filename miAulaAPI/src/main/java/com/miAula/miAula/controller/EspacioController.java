@@ -104,10 +104,11 @@ public class EspacioController {
     @Operation(
             summary = "Actualizar espacio.",
             description = "Permite a administradores actualizar un espacio.")
-    public ResponseEntity<Espacio> actualizarEspacio(
+    public ResponseEntity<Void> actualizarEspacio(
             @Parameter(description = "Datos del espacio a actualizar")
             @Valid @RequestBody EspacioUpdateDTO espacio) {
-        return new ResponseEntity<>(espacioService.actualizar(espacio), HttpStatus.OK);
+        espacioService.actualizar(espacio);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")

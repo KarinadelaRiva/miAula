@@ -19,8 +19,8 @@ export class EspacioService {
     return this.http.get<Espacio>(`${this.baseDatosUrlBack}/${id}`);
   }
 
-  actualizarEspacio(espacio: Espacio): Observable<Espacio> {
-    return this.http.put<Espacio>(this.baseDatosUrlBack, espacio);
+  actualizarEspacio(espacio: Espacio): Observable<void> {
+    return this.http.put<void>(this.baseDatosUrlBack, espacio);
   }
 
   actualizarEstado(id: number, activo: boolean): Observable<Espacio> {
