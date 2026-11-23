@@ -47,7 +47,11 @@ export class CalendarioComponent implements OnInit {
   }
 
   get reservasDelDia(): Reserva[] {
-    return this.reservas.filter(reserva => this.reservaCorrespondeAlDia(reserva));
+    const espaciosActivos = new Set(this.aulas.map(aula => aula.id));
+    return this.reservas.filter(reserva =>
+      espaciosActivos.has(Number(reserva.aula_id)) &&
+      this.reservaCorrespondeAlDia(reserva)
+    );
   }
 
   private reservaCorrespondeAlDia(reserva: Reserva): boolean {
@@ -97,10 +101,12 @@ export class CalendarioComponent implements OnInit {
   private cargarEspacios(): void {
     this.reservaService.getEspacios().subscribe({
       next: espacios => {
-        this.aulas = espacios.map(espacio => ({
-          id: Number(espacio.id),
-          nombre: espacio.nombre
-        }));
+        this.aulas = espacios
+          .filter(espacio => espacio.activo)
+          .map(espacio => ({
+            id: Number(espacio.id),
+            nombre: espacio.nombre
+          }));
         this.changeDetector.markForCheck();
       },
       error: error => console.error('Error cargando espacios del calendario:', error)
