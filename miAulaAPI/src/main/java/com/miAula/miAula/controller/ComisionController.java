@@ -64,10 +64,10 @@ public class ComisionController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('PROFESOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(
             summary = "Crear nueva comisión.",
-            description = "Permite a administradores y profesores crear una nueva comisión.")
+            description = "Permite a administradores crear una nueva comisión.")
     public ResponseEntity<ComisionResponseDTO> crearComision(
             @Parameter(description = "DTO de creación de comisión", required = true)
             @Valid @RequestBody ComisionCreateDTO comisionCreateDTO) {
@@ -77,10 +77,10 @@ public class ComisionController {
     }
 
     @PutMapping
-    @PreAuthorize("hasRole('ADMINISTRADOR') or hasRole('PROFESOR')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(
             summary = "Actualizar comision.",
-            description = "Permite a administradores y profesores actualizar una comisión.")
+            description = "Permite a administradores actualizar una comisión.")
     public ResponseEntity<ComisionResponseDTO> actualizarComision(
             @Parameter(description = "DTO de actualización de comisión", required = true)
             @Valid @RequestBody ComisionUpdateDTO comisionUpdateDTO) {
@@ -102,6 +102,7 @@ public class ComisionController {
     }
 
     @PutMapping("/activar/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(
             summary = "Reactivar comisión.",
             description = "Permite reactivar una comisión deshabilitada.")

@@ -5,14 +5,16 @@
     <div class="administrar-header">
 
       <div>
-        <span class="eyebrow">Panel administrativo</span>
-        <h1>Gestión de Comisiones</h1>
-        <p>Consultá, modificá y administrá las comisiones del sistema.</p>
+        <span class="eyebrow">{{ esAdministrador ? 'Panel administrativo' : 'Profesor' }}</span>
+        <h1>{{ esAdministrador ? 'Gestión de Comisiones' : 'Mis Comisiones' }}</h1>
+        <p *ngIf="esAdministrador">Consultá, modificá y administrá las comisiones del sistema.</p>
+        <p *ngIf="esProfesor">Consultá el listado de tus comisiones asignadas.</p>
       </div>
 
       <div class="header-actions">
 
         <button
+          *ngIf="esAdministrador"
           type="button"
           routerLink="/gestion-comisiones/registrar-comision"
           class="btn-nuevo">
@@ -58,7 +60,7 @@
             <th>Carrera</th>
             <th>Profesor</th>
             <th>Estado</th>
-            <th>Acciones</th>
+            <th *ngIf="esAdministrador">Acciones</th>
           </tr>
         </thead>
 
@@ -92,7 +94,7 @@
                 {{ comision.activo ? 'Activa' : 'Deshabilitada' }}
               </td>
 
-              <td data-label="Acciones" class="acciones">
+              <td *ngIf="esAdministrador" data-label="Acciones" class="acciones">
 
                 <button
                   type="button"

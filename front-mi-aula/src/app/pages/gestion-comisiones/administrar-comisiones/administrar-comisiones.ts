@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
+import { UsuarioService } from '../../../services/usuario-service/usuario-service';
 
 interface Comision {
   id: number;
@@ -50,6 +51,9 @@ export class AdministrarComisiones implements OnInit {
   readonly limite = 8;
 
   comisionEditando: Comision | null = null;
+  esAdministrador = false;
+  esProfesor = false;
+  cargandoRol = true;
 
   mensaje = '';
 
@@ -59,7 +63,8 @@ export class AdministrarComisiones implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private usuarioService: UsuarioService
   ) {}
 
   ngOnInit(): void {
@@ -67,7 +72,32 @@ export class AdministrarComisiones implements OnInit {
   }
 
   cargarDatos(): void {
+    this.usuarioService.me().subscribe({
+      next: (usuario) => {
+        const roles = usuario.roles ?? [];
+        this.esAdministrador = roles.includes('administrador');
+        this.esProfesor = roles.includes('profesor');
+        this.cargandoRol = false;
 
+        this.cargarComisiones();
+        if (this.esAdministrador) {
+          this.cargarProfesores();
+        }
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        console.error('Error obteniendo el usuario actual:', error);
+        this.esAdministrador = false;
+        this.esProfesor = false;
+        this.cargandoRol = false;
+        this.mensaje = 'No se pudo obtener la información del usuario.';
+        this.cdr.markForCheck();
+      }
+    });
+
+  }
+
+  private cargarProfesores(): void {
     this.http.get<Usuario[]>('http://localhost:8080/usuarios').subscribe({
       next: (data) => {
         this.profesores = data.filter(usuario =>
@@ -79,8 +109,6 @@ export class AdministrarComisiones implements OnInit {
         console.error('Error cargando usuarios:', error);
       }
     });
-
-    this.cargarComisiones();
   }
 
   cargarComisiones(): void {
@@ -196,6 +224,9 @@ export class AdministrarComisiones implements OnInit {
   }
 
   editarComision(comision: Comision): void {
+    if (!this.esAdministrador) {
+      return;
+    }
 
     this.comisionEditando = {
       ...comision
@@ -211,6 +242,9 @@ export class AdministrarComisiones implements OnInit {
   }
 
   guardarEdicion(): void {
+    if (!this.esAdministrador) {
+      return;
+    }
 
     if (!this.comisionEditando) {
       return;
@@ -304,6 +338,10 @@ export class AdministrarComisiones implements OnInit {
   }
 
   abrirConfirmacionEstado(comision: Comision): void {
+    if (!this.esAdministrador) {
+      return;
+    }
+
     this.comisionSeleccionada = comision;
     this.mostrarConfirmacionEstado = true;
     this.mensaje = '';
@@ -319,6 +357,10 @@ export class AdministrarComisiones implements OnInit {
   }
 
   confirmarCambioEstado(): void {
+    if (!this.esAdministrador) {
+      return;
+    }
+
     if (!this.comisionSeleccionada || this.actualizandoEstado) {
       return;
     }
