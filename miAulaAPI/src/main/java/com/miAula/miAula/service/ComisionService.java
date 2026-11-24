@@ -188,7 +188,9 @@ public class ComisionService {
                 .existsByCarrera_IdAndMateria_Id(idCarrera, idMateria);
 
         if (!materiaPertenece) {
-            throw new EntityValidationException("La materia con ID " + idMateria + " no pertenece a la carrera con ID " + idCarrera);
+            throw new EntityValidationException(
+                    "La materia con ID " + idMateria + " no está asociada a la carrera seleccionada (ID "
+                            + idCarrera + "). Asociá la materia a esa carrera antes de crear la comisión.");
         }
     }
 

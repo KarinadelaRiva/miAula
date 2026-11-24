@@ -5,6 +5,7 @@ import com.miAula.miAula.dtos.solicitud.RecursoSolicitudResponseDTO;
 import com.miAula.miAula.dtos.solicitud.SolicitudResponseDTO;
 import com.miAula.miAula.entities.Comision;
 import com.miAula.miAula.entities.Espacio;
+import com.miAula.miAula.entities.Evento;
 import com.miAula.miAula.entities.Reserva;
 import com.miAula.miAula.entities.Solicitud;
 import com.miAula.miAula.entities.tablas_intermedias.RecursoSolicitud;
@@ -187,13 +188,16 @@ public class SolicitudService {
     }
 
     @Transactional
+    public void validarAntesDeAprobar(Long id) {
+        Solicitud solicitud = obtenerPorId(id);
+        validarPuedeAprobar(solicitud);
+    }
+
+    @Transactional
     public Solicitud aprobar(Long id) {
         Solicitud solicitud = obtenerPorId(id);
-        if (solicitud.getEstado() != EstadoSolicitud.PENDIENTE) {
-            throw new EntityValidationException("Solo se pueden aprobar solicitudes pendientes.");
-        }
+        validarPuedeAprobar(solicitud);
 
-        recursoService.validarDisponibilidadDeSolicitud(solicitud);
         if (solicitud.getReservaOriginal() == null) {
             reservaService.generarDesdeSolicitud(solicitud);
         } else {
@@ -203,6 +207,44 @@ public class SolicitudService {
         solicitud.setEstado(EstadoSolicitud.ACEPTADA);
         solicitud.setComentarioAdmin(null);
         return solicitudRepository.save(solicitud);
+    }
+
+    private void validarPuedeAprobar(Solicitud solicitud) {
+        if (solicitud.getEstado() != EstadoSolicitud.PENDIENTE) {
+            throw new EntityValidationException("Solo se pueden aprobar solicitudes pendientes.");
+        }
+
+        validarEntidadesActivasParaAprobacion(solicitud);
+        recursoService.validarDisponibilidadDeSolicitud(solicitud);
+    }
+
+    private void validarEntidadesActivasParaAprobacion(Solicitud solicitud) {
+        if (solicitud.getEspacio() == null
+                || !Boolean.TRUE.equals(solicitud.getEspacio().getActivo())) {
+            throw new EntityValidationException(
+                    "No se puede aprobar la solicitud porque el espacio solicitado ya no está activo.");
+        }
+
+        if (solicitud.getSolicitante() == null
+                || !Boolean.TRUE.equals(solicitud.getSolicitante().getActivo())) {
+            throw new EntityValidationException(
+                    "No se puede aprobar la solicitud porque el usuario solicitante ya no está activo.");
+        }
+
+        Comision comision = solicitud.getComision();
+        Evento evento = solicitud.getEvento();
+        if (comision == null && evento == null) {
+            throw new EntityValidationException(
+                    "No se puede aprobar la solicitud porque no está asociada a una comisión o evento.");
+        }
+        if (comision != null && !Boolean.TRUE.equals(comision.getActivo())) {
+            throw new EntityValidationException(
+                    "No se puede aprobar la solicitud porque la comisión asociada ya no está activa.");
+        }
+        if (evento != null && !Boolean.TRUE.equals(evento.getActivo())) {
+            throw new EntityValidationException(
+                    "No se puede aprobar la solicitud porque el evento asociado ya no está activo.");
+        }
     }
 
     @Transactional

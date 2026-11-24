@@ -24,7 +24,7 @@
             </button>
         </nav>
 
-        @if (errorMensaje()) {
+        @if (errorMensaje() && !selectedSolicitud()) {
             <div class="error-message" role="alert">{{ errorMensaje() }}</div>
         }
 
@@ -90,6 +90,9 @@
             </header>
 
             <div class="modal-body">
+                @if (errorMensaje()) {
+                    <div class="error-message" role="alert">{{ errorMensaje() }}</div>
+                }
                 <p><strong>Estado:</strong> {{ selectedSolicitud()?.estado || '-' }}</p>
                 <p><strong>Día:</strong> {{ selectedSolicitud()?.dia_semana || '-' }}</p>
                 <p><strong>Horario:</strong> {{ formatHora(selectedSolicitud()?.hora_inicio) }} - {{
@@ -125,13 +128,60 @@
             <footer class="modal-footer">
                     @if (isAdmin() && selectedSolicitud()?.estado === 'PENDIENTE') {
                     <div class="admin-actions">
-                        <button class="btn primary" (click)="confirmApprove()" [disabled]="isSavingComment()">Aceptar Solicitud</button>
+                        <button class="btn primary" (click)="confirmApprove()" [disabled]="isSavingComment() || validandoAprobacion()">
+                            {{ validandoAprobacion() ? 'Verificando...' : 'Aceptar Solicitud' }}
+                        </button>
                         <button class="btn danger" (click)="confirmReject()" [disabled]="isSavingComment()">Rechazar Solicitud</button>
                     </div>
                     }
             </footer>
         </div>
     </div>
+    }
+
+    @if (confirmacionAccion()) {
+        <div class="modal-overlay confirmation-overlay" (click)="cancelarConfirmacion()">
+            <section
+                class="modal-card confirmation-card"
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="confirmacion-solicitud-titulo"
+                aria-describedby="confirmacion-solicitud-mensaje"
+                (click)="$event.stopPropagation()">
+                <header class="modal-header">
+                    <div>
+                        <span class="eyebrow">Gestión de solicitudes</span>
+                        <h3 id="confirmacion-solicitud-titulo">
+                            {{ confirmacionAccion() === 'aprobar' ? 'Confirmar aceptación' : 'Confirmar rechazo' }}
+                        </h3>
+                    </div>
+                </header>
+
+                <div class="modal-body confirmation-body">
+                    <p>
+                        ¿Querés {{ confirmacionAccion() === 'aprobar' ? 'aceptar' : 'rechazar' }}
+                        la solicitud #{{ selectedSolicitud()?.id }}?
+                    </p>
+                    <p id="confirmacion-solicitud-mensaje" class="modal-ayuda">
+                        Esta acción no tiene vuelta atrás. Verificá los datos de la solicitud antes de continuar.
+                    </p>
+                </div>
+
+                <footer class="modal-footer confirmation-footer">
+                    <button type="button" class="btn secondary" (click)="cancelarConfirmacion()">
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        class="btn"
+                        [class.primary]="confirmacionAccion() === 'aprobar'"
+                        [class.danger]="confirmacionAccion() === 'rechazar'"
+                        (click)="confirmarAccion()">
+                        {{ confirmacionAccion() === 'aprobar' ? 'Aceptar solicitud' : 'Rechazar solicitud' }}
+                    </button>
+                </footer>
+            </section>
+        </div>
     }
     </div>
 </main>

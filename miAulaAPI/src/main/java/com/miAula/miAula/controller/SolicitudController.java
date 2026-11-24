@@ -117,6 +117,18 @@ public class SolicitudController {
     }
 
     @Operation(
+            summary = "Validar solicitud antes de aprobar",
+            description = "Verifica que los objetos de una solicitud pendiente sigan activos y disponibles.")
+    @PostMapping("/{id}/validar-aprobacion")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> validarAntesDeAprobar(
+            @Parameter(description = "ID de la solicitud", example = "1")
+            @PathVariable Long id) {
+        solicitudService.validarAntesDeAprobar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
             summary = "Aprobar solicitud",
             description = "Aprueba una solicitud existente según su ID.")
     @PutMapping("/{id}/aprobar")

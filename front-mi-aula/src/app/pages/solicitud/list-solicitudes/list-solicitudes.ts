@@ -37,6 +37,8 @@ export class ListSolicitudes implements OnInit {
 
   // Señal privada para la solicitud seleccionada (usada por los helpers siguientes)
   private _selected: WritableSignal<SolicitudModel | null> = signal<SolicitudModel | null>(null);
+  confirmacionAccion = signal<'aprobar' | 'rechazar' | null>(null);
+  validandoAprobacion = signal(false);
 
   // Señal para editar el comentario de estado en la UI
   private _comentarioEditing: WritableSignal<string> = signal<string>('');
@@ -62,6 +64,8 @@ export class ListSolicitudes implements OnInit {
   openDetails(s: SolicitudModel): void {
     this._selected.set(s);
     this._comentarioEditing.set(s.comentario_estado || '');
+    this.errorMensaje.set(null);
+    this.confirmacionAccion.set(null);
   }
 
   comentarioEditing(): string {
@@ -115,16 +119,46 @@ export class ListSolicitudes implements OnInit {
   // Mostrar confirmación al usuario antes de acciones irreversibles
   confirmApprove(): void {
     const s = this._selected();
-    if (!s) return;
-    const ok = window.confirm('Esta acción aceptará la solicitud y no tiene vuelta atrás. ¿Deseás continuar?');
-    if (ok) this.approveSolicitud();
+    if (!s || s.id == null || this.isSavingComment() || this.validandoAprobacion()) return;
+
+    this.errorMensaje.set(null);
+    this.validandoAprobacion.set(true);
+    this.solicitudService.validarAprobacionSolicitud(s.id).subscribe({
+      next: () => {
+        this.validandoAprobacion.set(false);
+        if (this._selected()?.id === s.id) {
+          this.confirmacionAccion.set('aprobar');
+        }
+      },
+      error: (error) => {
+        this.validandoAprobacion.set(false);
+        if (this._selected()?.id === s.id) {
+          this.errorMensaje.set(this.obtenerMensajeError(error));
+        }
+      },
+    });
   }
 
   confirmReject(): void {
     const s = this._selected();
-    if (!s) return;
-    const ok = window.confirm('Esta acción rechazará la solicitud y no tiene vuelta atrás. ¿Deseás continuar?');
-    if (ok) this.rejectSolicitud();
+    if (!s || this.isSavingComment()) return;
+    this.confirmacionAccion.set('rechazar');
+  }
+
+  cancelarConfirmacion(): void {
+    this.confirmacionAccion.set(null);
+  }
+
+  confirmarAccion(): void {
+    const accion = this.confirmacionAccion();
+    if (!accion || this.isSavingComment()) return;
+
+    this.confirmacionAccion.set(null);
+    if (accion === 'aprobar') {
+      this.approveSolicitud();
+    } else {
+      this.rejectSolicitud();
+    }
   }
 
   private changeEstadoConComentario(estado: string): void {
@@ -159,6 +193,7 @@ export class ListSolicitudes implements OnInit {
   }
 
   closeDetails(): void {
+    this.confirmacionAccion.set(null);
     this._selected.set(null);
   }
 

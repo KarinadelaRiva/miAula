@@ -125,6 +125,10 @@ export class Solicitud {
       );
   }
 
+  validarAprobacionSolicitud(id: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/validar-aprobacion`, {});
+  }
+
   aprobarSolicitud(id: number, comentario: string): Observable<SolicitudData> {
     return this.http
       .put<SolicitudResponseDTO>(`${this.apiUrl}/${id}/aprobar`, { comentario })
