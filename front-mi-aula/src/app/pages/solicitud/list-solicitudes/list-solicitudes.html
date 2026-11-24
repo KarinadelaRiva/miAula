@@ -102,6 +102,15 @@
                 <p><strong>Comisión:</strong> {{ selectedSolicitud()?.comision_nombre || '-' }}</p>
                 <p><strong>Espacio:</strong> {{ selectedSolicitud()?.espacio_nombre || '-' }}</p>
                 <p><strong>Comentario profesor:</strong> {{ selectedSolicitud()?.comentario_profesor || '-' }}</p>
+                @if (selectedSolicitud()?.recursos_solicitados?.length) {
+                    <p><strong>Recursos solicitados:</strong></p>
+                    <ul>
+                        @for (recurso of selectedSolicitud()?.recursos_solicitados; track recurso.recurso_id) {
+                            <li>{{ recurso.nombre }} — cantidad: {{ recurso.cantidad }}</li>
+                        }
+                    </ul>
+                }
+
                 <div class="comentario-edit">
                     <label for="comentario_estado"><strong>Comentario estado:</strong></label>
                     <hr />

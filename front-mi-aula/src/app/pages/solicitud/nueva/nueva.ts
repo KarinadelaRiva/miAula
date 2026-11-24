@@ -15,7 +15,13 @@ import { UsuarioService } from '../../../services/usuario-service/usuario-servic
 import { EspacioService } from '../../../services/espacio-service/espacio-service';
 import { Comision, ComisionService } from '../../../services/comision-service/comision-service';
 import { Espacio } from '../../../models/espacio';
+import { RecursoDisponible, RecursoService } from '../../../services/recurso-service/recurso-service';
 import { ReservaModificable, ReservaService as ReservaApiService } from '../../../services/reserva.service';
+
+interface RecursoSeleccionable extends RecursoDisponible {
+  seleccionado: boolean;
+  cantidadSolicitada: number;
+}
 
 @Component({
   selector: 'app-nueva',
@@ -31,13 +37,19 @@ export class Nueva implements OnInit {
   private usuarioService = inject(UsuarioService);
   private espacioService = inject(EspacioService);
   private comisionService = inject(ComisionService);
+  private recursoService = inject(RecursoService);
   private reservaApiService = inject(ReservaApiService);
 
   form!: FormGroup;
   espacios: Espacio[] = [];
   comisiones: Comision[] = [];
   reservasModificables: ReservaModificable[] = [];
+  recursosDisponibles: RecursoSeleccionable[] = [];
+  disponibilidadConsultada = false;
+  cargandoRecursos = false;
   cargandoReservas = false;
+  errorRecursos: string | null = null;
+  private consultaDisponibilidadId = 0;
   fechaMinima = '';
   fechaFinMinima = '';
   private fechaMinimaNueva = '';
@@ -126,6 +138,9 @@ export class Nueva implements OnInit {
 
   onReservaOriginalChange(): void {
     const reserva = this.reservaOriginalSeleccionada();
+    this.recursosDisponibles = [];
+    this.disponibilidadConsultada = false;
+    this.errorRecursos = null;
 
     if (!reserva) {
       this.fechaMinima = this.fechaMinimaNueva;
@@ -139,6 +154,7 @@ export class Nueva implements OnInit {
         hora_inicio: '',
         hora_fin: '',
       });
+      this.cargarRecursosDisponibles();
       return;
     }
 
@@ -160,6 +176,7 @@ export class Nueva implements OnInit {
       hora_inicio: reserva.horaInicio,
       hora_fin: reserva.horaFin,
     });
+    this.cargarRecursosDisponibles();
   }
 
   private reservaOriginalSeleccionada(): ReservaModificable | null {
@@ -171,6 +188,70 @@ export class Nueva implements OnInit {
   etiquetaReserva(reserva: ReservaModificable): string {
     return `${reserva.nombreComision} — ${reserva.nombreEspacio}, ${reserva.diaSemana} `
       + `${reserva.horaInicio}-${reserva.horaFin} (${reserva.fechaInicio} - ${reserva.fechaFin})`;
+  }
+
+  cargarRecursosDisponibles(): void {
+    const { fecha_inicio, fecha_fin, dia_semana, hora_inicio, hora_fin } = this.form.getRawValue();
+    if (!fecha_inicio || !fecha_fin || !dia_semana || !hora_inicio || !hora_fin
+      || fecha_inicio > fecha_fin || hora_inicio >= hora_fin) {
+      this.consultaDisponibilidadId++;
+      this.recursosDisponibles = [];
+      this.disponibilidadConsultada = false;
+      this.cargandoRecursos = false;
+      this.errorRecursos = null;
+      return;
+    }
+
+    const consultaId = ++this.consultaDisponibilidadId;
+    this.cargandoRecursos = true;
+    this.disponibilidadConsultada = true;
+    this.errorRecursos = null;
+    const reservaOriginalId = this.form.get('reserva_original_id')?.value;
+    const reservaOriginal = this.reservaOriginalSeleccionada();
+    this.recursoService.getDisponibles(
+      fecha_inicio,
+      fecha_fin,
+      dia_semana,
+      hora_inicio,
+      hora_fin,
+      reservaOriginalId == null ? undefined : Number(reservaOriginalId)
+    ).subscribe({
+      next: (recursos) => {
+        if (consultaId !== this.consultaDisponibilidadId) return;
+        const recursosOriginales = reservaOriginal?.recursos ?? [];
+        this.recursosDisponibles = recursos
+          .filter((recurso) => recurso.available > 0
+            || recursosOriginales.some((original) => original.recursoId === recurso.id))
+          .map((recurso) => {
+            const anterior = this.recursosDisponibles.find((seleccionado) => seleccionado.id === recurso.id);
+            const recursoOriginal = recursosOriginales.find(
+              (seleccionado) => seleccionado.recursoId === recurso.id
+            );
+            return {
+              ...recurso,
+              seleccionado: anterior?.seleccionado ?? Boolean(recursoOriginal),
+              cantidadSolicitada: anterior
+                ? Math.min(anterior.cantidadSolicitada, recurso.available)
+                : recursoOriginal?.cantidad ?? 1,
+            };
+          });
+        this.cargandoRecursos = false;
+      },
+      error: (err) => {
+        if (consultaId !== this.consultaDisponibilidadId) return;
+        this.recursosDisponibles = [];
+        this.errorRecursos = this.mensajeError(err);
+        this.cargandoRecursos = false;
+      },
+    });
+  }
+
+  seleccionarRecurso(recurso: RecursoSeleccionable, seleccionado: boolean): void {
+    recurso.seleccionado = seleccionado;
+  }
+
+  actualizarCantidadRecurso(recurso: RecursoSeleccionable, cantidad: number): void {
+    recurso.cantidadSolicitada = cantidad;
   }
 
   private cargarEspacios() {
@@ -222,6 +303,17 @@ export class Nueva implements OnInit {
     }
 
     const form = this.form.getRawValue();
+    const seleccionInvalida = this.recursosDisponibles.some(
+      (recurso) => recurso.seleccionado
+        && (!Number.isInteger(recurso.cantidadSolicitada)
+          || recurso.cantidadSolicitada < 1
+          || recurso.cantidadSolicitada > recurso.available)
+    );
+    if (seleccionInvalida) {
+      this.error = 'La cantidad solicitada de cada recurso debe estar dentro de su disponibilidad.';
+      return;
+    }
+
     const solicitud = {
       reservaOriginalId: form.reserva_original_id == null || String(form.reserva_original_id).trim() === ''
         ? null
@@ -234,7 +326,12 @@ export class Nueva implements OnInit {
       comentarioSolicitante: form.comentario_profesor?.trim() || null,
       comisionId: Number(form.comision_id),
       diaSemana: form.dia_semana,
-      recursos: [],
+      recursos: this.recursosDisponibles
+        .filter((recurso) => recurso.seleccionado)
+        .map((recurso) => ({
+          recursoId: recurso.id,
+          cantidad: Number(recurso.cantidadSolicitada),
+        })),
     };
     this.loading = true;
     const enviarSolicitud = solicitud.reservaOriginalId == null
