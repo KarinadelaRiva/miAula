@@ -17,5 +17,8 @@ public interface ComisionRepository extends JpaRepository<Comision, Long> {
     boolean existsByCodigoIgnoreCaseAndIdNot(String codigo, Long id);
     boolean existsByNombreIgnoreCaseAndMateriaId(String nombre, Long materiaId);
     boolean existsByNombreIgnoreCaseAndMateriaIdAndIdNot(String nombre, Long materiaId, Long id);
+    boolean existsByCarrera_IdAndActivoTrue(Long carreraId);
+    boolean existsByMateria_IdAndActivoTrue(Long materiaId);
+    boolean existsByProfesor_IdAndActivoTrue(Long profesorId);
 
 }

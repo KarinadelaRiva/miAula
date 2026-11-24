@@ -12,9 +12,11 @@ import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
 import com.miAula.miAula.repository.CarreraMateriaRepository;
 import com.miAula.miAula.repository.ComisionRepository;
+import com.miAula.miAula.repository.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -25,18 +27,21 @@ public class ComisionService {
     private final CarreraService carreraService;
     private final MateriaService materiaService;
     private final CarreraMateriaRepository carreraMateriaRepository;
+    private final ReservaRepository reservaRepository;
 //    private final ReservaService reservaService;
 
     @Autowired
     public ComisionService(ComisionRepository comisionRepository, UsuarioService usuarioService,
                            CarreraService carreraService, MateriaService materiaService,
-                           CarreraMateriaRepository carreraMateriaRepository
+                           CarreraMateriaRepository carreraMateriaRepository,
+                           ReservaRepository reservaRepository
                            /*, @Lazy ReservaService reservaService*/) {
         this.comisionRepository = comisionRepository;
         this.usuarioService = usuarioService;
         this.carreraService = carreraService;
         this.materiaService = materiaService;
         this.carreraMateriaRepository = carreraMateriaRepository;
+        this.reservaRepository = reservaRepository;
 //        this.reservaService = reservaService;
     }
 
@@ -126,6 +131,11 @@ public class ComisionService {
 
     public void eliminarComision(Long id) {
         Comision comision = obtenerComisionPorId(id);
+        if (reservaRepository.existsByComision_IdAndActivoTrueAndDiaDeFinGreaterThanEqual(
+                id, LocalDate.now())) {
+            throw new ResourceConflictException(
+                    "No se puede deshabilitar la comisión porque tiene reservas vigentes o futuras");
+        }
         comision.setActivo(false);
         comisionRepository.save(comision);
     }

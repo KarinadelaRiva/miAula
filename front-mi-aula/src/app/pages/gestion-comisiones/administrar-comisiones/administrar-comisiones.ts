@@ -388,7 +388,7 @@ export class AdministrarComisiones implements OnInit {
       error: (error) => {
         console.error('Error actualizando el estado de la comisión:', error);
         this.actualizandoEstado = false;
-        this.mensaje = 'No se pudo actualizar el estado de la comisión.';
+        this.mensaje = this.obtenerMensajeError(error);
         this.cdr.markForCheck();
       }
     });

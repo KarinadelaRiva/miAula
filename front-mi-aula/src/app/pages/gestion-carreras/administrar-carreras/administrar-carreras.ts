@@ -7,7 +7,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { esCodigoValido, normalizarCodigo } from '../../../shared/codigo';
 
 import {
@@ -718,12 +718,41 @@ export class AdministrarCarreras implements OnInit {
           this.actualizandoEstado = false;
 
           this.mensaje =
-            'No se pudo actualizar el estado de la carrera.';
+            this.obtenerMensajeError(error);
 
           this.cdr.detectChanges();
         }
 
       });
+  }
+
+  private obtenerMensajeError(error: HttpErrorResponse): string {
+      if (typeof error.error === 'string' && error.error.trim()) {
+        return error.error;
+      }
+
+      if (error.error && typeof error.error === 'object') {
+        const cuerpo = error.error as Record<string, unknown>;
+        for (const clave of ['mensaje', 'message', 'detail', 'error']) {
+          const valor = cuerpo[clave];
+          if (typeof valor === 'string' && valor.trim()) {
+            return valor;
+          }
+        }
+
+        const mensajes = Object.values(cuerpo).filter(
+          (valor): valor is string => typeof valor === 'string' && valor.trim().length > 0
+        );
+        if (mensajes.length > 0) {
+          return mensajes.join(' ');
+        }
+      }
+
+      if (error.status === 0) {
+        return 'No se pudo conectar con el servidor. Verificá tu conexión e intentá nuevamente.';
+      }
+
+      return `No se pudo actualizar el estado de la carrera (error ${error.status}).`;
   }
 
 }

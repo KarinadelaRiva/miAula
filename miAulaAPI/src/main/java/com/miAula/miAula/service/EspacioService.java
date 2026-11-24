@@ -12,14 +12,20 @@ import com.miAula.miAula.dtos.espacio.EspacioResponseDTO;
 import com.miAula.miAula.entities.Espacio;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.repository.EspacioRepository;
+import com.miAula.miAula.repository.ReservaRepository;
+import java.time.LocalDate;
 
 @Service 
 public class EspacioService {
     
     private final EspacioRepository espacioRepository;
+    private final ReservaRepository reservaRepository;
 
-    public EspacioService(EspacioRepository espacioRepository) {
+    public EspacioService(
+            EspacioRepository espacioRepository,
+            ReservaRepository reservaRepository) {
         this.espacioRepository = espacioRepository;
+        this.reservaRepository = reservaRepository;
     }
 
     private static EspacioResponseDTO espacioToEspacioResponseDto(Espacio espacio) {
@@ -136,14 +142,26 @@ public class EspacioService {
         }
 
         Espacio espacio = obtenerPorId(id);
+        validarReservasVigentes(id);
         espacio.setActivo(false);
         espacioRepository.save(espacio);
     }
 
     public EspacioResponseDTO actualizarEstado(Long id, Boolean activo) {
         Espacio espacio = obtenerPorId(id);
+        if (Boolean.FALSE.equals(activo)) {
+            validarReservasVigentes(id);
+        }
         espacio.setActivo(activo);
         return espacioToEspacioResponseDto(espacioRepository.save(espacio));
+    }
+
+    private void validarReservasVigentes(Long id) {
+        if (reservaRepository.existsByEspacio_IdAndActivoTrueAndDiaDeFinGreaterThanEqual(
+                id, LocalDate.now())) {
+            throw new ResourceConflictException(
+                    "No se puede deshabilitar el espacio porque tiene reservas vigentes o futuras");
+        }
     }
 
 }

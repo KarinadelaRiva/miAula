@@ -149,7 +149,7 @@ export class AdministrarUsuario implements OnInit {
         this.cargarUsuarios();
       },
       error: (error: HttpErrorResponse) =>
-        this.mensaje.set(error.error?.mensaje ?? 'No se pudo actualizar el usuario.'),
+        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo actualizar el usuario.')),
     });
   }
 
@@ -164,7 +164,7 @@ export class AdministrarUsuario implements OnInit {
         this.cargarUsuarios();
       },
       error: (error: HttpErrorResponse) =>
-        this.mensaje.set(error.error?.mensaje ?? 'No se pudo eliminar el usuario.'),
+        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo deshabilitar el usuario.')),
     });
   }
 
@@ -179,8 +179,30 @@ export class AdministrarUsuario implements OnInit {
         this.cargarUsuarios();
       },
       error: (error: HttpErrorResponse) =>
-        this.mensaje.set(error.error?.mensaje ?? 'No se pudo reactivar el usuario.'),
+        this.mensaje.set(this.obtenerMensajeError(error, 'No se pudo reactivar el usuario.')),
     });
+  }
+
+  private obtenerMensajeError(error: HttpErrorResponse, mensajePredeterminado: string): string {
+    if (typeof error.error === 'string' && error.error.trim()) {
+      return error.error;
+    }
+
+    if (error.error && typeof error.error === 'object') {
+      const cuerpo = error.error as Record<string, unknown>;
+      for (const clave of ['mensaje', 'message', 'detail', 'error']) {
+        const valor = cuerpo[clave];
+        if (typeof valor === 'string' && valor.trim()) {
+          return valor;
+        }
+      }
+    }
+
+    if (error.status === 0) {
+      return 'No se pudo conectar con el servidor. Verificá tu conexión e intentá nuevamente.';
+    }
+
+    return mensajePredeterminado;
   }
 
   seleccionadoIgualLogueado(): boolean {

@@ -10,10 +10,12 @@ import com.miAula.miAula.exceptions.EntityValidationException;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
 import com.miAula.miAula.repository.EventoRepository;
+import com.miAula.miAula.repository.ReservaRepository;
 import com.miAula.miAula.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -21,14 +23,17 @@ public class EventoService {
 
     private final EventoRepository eventoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ReservaRepository reservaRepository;
 
 
     public EventoService(
             EventoRepository eventoRepository,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            ReservaRepository reservaRepository
     ) {
         this.eventoRepository = eventoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.reservaRepository = reservaRepository;
     }
 
 
@@ -321,6 +326,11 @@ public class EventoService {
         Evento evento =
                 obtenerPorId(id);
 
+        if (reservaRepository.existsByEvento_IdAndActivoTrueAndDiaDeFinGreaterThanEqual(
+                id, LocalDate.now())) {
+            throw new ResourceConflictException(
+                    "No se puede deshabilitar el evento porque tiene reservas vigentes o futuras");
+        }
 
         evento.setActivo(false);
 

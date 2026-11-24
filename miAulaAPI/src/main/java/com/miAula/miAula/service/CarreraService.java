@@ -8,6 +8,8 @@ import com.miAula.miAula.entities.Carrera;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
 import com.miAula.miAula.repository.CarreraRepository;
+import com.miAula.miAula.repository.CarreraMateriaRepository;
+import com.miAula.miAula.repository.ComisionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,9 +19,16 @@ import java.util.Optional;
 public class CarreraService {
 
     private final CarreraRepository carreraRepository;
+    private final CarreraMateriaRepository carreraMateriaRepository;
+    private final ComisionRepository comisionRepository;
 
-    public CarreraService(CarreraRepository carreraRepository) {
+    public CarreraService(
+            CarreraRepository carreraRepository,
+            CarreraMateriaRepository carreraMateriaRepository,
+            ComisionRepository comisionRepository) {
         this.carreraRepository = carreraRepository;
+        this.carreraMateriaRepository = carreraMateriaRepository;
+        this.comisionRepository = comisionRepository;
     }
 
     // -----------------------------
@@ -163,6 +172,17 @@ public class CarreraService {
                                 "Carrera no encontrada con ID: " + id
                         )
                 );
+
+        if (Boolean.FALSE.equals(activo)) {
+            if (!carreraMateriaRepository.findByCarrera_Id(id).isEmpty()) {
+                throw new ResourceConflictException(
+                        "No se puede deshabilitar la carrera porque tiene materias asociadas");
+            }
+            if (comisionRepository.existsByCarrera_IdAndActivoTrue(id)) {
+                throw new ResourceConflictException(
+                        "No se puede deshabilitar la carrera porque tiene comisiones activas");
+            }
+        }
 
         carrera.setActivo(activo);
 

@@ -89,6 +89,13 @@
   background: #edf4fb;
 }
 
+.modal-error {
+  display: block;
+  margin-top: 0.75rem !important;
+  color: #8a3329 !important;
+  font-size: 0.85rem;
+}
+
 .tabla-container { overflow-x: auto; padding: 0 1.25rem 1rem; }
 table { width: 100%; min-width: 760px; border-collapse: collapse; }
 th, td { padding: 0.8rem 0.65rem; text-align: left; border-bottom: 1px solid #d8e3ef; vertical-align: middle; }

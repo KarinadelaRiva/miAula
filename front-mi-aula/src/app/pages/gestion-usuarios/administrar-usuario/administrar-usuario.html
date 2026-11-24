@@ -144,6 +144,10 @@
         <p>@if (usuarioSeleccionado()!.activo === true) { activo } @else { eliminado }</p>
       </div>
 
+      @if (mensaje()) {
+        <p class="modal-error" role="alert">{{ mensaje() }}</p>
+      }
+
       @if (usuarioSeleccionado()!.activo) {
       <button (click)="eliminar()" [disabled]="seleccionadoIgualLogueado()" class="btn-eliminar-usuario">Eliminar usuario</button>
       } @else {

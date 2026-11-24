@@ -25,4 +25,6 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
 
     // Eventos activos asociados a un organizador
     List<Evento> findByOrganizador_IdAndActivoTrueOrderByNombreAsc(Long organizadorId);
+
+    boolean existsByOrganizador_IdAndActivoTrue(Long organizadorId);
 }

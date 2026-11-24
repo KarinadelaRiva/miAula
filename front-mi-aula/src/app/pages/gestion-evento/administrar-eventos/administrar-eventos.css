@@ -198,6 +198,13 @@
   border: 1px solid #efcaca;
 }
 
+.modal-error {
+  display: block;
+  margin-top: 0.75rem !important;
+  color: #8a3329 !important;
+  font-size: 0.85rem;
+}
+
 
 /* ============================================================
    FILTROS

@@ -2,6 +2,8 @@ package com.miAula.miAula.service;
 
 import com.miAula.miAula.dtos.materia.MateriaResponseDTO;
 import com.miAula.miAula.entities.Materia;
+import com.miAula.miAula.exceptions.ResourceConflictException;
+import com.miAula.miAula.repository.ComisionRepository;
 import com.miAula.miAula.repository.MateriaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,6 +23,9 @@ class MateriaServiceTest {
 
     @Mock
     private MateriaRepository materiaRepository;
+
+    @Mock
+    private ComisionRepository comisionRepository;
 
     @InjectMocks
     private MateriaService materiaService;
@@ -46,6 +52,15 @@ class MateriaServiceTest {
         MateriaResponseDTO resultado = materiaService.actualizarEstado(1L, true);
 
         assertEquals(true, resultado.getActivo());
+    }
+
+    @Test
+    void actualizarEstadoNoDeshabilitaMateriaConComisionesActivas() {
+        when(materiaRepository.findById(1L)).thenReturn(Optional.of(materia(1L, true)));
+        when(comisionRepository.existsByMateria_IdAndActivoTrue(1L)).thenReturn(true);
+
+        assertThrows(ResourceConflictException.class,
+                () -> materiaService.actualizarEstado(1L, false));
     }
 
     private Materia materia(Long id, boolean activo) {

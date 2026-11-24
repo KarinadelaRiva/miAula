@@ -7,6 +7,8 @@ import com.miAula.miAula.util.CodigoUtils;
 import com.miAula.miAula.entities.Materia;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
+import com.miAula.miAula.exceptions.ResourceConflictException;
+import com.miAula.miAula.repository.ComisionRepository;
 import com.miAula.miAula.repository.MateriaRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +19,13 @@ import java.util.Optional;
 public class MateriaService {
 
     private final MateriaRepository materiaRepository;
+    private final ComisionRepository comisionRepository;
 
-    public MateriaService(MateriaRepository materiaRepository) {
+    public MateriaService(
+            MateriaRepository materiaRepository,
+            ComisionRepository comisionRepository) {
         this.materiaRepository = materiaRepository;
+        this.comisionRepository = comisionRepository;
     }
 
     public Materia materiaCreateDTOtoMateria(MateriaCreateDTO dto) {
@@ -130,6 +136,11 @@ public class MateriaService {
         Materia materia = materiaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Materia no encontrada con ID: " + id));
+
+        if (Boolean.FALSE.equals(activo) && comisionRepository.existsByMateria_IdAndActivoTrue(id)) {
+            throw new ResourceConflictException(
+                    "No se puede deshabilitar la materia porque tiene comisiones activas");
+        }
 
         materia.setActivo(activo);
 

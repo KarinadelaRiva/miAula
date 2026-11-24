@@ -2,7 +2,11 @@ package com.miAula.miAula.service;
 
 import com.miAula.miAula.dtos.carrera.CarreraResponseDTO;
 import com.miAula.miAula.entities.Carrera;
+import com.miAula.miAula.entities.tablas_intermedias.CarreraMateria;
+import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.repository.CarreraRepository;
+import com.miAula.miAula.repository.CarreraMateriaRepository;
+import com.miAula.miAula.repository.ComisionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,6 +25,12 @@ class CarreraServiceTest {
 
     @Mock
     private CarreraRepository carreraRepository;
+
+    @Mock
+    private CarreraMateriaRepository carreraMateriaRepository;
+
+    @Mock
+    private ComisionRepository comisionRepository;
 
     @InjectMocks
     private CarreraService carreraService;
@@ -48,6 +59,25 @@ class CarreraServiceTest {
         assertEquals(true, resultado.getActivo());
     }
 
+    @Test
+    void actualizarEstadoNoDeshabilitaCarreraConComisionesActivas() {
+        when(carreraRepository.findById(1L)).thenReturn(Optional.of(carrera(1L, true)));
+        when(carreraMateriaRepository.findByCarrera_Id(1L)).thenReturn(List.of());
+        when(comisionRepository.existsByCarrera_IdAndActivoTrue(1L)).thenReturn(true);
+
+        assertThrows(ResourceConflictException.class,
+                () -> carreraService.actualizarEstado(1L, false));
+    }
+
+    @Test
+    void actualizarEstadoNoDeshabilitaCarreraConMateriasAsociadas() {
+        when(carreraRepository.findById(1L)).thenReturn(Optional.of(carrera(1L, true)));
+        when(carreraMateriaRepository.findByCarrera_Id(1L)).thenReturn(List.of(new CarreraMateria()));
+
+        assertThrows(ResourceConflictException.class,
+                () -> carreraService.actualizarEstado(1L, false));
+    }
+
     private Carrera carrera(Long id, boolean activo) {
         return Carrera.builder()
                 .id(id)
@@ -56,4 +86,5 @@ class CarreraServiceTest {
                 .activo(activo)
                 .build();
     }
+
 }

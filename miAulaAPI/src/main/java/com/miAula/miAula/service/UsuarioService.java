@@ -21,6 +21,8 @@ import com.miAula.miAula.entities.tablas_intermedias.UsuarioRolId;
 import com.miAula.miAula.exceptions.ResourceConflictException;
 import com.miAula.miAula.exceptions.ResourceNotFoundException;
 import com.miAula.miAula.repository.UsuarioRepository;
+import com.miAula.miAula.repository.ComisionRepository;
+import com.miAula.miAula.repository.EventoRepository;
 
 @Service
 public class UsuarioService implements UserDetailsService {
@@ -28,14 +30,20 @@ public class UsuarioService implements UserDetailsService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final EntityManager entityManager;
+    private final ComisionRepository comisionRepository;
+    private final EventoRepository eventoRepository;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
-            EntityManager entityManager) {
+            EntityManager entityManager,
+            ComisionRepository comisionRepository,
+            EventoRepository eventoRepository) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.entityManager = entityManager;
+        this.comisionRepository = comisionRepository;
+        this.eventoRepository = eventoRepository;
     }
 
     private UsuarioResponseDTO usuarioToUsuarioResponseDTO(Usuario usuario) {
@@ -186,6 +194,16 @@ public class UsuarioService implements UserDetailsService {
     }
 
     private void actualizarEstadoUsuario(Usuario usuario, boolean activo) {
+        if (!activo) {
+            if (comisionRepository.existsByProfesor_IdAndActivoTrue(usuario.getId())) {
+                throw new ResourceConflictException(
+                        "No se puede deshabilitar al usuario porque tiene comisiones activas");
+            }
+            if (eventoRepository.existsByOrganizador_IdAndActivoTrue(usuario.getId())) {
+                throw new ResourceConflictException(
+                        "No se puede deshabilitar al usuario porque tiene eventos activos");
+            }
+        }
         usuario.setActivo(activo);
         usuarioRepository.save(usuario);
     }

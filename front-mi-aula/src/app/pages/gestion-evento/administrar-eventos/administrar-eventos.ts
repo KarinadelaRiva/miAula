@@ -1170,6 +1170,26 @@ export class AdministrarEventos implements OnInit {
       return error.error;
     }
 
+    if (
+      error.error &&
+      typeof error.error === 'object'
+    ) {
+      const cuerpo = error.error as Record<string, unknown>;
+      for (const clave of ['mensaje', 'message', 'detail', 'error']) {
+        const valor = cuerpo[clave];
+        if (typeof valor === 'string' && valor.trim()) {
+          return valor;
+        }
+      }
+
+      const mensajes = Object.values(cuerpo).filter(
+        (valor): valor is string =>
+          typeof valor === 'string' && valor.trim().length > 0
+      );
+      if (mensajes.length > 0) {
+        return mensajes.join(' ');
+      }
+    }
 
     if (
       error.error &&
